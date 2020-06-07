@@ -1,0 +1,23 @@
+{
+  "name": "whitefoobank-api",
+  "version": "1.0.0",
+  "description": "Whitefoo Bank's API server using Node.js, for educational.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ktt45678/web2-2020.git"
+  },
+  "keywords": [
+    "Whitefoo",
+    "Bank"
+  ],
+  "author": "4 idiots",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ktt45678/web2-2020/issues"
+  },
+  "homepage": "https://github.com/ktt45678/web2-2020#readme"
+}
