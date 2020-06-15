@@ -1,23 +1,41 @@
 {
-  "name": "whitefoobank-api",
-  "version": "1.0.0",
-  "description": "Whitefoo Bank's API server using Node.js, for educational.",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ktt45678/web2-2020.git"
-  },
-  "keywords": [
-    "Whitefoo",
-    "Bank"
-  ],
-  "author": "4 idiots",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ktt45678/web2-2020/issues"
-  },
-  "homepage": "https://github.com/ktt45678/web2-2020#readme"
+	"name": "whitefoobank-api",
+	"version": "1.0.0",
+	"description": "Whitefoo Bank's API server using Node.js, for educational.",
+	"main": "server.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node server.js",
+		"dev": "nodemon ./server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ktt45678/web2-2020.git"
+	},
+	"keywords": [ "Whitefoo", "Bank", "ngoc", "hieu", "huy", "long" ],
+	"author": "4 idiots",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/ktt45678/web2-2020/issues"
+	},
+	"homepage": "https://github.com/ktt45678/web2-2020#readme",
+	"dependencies": {
+		"bcrypt": "^5.0.0",
+		"body-parser": "^1.19.0",
+		"cookie-session": "^1.4.0",
+		"cors": "^2.8.5",
+		"dotenv": "^8.2.0",
+		"express": "^4.17.1",
+		"express-async-handler": "^1.1.4",
+		"express-jwt": "^5.3.3",
+		"express-validator": "^6.5.0",
+		"jsonwebtoken": "^8.5.1",
+		"multer": "^1.4.2",
+		"nodemailer": "^6.4.8",
+		"nodemon": "^2.0.4",
+		"pg": "^8.2.1",
+		"pg-hstore": "^2.3.3",
+		"rootpath": "^0.1.2",
+		"sequelize": "^5.21.12"
+	}
 }

@@ -1,0 +1,27 @@
+một số API đã hoàn tất:
+LƯU Ý: khi gọi API luôn phải có clientID và secretKey mới gọi api được
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+/api/register
+
+    method: POST
+    request params: (email, password không được giống cái đã tồn tại trong DB, sẽ throw err conflict )
+        email:admin123@admin.com
+        fullName:tester tạo bug
+        dateOfBirth:12/12/2012
+        phoneNumber:0909090909
+        password:1234567890
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+        citizenIdentificationId:123 (cái này có thể bỏ trống hoặc không truyền param này)
+
+
+/api/auth/login
+    
+    method: POST
+    request params: (email và password phải có trong DB)
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+        email:admin@admin.com
+        password:123456789

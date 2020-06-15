@@ -1,0 +1,9 @@
+đây là backend của web ngân hàng whitefoo:
+
+    - thư mục constants:khai báo các biến cố định hoặc mảng cố định muốn mặc định gì đó, cũng có thể là arr thông báo lỗi, 1 số slogans, Regex pattern....
+    - thư mục helpers:chứa các hàm xử lý ngoài: ép kiểu ngày tháng, cắt chuỗi theo nhu cầu, các hàm random(string,number),
+    mã hóa ngoài, xử lý Regex...
+    - thư mục middleware, services công dụng sẽ như đã học
+    - thư mục routes để khai báo dùng hàm nào cho đường dẫn nào, dẫn đến thư mục controller.
+    - thư mục controller để khai báo các hàm sử dụng ở routes
+    - nếu có chỉnh sửa cấu trúc thư mục hoặc logic cấu trúc, VUI LÒNG THÔNG BÁO LÊN NHÓM CHO MỌI NGƯỜI BIẾT, NHẤT LÀ TEAM BACKEND
