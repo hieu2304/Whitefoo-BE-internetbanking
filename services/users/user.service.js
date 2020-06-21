@@ -9,16 +9,14 @@ class User extends Model {
 	static async authenticationLoginByEmail({ email, password }) {
 		const authUser = await User.findOne({
 			where: {
-				email: email,
-				password: password
+				email: email
 			}
 		});
 		if (!authUser) return null;
-
+		if (!await User.verifyPassword(password, authUser.password)) return null;
 		const user = await User.findOne({
 			where: {
-				email: email,
-				password: password
+				email: email
 			},
 			attributes: {
 				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
@@ -31,16 +29,15 @@ class User extends Model {
 	static async authenticationLoginByPhoneNumber({ phoneNumber, password }) {
 		const authUser = await User.findOne({
 			where: {
-				phoneNumber: phoneNumber,
-				password: password
+				phoneNumber: phoneNumber
 			}
 		});
 		if (!authUser) return null;
+		if (!await User.verifyPassword(password, authUser.password)) return null;
 
 		const user = await User.findOne({
 			where: {
-				phoneNumber: phoneNumber,
-				password: password
+				phoneNumber: phoneNumber
 			},
 			attributes: {
 				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
@@ -53,16 +50,15 @@ class User extends Model {
 	static async authenticationLoginByCitizenIdentificationId({ citizenIdentificationId, password }) {
 		const authUser = await User.findOne({
 			where: {
-				citizenIdentificationId: citizenIdentificationId,
-				password: password
+				citizenIdentificationId: citizenIdentificationId
 			}
 		});
 		if (!authUser) return null;
+		if (!await User.verifyPassword(password, authUser.password)) return null;
 
 		const user = await User.findOne({
 			where: {
-				citizenIdentificationId: citizenIdentificationId,
-				password: password
+				citizenIdentificationId: citizenIdentificationId
 			},
 			attributes: {
 				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
@@ -88,7 +84,7 @@ class User extends Model {
 				phoneNumber: phoneNumber
 			}
 		});
-		if (conflictPhoneNumber.length > 0) return 'Conflict phoneNumber';
+		if (conflictPhoneNumber.length > 0) return 'Conflict phone number';
 		return null;
 	}
 
@@ -137,7 +133,7 @@ class User extends Model {
 			fullName: request.fullName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
 			phoneNumber: request.phoneNumber,
-			password: request.password
+			password: await User.hashPassword(request.password)
 		});
 		return newUser;
 	}
