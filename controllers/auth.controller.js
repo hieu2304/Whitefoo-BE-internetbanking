@@ -1,21 +1,47 @@
 const userService = require('../services/users/user.service');
 const asyncHandler = require('express-async-handler');
 
+//		HTTP GET uses on api/auth
 module.exports.getAuth = function(req, res, next) {
-	return res.status(200).json();
+	return res.status(200).send({ message: 'OK' });
 };
 
 module.exports.getAuthLogin = function(req, res, next) {
-	return res.status(200).json();
+	return res.status(200).send({ message: 'OK' });
 };
-
-module.exports.postAuthLogin = asyncHandler(async function(req, res, next) {
-	const result = await userService.authenticationLoginbyEmail(req.body);
-	req.session.user = result.user.dataValues;
-	return res.json({ token: result.token });
-});
-
 module.exports.getAuthLogout = function(req, res, next) {
 	req.session.user = null;
-	return res.status(200).json();
+	req.session.token = null;
+	return res.status(200).send({ message: 'OK' });
 };
+
+//		HTTP POST uses on api/auth
+module.exports.postAuthLoginViaEmail = asyncHandler(async function(req, res, next) {
+	const result = await userService.authenticationLoginByEmail(req.body);
+	if (!result) {
+		return res.status(403).send({ message: 'Wrong email or password' });
+	}
+	req.session.user = result.user.dataValues;
+	req.session.token = result.token;
+	return res.status(200).send({ token: result.token, message: 'OK' });
+});
+
+module.exports.postAuthLoginViaPhoneNumber = asyncHandler(async function(req, res, next) {
+	const result = await userService.authenticationLoginByPhoneNumber(req.body);
+	if (!result) {
+		return res.status(403).send({ message: 'Wrong phone number or password' });
+	}
+	req.session.user = result.user.dataValues;
+	req.session.token = result.token;
+	return res.status(200).send({ token: result.token, message: 'OK' });
+});
+
+module.exports.postAuthLoginViaCitizenIdentificationId = asyncHandler(async function(req, res, next) {
+	const result = await userService.authenticationLoginByCitizenIdentificationId(req.body);
+	if (!result) {
+		return res.status(403).send({ message: 'Wrong citizenIdentificationId or password' });
+	}
+	req.session.user = result.user.dataValues;
+	req.session.token = result.token;
+	return res.status(200).send({ token: result.token, message: 'OK' });
+});

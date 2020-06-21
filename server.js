@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(errorHandler);
 
-//huy yêu cầu
+//Gia Huy yêu cầu
 app.use(function(req, res, next) {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -34,18 +34,18 @@ app.use(function(req, res, next) {
 	next();
 });
 
-//middleware secret key
+//middleware secret key, này sẽ luôn dùng, 1 addition Authentication ngoài JWT
 app.use(authMiddleware.authSecret);
 
-//API routes không cần token
+//các API routes không cần token
 app.use('/api/auth', require('./routes/auth.route'));
-app.use('/api/register', authMiddleware.logoutRequired, require('./routes/register.route'));
+app.use('/api/register', require('./routes/register.route'));
 
-//API cần token
+//các API cần token
 app.use(jwt.authToken);
 
-app.use('/api/post', authMiddleware.loginRequired, require('./routes/post.route'));
-app.use('/api/token', authMiddleware.loginRequired, require('./routes/token.route'));
+app.use('/api/post', require('./routes/post.route'));
+app.use('/api/token', require('./routes/token.route'));
 
 //server
 db

@@ -6,14 +6,14 @@ const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
 
 class User extends Model {
-	static async authenticationLoginbyEmail({ email, password }) {
+	static async authenticationLoginByEmail({ email, password }) {
 		const authUser = await User.findOne({
 			where: {
 				email: email,
 				password: password
 			}
 		});
-		if (!authUser) throw 'username or password is incorrect';
+		if (!authUser) return null;
 
 		const user = await User.findOne({
 			where: {
@@ -28,18 +28,18 @@ class User extends Model {
 		return { user, token };
 	}
 
-	static async authenticationLoginbySDT({phoneNumber, password}){
+	static async authenticationLoginByPhoneNumber({ phoneNumber, password }) {
 		const authUser = await User.findOne({
 			where: {
 				phoneNumber: phoneNumber,
 				password: password
 			}
 		});
-		if (!authUser) throw 'username or password is incorrect';
+		if (!authUser) return null;
 
 		const user = await User.findOne({
 			where: {
-				phoneNumber:phoneNumber,
+				phoneNumber: phoneNumber,
 				password: password
 			},
 			attributes: {
@@ -50,14 +50,14 @@ class User extends Model {
 		return { user, token };
 	}
 
-	static async authenticationLoginbyCitizenIdentificationId({ citizenIdentificationId, password }) {
+	static async authenticationLoginByCitizenIdentificationId({ citizenIdentificationId, password }) {
 		const authUser = await User.findOne({
 			where: {
 				citizenIdentificationId: citizenIdentificationId,
 				password: password
 			}
 		});
-		if (!authUser) throw 'username or password is incorrect';
+		if (!authUser) return null;
 
 		const user = await User.findOne({
 			where: {
@@ -71,13 +71,15 @@ class User extends Model {
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
+
 	static async checkConflictEmail(email) {
 		const conflictEmail = await User.findAll({
 			where: {
 				email: email
 			}
 		});
-		if (conflictEmail.length > 0) throw 'conflict email';
+		if (conflictEmail.length > 0) return 'Conflict email';
+		return null;
 	}
 
 	static async checkConflictPhoneNumber(phoneNumber) {
@@ -86,7 +88,8 @@ class User extends Model {
 				phoneNumber: phoneNumber
 			}
 		});
-		if (conflictPhoneNumber.length > 0) throw 'conflict phoneNumber';
+		if (conflictPhoneNumber.length > 0) return 'Conflict phoneNumber';
+		return null;
 	}
 
 	static async checkConflictCitizenIdentificationId(citizenIdentificationId) {
@@ -95,30 +98,42 @@ class User extends Model {
 				citizenIdentificationId: citizenIdentificationId
 			}
 		});
-		if (conflictCitizenIdentificationId.length > 0) throw 'conflict citizenIdentificationId';
+		if (conflictCitizenIdentificationId.length > 0) return 'Conflict citizenIdentificationId';
+		return null;
 	}
 
 	static async checkConflictUser(request) {
 		if (typeof request.email !== 'undefined' && request.email != null) {
-			await User.checkConflictEmail(request.email);
+			var isConflictEmail = await User.checkConflictEmail(request.email);
+			if (isConflictEmail) return isConflictEmail;
+		} else {
+			return 'Empty email';
 		}
 
 		if (typeof request.citizenIdentificationId !== 'undefined' && request.citizenIdentificationId != null) {
-			await User.checkConflictCitizenIdentificationId(request.citizenIdentificationId);
+			var isConflictCitizenIdentificationId = await User.checkConflictCitizenIdentificationId(
+				request.citizenIdentificationId
+			);
+			if (isConflictCitizenIdentificationId) return isConflictCitizenIdentificationId;
+		} else {
+			return 'Empty citizenIdentificationId';
 		}
 
 		if (typeof request.phoneNumber !== 'undefined' && request.phoneNumber != null) {
-			await User.checkConflictPhoneNumber(request.phoneNumber);
+			var isConflictPhoneNumber = await User.checkConflictPhoneNumber(request.phoneNumber);
+			if (isConflictPhoneNumber) return isConflictPhoneNumber;
+		} else {
+			return 'Empty phoneNumber';
 		}
 		return null;
 	}
 
 	static async createNewUser(request) {
 		const isUserConflict = await User.checkConflictUser(request);
-		if (isUserConflict) throw 'conflict unexpected values';
+		if (isUserConflict) return isUserConflict; //trả về lỗi conflict hoặc thiếu gì đó
 		const newUser = await User.create({
 			email: request.email,
-			citizenIdentificationId: request.citizenIdentificationId || randomHelper.getRandomString(12),
+			citizenIdentificationId: request.citizenIdentificationId || 'randomHelper.getRandomString(12)',
 			fullName: request.fullName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
 			phoneNumber: request.phoneNumber,
