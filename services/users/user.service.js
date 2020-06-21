@@ -6,14 +6,14 @@ const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
 
 class User extends Model {
-	static async authenticationLogin({ email, password }) {
+	static async authenticationLoginbyEmail({ email, password }) {
 		const authUser = await User.findOne({
 			where: {
 				email: email,
 				password: password
 			}
 		});
-		if (!authUser) throw 'Email or password is incorrect';
+		if (!authUser) throw 'username or password is incorrect';
 
 		const user = await User.findOne({
 			where: {
@@ -28,6 +28,49 @@ class User extends Model {
 		return { user, token };
 	}
 
+	static async authenticationLoginbySDT({phoneNumber, password}){
+		const authUser = await User.findOne({
+			where: {
+				phoneNumber: phoneNumber,
+				password: password
+			}
+		});
+		if (!authUser) throw 'username or password is incorrect';
+
+		const user = await User.findOne({
+			where: {
+				phoneNumber:phoneNumber,
+				password: password
+			},
+			attributes: {
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
+			}
+		});
+		const token = jwtHelper.generateToken(user.dataValues);
+		return { user, token };
+	}
+
+	static async authenticationLoginbyCitizenIdentificationId({ citizenIdentificationId, password }) {
+		const authUser = await User.findOne({
+			where: {
+				citizenIdentificationId: citizenIdentificationId,
+				password: password
+			}
+		});
+		if (!authUser) throw 'username or password is incorrect';
+
+		const user = await User.findOne({
+			where: {
+				citizenIdentificationId: citizenIdentificationId,
+				password: password
+			},
+			attributes: {
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
+			}
+		});
+		const token = jwtHelper.generateToken(user.dataValues);
+		return { user, token };
+	}
 	static async checkConflictEmail(email) {
 		const conflictEmail = await User.findAll({
 			where: {

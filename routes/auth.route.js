@@ -7,4 +7,6 @@ router.get('/', authMiddleware.logoutRequired, controller.getAuth);
 router.post('/login', authMiddleware.logoutRequired, controller.postAuthLogin);
 router.get('/logout', authMiddleware.loginRequired, controller.getAuthLogout);
 
+
+router.get('/login',authMiddleware.loginRequired,controller.getAuthLogin);
 module.exports = router;

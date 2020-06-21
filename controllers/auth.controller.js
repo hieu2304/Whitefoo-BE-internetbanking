@@ -10,7 +10,7 @@ module.exports.getAuthLogin = function(req, res, next) {
 };
 
 module.exports.postAuthLogin = asyncHandler(async function(req, res, next) {
-	const result = await userService.authenticationLogin(req.body);
+	const result = await userService.authenticationLoginbyEmail(req.body);
 	req.session.user = result.user.dataValues;
 	return res.json({ token: result.token });
 });
