@@ -45,3 +45,12 @@ module.exports.postAuthLoginViaCitizenIdentificationId = asyncHandler(async func
 	req.session.token = result.token;
 	return res.status(200).send({ token: result.token, message: 'OK' });
 });
+module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
+	const result = await userService.authenticationLoginAIO(req.body);
+	if (!result) {
+		return res.status(403).send({ message: 'Wrong username or password' });
+	}
+	req.session.user = result.user.dataValues;
+	req.session.token = result.token;
+	return res.status(200).send({ token: result.token, message: 'OK' });
+});

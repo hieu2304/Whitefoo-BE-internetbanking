@@ -6,6 +6,31 @@ const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
 
 class User extends Model {
+	static async authenticationLoginAIO({ username, password }) {
+		const authUser = await User.findOne({
+			where: {
+				[Op.or]:
+				[{email: username},
+				{CitizenIdentificationId: username},
+				{phoneNumber: username}]
+			}
+		});
+		if (!authUser) return null;
+		if (!await User.verifyPassword(password, authUser.password)) return null;
+		const user = await User.findOne({
+			where: {
+				[Op.or]:
+				[{email: username},
+				{CitizenIdentificationId: username},
+				{phoneNumber: username}]
+			},			
+			attributes: {
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
+			}
+		});
+		const token = jwtHelper.generateToken(user.dataValues);
+		return { user, token };
+	}
 	static async authenticationLoginByEmail({ email, password }) {
 		const authUser = await User.findOne({
 			where: {
