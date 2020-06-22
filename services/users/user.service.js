@@ -125,14 +125,14 @@ class User extends Model {
 			return 'Empty email';
 		}
 
-		if (typeof request.citizenIdentificationId !== 'undefined' && request.citizenIdentificationId != null) {
-			var isConflictCitizenIdentificationId = await User.checkConflictCitizenIdentificationId(
-				request.citizenIdentificationId
-			);
-			if (isConflictCitizenIdentificationId) return isConflictCitizenIdentificationId;
-		} else {
-			return 'Empty citizenIdentificationId';
-		}
+		// if (typeof request.citizenIdentificationId !== 'undefined' && request.citizenIdentificationId != null) {
+		// 	var isConflictCitizenIdentificationId = await User.checkConflictCitizenIdentificationId(
+		// 		request.citizenIdentificationId
+		// 	);
+		// 	if (isConflictCitizenIdentificationId) return isConflictCitizenIdentificationId;
+		// } else {
+		// 	return 'Empty citizenIdentificationId';
+		// }
 
 		if (typeof request.phoneNumber !== 'undefined' && request.phoneNumber != null) {
 			var isConflictPhoneNumber = await User.checkConflictPhoneNumber(request.phoneNumber);
@@ -143,16 +143,63 @@ class User extends Model {
 		return null;
 	}
 
+	static async verifyCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				verifyCode: _code
+			}
+		});
+		if (isExist) {
+			await User.update(
+				{
+					verifyCode: ''
+				},
+				{
+					where: { verifyCode: _code }
+				}
+			);
+			return isExist;
+		}
+		return null;
+	}
+
+	static async checkIfUserVerifyYet(request) {
+		const isExist = await User.findOne({
+			where: {
+				email: request.email,
+				verifyCode: ''
+			}
+		});
+		if (isExist) return isExist;
+		return null;
+	}
+
+	static async checkIfExistVerifyCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				verifyCode: _code
+			}
+		});
+		if (isExist) return true;
+		return false;
+	}
+
 	static async createNewUser(request) {
 		const isUserConflict = await User.checkConflictUser(request);
 		if (isUserConflict) return isUserConflict; //trả về lỗi conflict hoặc thiếu gì đó
+
+		var newVerifyCode = randomHelper.getRandomString(15);
+		while (await User.checkIfExistVerifyCode(newVerifyCode)) {
+			newVerifyCode = randomHelper.getRandomString(15);
+		}
 		const newUser = await User.create({
 			email: request.email,
-			citizenIdentificationId: request.citizenIdentificationId || 'randomHelper.getRandomString(12)',
+			citizenIdentificationId: 'empty',
 			fullName: request.fullName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
 			phoneNumber: request.phoneNumber,
-			password: await User.hashPassword(request.password)
+			password: await User.hashPassword(request.password),
+			verifyCode: newVerifyCode
 		});
 		return newUser;
 	}
