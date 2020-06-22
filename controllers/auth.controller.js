@@ -16,6 +16,7 @@ module.exports.getAuthLogout = function(req, res, next) {
 };
 
 //		HTTP POST uses on api/auth
+//các hàm login cũ
 module.exports.postAuthLoginViaEmail = asyncHandler(async function(req, res, next) {
 	const result = await userService.authenticationLoginByEmail(req.body);
 	if (!result) {
@@ -45,10 +46,12 @@ module.exports.postAuthLoginViaCitizenIdentificationId = asyncHandler(async func
 	req.session.token = result.token;
 	return res.status(200).send({ token: result.token, message: 'OK' });
 });
+
+//hàm login xài chính thức
 module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 	const result = await userService.authenticationLoginAIO(req.body);
 	if (!result) {
-		return res.status(403).send({ message: 'Wrong username or password' });
+		return res.status(403).send({ message: 'Wrong login name or password' });
 	}
 	req.session.user = result.user.dataValues;
 	req.session.token = result.token;

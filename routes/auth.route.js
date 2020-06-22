@@ -9,10 +9,11 @@ router.get('/login', authMiddleware.logoutRequired, controller.getAuthLogin);
 router.get('/logout', authMiddleware.loginRequired, controller.getAuthLogout);
 
 //các HTTP post
-// login mặc định sẽ là qua CMND/CCCD, còn muốn login dạng khác thì URL khác
-router.post('/loginphonenumber', authMiddleware.logoutRequired, controller.postAuthLoginViaPhoneNumber);
-router.post('/loginemail', authMiddleware.logoutRequired, controller.postAuthLoginViaEmail);
-router.post('/loginCitizenIdentificationId', authMiddleware.logoutRequired, controller.postAuthLoginViaCitizenIdentificationId);
+//tạm thời sẽ login AIO nên ko cần các login nhỏ lẻ
+// router.post('/loginphonenumber', authMiddleware.logoutRequired, controller.postAuthLoginViaPhoneNumber);
+// router.post('/loginemail', authMiddleware.logoutRequired, controller.postAuthLoginViaEmail);
+// router.post('/loginCitizenIdentificationId', authMiddleware.logoutRequired, controller.postAuthLoginViaCitizenIdentificationId);
+
 router.post('/login', authMiddleware.logoutRequired, controller.postAuthLoginAIO);
 
 module.exports = router;
