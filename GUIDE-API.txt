@@ -65,4 +65,4 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 
 
 
-tạm thời chưa viết middleware check account đã verify chưa (trường hợp chưa verify mà login vẫn dùng tính năng bình thường, nếu đúng sẽ là khi người dùng login mà tài khoản chưa verify sẽ bị response error cần login -> middleware verifyYet - chưa viết)
+tạm thời chưa viết middleware check account đã verify chưa (trường hợp chưa verify mà login vẫn dùng tính năng bình thường, nếu đúng sẽ là khi người dùng login mà tài khoản chưa verify sẽ bị response error cần verify -> middleware verifyYet - chưa viết)

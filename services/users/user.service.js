@@ -25,6 +25,7 @@ class User extends Model {
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
+
 	static async authenticationLoginByEmail({ email, password }) {
 		const authUser = await User.findOne({
 			where: {

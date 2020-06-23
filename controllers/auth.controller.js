@@ -55,7 +55,18 @@ module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 	}
 	req.session.user = result.user.dataValues;
 	req.session.token = result.token;
-	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
+	curUser = result.user.dataValues;
+	return res.status(200).send({
+		id: curUser.id,
+		email: curUser.email,
+		citizenIdentificationId: curUser.citizenIdentificationId,
+		lastName: curUser.lastName,
+		firstName: curUser.firstName,
+		dateOfBirth: curUser.dateOfBirth,
+		phoneNumber: curUser.phoneNumber,
+		token: result.token,
+		message: 'OK'
+	});
 });
 
 module.exports.postAuthVerify = asyncHandler(async function(req, res, next) {
