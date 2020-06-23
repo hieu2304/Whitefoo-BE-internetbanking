@@ -4,19 +4,19 @@ const db = require('../db');
 const Model = Sequelize.Model;
 const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
-
+const Op = Sequelize.Op;
 class User extends Model {
 	static async authenticationLoginAIO({ username, password }) {
 		const authUser = await User.findOne({
 			where: {
-				[Op.or]: [ { email: username }, { CitizenIdentificationId: username }, { phoneNumber: username } ]
+				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
 			}
 		});
 		if (!authUser) return null;
 		if (!await User.verifyPassword(password, authUser.password)) return null;
 		const user = await User.findOne({
 			where: {
-				[Op.or]: [ { email: username }, { CitizenIdentificationId: username }, { phoneNumber: username } ]
+				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
 			},
 			attributes: {
 				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
@@ -201,6 +201,9 @@ class User extends Model {
 			password: await User.hashPassword(request.password),
 			verifyCode: newVerifyCode
 		});
+
+		//send email here
+
 		return newUser;
 	}
 
