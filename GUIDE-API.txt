@@ -4,29 +4,65 @@ clientId:515hwrFpeLvGeVo2SvSe
 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
 /api/register
-
     method: POST
+    điều kiện: đã logout
     request params: (email, password không được giống cái đã tồn tại trong DB, sẽ throw err conflict )
         email:admin123@admin.com
-        fullName:tester tạo bug
+        lastName:tester
+        firstName:bug bug
         dateOfBirth:12/12/2012
         phoneNumber:0909090909
         password:1234567890
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
-        citizenIdentificationId:123 (cái này có thể bỏ trống hoặc không truyền param này)
-    method: GET
-    request params: (email, password không được giống cái đã tồn tại trong DB, sẽ throw err conflict )
 
 
 /api/auth/login
-    
     method: POST
-    request params: (email và password phải có trong DB)
+    điều kiện: đã logout
+    request params: (email/cmnd/sdt sẽ là username, password và username phải có trong DB)
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
-        email:admin@admin.com
+        username:admin@admin.com
         password:123456789
 
+/api/auth/verify
+    method: POST
+    điều kiện: ko yêu cầu logout hay login
+    params:
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+        verifyCode: Code được send qua email để xác nhận tài khoản
+
+
+/api/auth/logout
     method: GET
-    request params: (email và password phải có trong DB)
+    điều kiện: đã login
+    params:
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
+
+
+
+/api/token/renew
+    method: POST
+    điều kiện: đã login
+    params:
+        token: token còn đang hiệu lực
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
+/api/post
+    method: GET
+    note: api này tạm để test , xóa sau
+    điều kiện: đã login
+    params:
+        token: token còn đang hiệu lực
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
+
+
+
+tạm thời chưa viết middleware check account đã verify chưa (trường hợp chưa verify mà login vẫn dùng tính năng bình thường, nếu đúng sẽ là khi người dùng login mà tài khoản chưa verify sẽ bị response error cần login -> middleware verifyYet - chưa viết)

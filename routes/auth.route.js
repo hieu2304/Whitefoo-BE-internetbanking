@@ -9,11 +9,8 @@ router.get('/login', authMiddleware.logoutRequired, controller.getAuthLogin);
 router.get('/logout', authMiddleware.loginRequired, controller.getAuthLogout);
 
 //các HTTP post
-//tạm thời sẽ login AIO nên ko cần các login nhỏ lẻ
-// router.post('/loginphonenumber', authMiddleware.logoutRequired, controller.postAuthLoginViaPhoneNumber);
-// router.post('/loginemail', authMiddleware.logoutRequired, controller.postAuthLoginViaEmail);
-// router.post('/loginCitizenIdentificationId', authMiddleware.logoutRequired, controller.postAuthLoginViaCitizenIdentificationId);
-
 router.post('/login', authMiddleware.logoutRequired, controller.postAuthLoginAIO);
+//API verify Email không cần trạng thái login hay chưa
+router.post('/verify', controller.postAuthVerify);
 
 module.exports = router;
