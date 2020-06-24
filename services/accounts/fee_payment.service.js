@@ -11,7 +11,7 @@ fee_payment.init(
 			allowNull: false
 		},
 		value: {
-			type: Sequelize.STRING,
+			type: Sequelize.FLOAT,
 			allowNull: false
         },
         transferType: {
