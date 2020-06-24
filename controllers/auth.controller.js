@@ -24,7 +24,7 @@ module.exports.postAuthLoginViaEmail = asyncHandler(async function(req, res, nex
 	}
 	req.session.user = result.user.dataValues;
 	req.session.token = result.token;
-	return res.status(200).send({ token: result.token, message: 'OK' });
+	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
 });
 
 module.exports.postAuthLoginViaPhoneNumber = asyncHandler(async function(req, res, next) {
@@ -34,7 +34,7 @@ module.exports.postAuthLoginViaPhoneNumber = asyncHandler(async function(req, re
 	}
 	req.session.user = result.user.dataValues;
 	req.session.token = result.token;
-	return res.status(200).send({ token: result.token, message: 'OK' });
+	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
 });
 
 module.exports.postAuthLoginViaCitizenIdentificationId = asyncHandler(async function(req, res, next) {
@@ -44,7 +44,7 @@ module.exports.postAuthLoginViaCitizenIdentificationId = asyncHandler(async func
 	}
 	req.session.user = result.user.dataValues;
 	req.session.token = result.token;
-	return res.status(200).send({ token: result.token, message: 'OK' });
+	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
 });
 
 //hàm login xài chính thức
@@ -55,5 +55,24 @@ module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 	}
 	req.session.user = result.user.dataValues;
 	req.session.token = result.token;
-	return res.status(200).send({ token: result.token, message: 'OK' });
+	curUser = result.user.dataValues;
+	return res.status(200).send({
+		id: curUser.id,
+		email: curUser.email,
+		citizenIdentificationId: curUser.citizenIdentificationId,
+		lastName: curUser.lastName,
+		firstName: curUser.firstName,
+		dateOfBirth: curUser.dateOfBirth,
+		phoneNumber: curUser.phoneNumber,
+		token: result.token,
+		message: 'OK'
+	});
+});
+
+module.exports.postAuthVerify = asyncHandler(async function(req, res, next) {
+	const result = await userService.verifyCode(req.body.verifyCode);
+	if (!result) {
+		return res.status(403).send({ message: 'Wrong verify code' });
+	}
+	return res.status(200).send({ message: 'OK' });
 });

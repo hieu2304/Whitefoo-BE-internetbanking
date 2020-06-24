@@ -19,12 +19,13 @@ class User extends Model {
 				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
 			},
 			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode' ]
 			}
 		});
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
+
 	static async authenticationLoginByEmail({ email, password }) {
 		const authUser = await User.findOne({
 			where: {
@@ -38,7 +39,7 @@ class User extends Model {
 				email: email
 			},
 			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode' ]
 			}
 		});
 		const token = jwtHelper.generateToken(user.dataValues);
@@ -59,7 +60,7 @@ class User extends Model {
 				phoneNumber: phoneNumber
 			},
 			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode' ]
 			}
 		});
 		const token = jwtHelper.generateToken(user.dataValues);
@@ -80,7 +81,7 @@ class User extends Model {
 				citizenIdentificationId: citizenIdentificationId
 			},
 			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'dateOfBirth' ]
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode' ]
 			}
 		});
 		const token = jwtHelper.generateToken(user.dataValues);
@@ -195,7 +196,8 @@ class User extends Model {
 		const newUser = await User.create({
 			email: request.email,
 			citizenIdentificationId: 'empty',
-			fullName: request.fullName,
+			lastName: request.lastName,
+			firstName: request.firstName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
 			phoneNumber: request.phoneNumber,
 			password: await User.hashPassword(request.password),
@@ -227,7 +229,11 @@ User.init(
 			allowNull: true,
 			unique: true
 		},
-		fullName: {
+		lastName: {
+			type: Sequelize.STRING,
+			allowNull: false
+		},
+		firstName: {
 			type: Sequelize.STRING,
 			allowNull: false
 		},
@@ -243,7 +249,7 @@ User.init(
 		userType: {
 			type: Sequelize.STRING,
 			allowNull: false,
-			defaultValue: '1'
+			defaultValue: '1' // 1 = member, 0 = internal user
 		},
 		password: {
 			type: Sequelize.STRING,

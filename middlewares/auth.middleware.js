@@ -11,7 +11,8 @@ module.exports.loginRequired = function(req, res, next) {
 	if (req.session.user) {
 		return next();
 	}
-	return res.status(403).send({ message: 'User not logged in' });
+	//khi cố truy cập vào các trang cần login mà lỗi (chưa login) sẽ trả ra 401
+	return res.status(401).send({ message: 'User not logged in' });
 };
 
 module.exports.authSecret = function(req, res, next) {

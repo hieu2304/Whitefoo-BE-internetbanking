@@ -18,7 +18,8 @@ module.exports.reGenerateToken = function(req, res, next) {
 			id: user.id,
 			email: user.email,
 			citizenIdentificationId: user.citizenIdentificationId,
-			fullName: user.fullName,
+			lastName: user.lastName,
+			firstName: user.firstName,
 			phoneNumber: user.phoneNumber
 		});
 
