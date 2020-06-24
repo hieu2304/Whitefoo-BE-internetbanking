@@ -7,7 +7,7 @@ class history_accumulate extends Model {}
 history_accumulate.init(
 	{
 		accountId: {
-			type: Sequelize.INTEGER,
+			type: Sequelize.DATEONLY,
 			allowNull: false
 		},
 		time: {
@@ -19,7 +19,7 @@ history_accumulate.init(
 			allowNull: false
         },
         value: {
-			type: Sequelize.STRING,
+			type: Sequelize.FLOAT,
 			allowNull: false
         },
         status: {

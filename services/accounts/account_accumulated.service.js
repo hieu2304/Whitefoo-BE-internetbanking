@@ -7,15 +7,15 @@ class account_accumulated extends Model {}
 account_accumulated.init(
 	{
 		accountId: {
-			type: Sequelize.INTEGER,
+			type: Sequelize.STRING,
 			allowNull: false
 		},
 		term: {
-			type: Sequelize.STRING,
+			type: Sequelize.DATEONLY,
 			allowNull: false
 		},
 		startTermDare: {
-			type: Sequelize.STRING,
+			type: Sequelize.DATEONLY,
 			allowNull: false
 		}
 	},

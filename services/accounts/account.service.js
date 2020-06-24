@@ -7,11 +7,11 @@ class account extends Model {}
 account.init(
 	{
 		accountId: {
-			type: Sequelize.INTEGER,
+			type: Sequelize.STRING,
 			allowNull: false
 		},
 		userId: {
-			type: Sequelize.INTEGER,
+			type: Sequelize.STRING,
 			allowNull: false
         },
         balance: {
@@ -27,11 +27,11 @@ account.init(
 			allowNull: false
         },
         openedDate: {
-			type: Sequelize.DATE,
+			type: Sequelize.DATEONLY,
 			allowNull: false
 		},
 		closedDate: {
-			type: Sequelize.DATE,
+			type: Sequelize.DATEONLY,
 			allowNull: false
 		}
 	},

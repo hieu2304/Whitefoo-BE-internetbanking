@@ -70,7 +70,7 @@ module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 });
 
 module.exports.postAuthVerify = asyncHandler(async function(req, res, next) {
-	const result = await userService.verifyCode(req.body.verifyCode);
+	const result = await userService.verifyEmailCode(req.body.verifyCode);
 	if (!result) {
 		return res.status(403).send({ message: 'Wrong verify code' });
 	}

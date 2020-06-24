@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(errorHandler);
 
-//Gia Huy yêu cầu
+//FrontEnd yêu cầu
 app.use(function(req, res, next) {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -41,12 +41,19 @@ app.use(authMiddleware.authSecret);
 //các API routes không cần JWT
 app.use('/api/auth', require('./routes/auth.route'));
 app.use('/api/register', require('./routes/register.route'));
+app.use('/api/upload', require('./routes/upload.route'));
+app.use('/api/user', require('./routes/user.route'));
 
 //các API cần JWT
 app.use(jwt.authToken);
 
+//các API cần tài khoản đã kích hoạt email
+app.use(authMiddleware.verifyEmailRequired);
 app.use('/api/post', require('./routes/post.route'));
 app.use('/api/token', require('./routes/token.route'));
+
+//các API gọi từ nhân viên ngân hàng
+app.use(authMiddleware.internalUserRequired);
 
 //server
 db
