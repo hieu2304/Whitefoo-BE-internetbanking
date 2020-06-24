@@ -9,7 +9,12 @@ class User extends Model {
 	static async findUserNoneExclude(username) {
 		const user = await User.findOne({
 			where: {
-				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
+				[Op.or]: [
+					{ email: username },
+					{ citizenIdentificationId: username },
+					{ phoneNumber: username },
+					{ userName: username }
+				]
 			}
 		});
 		return user;
@@ -17,7 +22,12 @@ class User extends Model {
 	static async findUserUsingExclude(username) {
 		const user = await User.findOne({
 			where: {
-				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
+				[Op.or]: [
+					{ email: username },
+					{ citizenIdentificationId: username },
+					{ phoneNumber: username },
+					{ userName: username }
+				]
 			},
 			attributes: {
 				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode' ]
@@ -76,6 +86,16 @@ class User extends Model {
 		return { user, token };
 	}
 
+	static async checkConflictUserName(userName) {
+		const conflictEmail = await User.findAll({
+			where: {
+				userName: userName
+			}
+		});
+		if (conflictEmail.length > 0) return 'Conflict User Name';
+		return null;
+	}
+
 	static async checkConflictEmail(email) {
 		const conflictEmail = await User.findAll({
 			where: {
@@ -112,6 +132,13 @@ class User extends Model {
 			if (isConflictEmail) return isConflictEmail;
 		} else {
 			return 'Empty email';
+		}
+
+		if (typeof request.userName !== 'undefined' && request.userName != null) {
+			var isConflictUserName = await User.checkConflictUserName(request.userName);
+			if (isConflictUserName) return isConflictUserName;
+		} else {
+			return 'Empty userName';
 		}
 
 		// if (typeof request.citizenIdentificationId !== 'undefined' && request.citizenIdentificationId != null) {
@@ -204,6 +231,8 @@ class User extends Model {
 			firstName: request.firstName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
 			phoneNumber: request.phoneNumber,
+			userName: request.userName,
+			address: request.address,
 			password: await User.hashPassword(request.password),
 			verifyCode: newVerifyCode
 		});
@@ -260,6 +289,16 @@ User.init(
 			type: Sequelize.STRING,
 			allowNull: false,
 			unique: true
+		},
+		userName: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			unique: true
+		},
+		address: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			defaultValue: 'Việt Nam'
 		},
 		userType: {
 			type: Sequelize.STRING,
