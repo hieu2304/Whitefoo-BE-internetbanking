@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(errorHandler);
 
-//Gia Huy yêu cầu
+//FrontEnd yêu cầu
 app.use(function(req, res, next) {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -41,6 +41,7 @@ app.use(authMiddleware.authSecret);
 //các API routes không cần JWT
 app.use('/api/auth', require('./routes/auth.route'));
 app.use('/api/register', require('./routes/register.route'));
+app.use('/api/upload', require('./routes/upload.route'));
 
 //các API cần JWT
 app.use(jwt.authToken);

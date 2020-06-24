@@ -6,14 +6,7 @@ const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
 const Op = Sequelize.Op;
 class User extends Model {
-	static async authenticationLoginAIO({ username, password }) {
-		const authUser = await User.findOne({
-			where: {
-				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
-			}
-		});
-		if (!authUser) return null;
-		if (!await User.verifyPassword(password, authUser.password)) return null;
+	static async findUser(username) {
 		const user = await User.findOne({
 			where: {
 				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
@@ -22,6 +15,14 @@ class User extends Model {
 				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode' ]
 			}
 		});
+		return user;
+	}
+
+	static async authenticationLoginAIO({ username, password }) {
+		const authUser = await User.findUser(username);
+		if (!authUser) return null;
+		if (!await User.verifyPassword(password, authUser.password)) return null;
+		const user = await User.selectUser(username);
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
@@ -144,7 +145,7 @@ class User extends Model {
 		return null;
 	}
 
-	static async verifyCode(_code) {
+	static async verifyEmailCode(_code) {
 		const isExist = await User.findOne({
 			where: {
 				verifyCode: _code
@@ -164,7 +165,7 @@ class User extends Model {
 		return null;
 	}
 
-	static async checkIfUserVerifyYet(request) {
+	static async checkUserVerifyEmailCodeYet(request) {
 		const isExist = await User.findOne({
 			where: {
 				email: request.email,
@@ -185,17 +186,33 @@ class User extends Model {
 		return false;
 	}
 
+	static async checkIfExistForgotCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				forgotCode: _code
+			}
+		});
+		if (isExist) return true;
+		return false;
+	}
+
+	//hàm này đảm bảo code random được tạo ra là độc nhất, đang không tồn tại trong DB
+	static async getUniqueRandomCode() {
+		var randomCode = randomHelper.getRandomString(15);
+		while ((await User.checkIfExistVerifyCode(randomCode)) || (await User.checkIfExistForgotCode(randomCode))) {
+			randomCode = randomHelper.getRandomString(15);
+		}
+		return randomCode;
+	}
+
 	static async createNewUser(request) {
 		const isUserConflict = await User.checkConflictUser(request);
 		if (isUserConflict) return isUserConflict; //trả về lỗi conflict hoặc thiếu gì đó
 
-		var newVerifyCode = randomHelper.getRandomString(15);
-		while (await User.checkIfExistVerifyCode(newVerifyCode)) {
-			newVerifyCode = randomHelper.getRandomString(15);
-		}
+		const newVerifyCode = await User.getUniqueRandomCode();
 		const newUser = await User.create({
 			email: request.email,
-			citizenIdentificationId: 'empty',
+			citizenIdentificationId: 'empty=[' + new Date().toISOString() + ']=' + randomHelper.getRandomString(10),
 			lastName: request.lastName,
 			firstName: request.firstName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
@@ -258,6 +275,11 @@ User.init(
 		verifyCode: {
 			type: Sequelize.STRING,
 			allowNull: true
+		},
+		forgotCode: {
+			type: Sequelize.STRING,
+			allowNull: true,
+			defaultValue: ''
 		}
 	},
 	{
