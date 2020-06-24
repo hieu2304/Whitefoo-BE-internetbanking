@@ -20,7 +20,7 @@ class User extends Model {
 				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
 			},
 			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode' ]
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode' ]
 			}
 		});
 		return user;
@@ -43,14 +43,7 @@ class User extends Model {
 		});
 		if (!authUser) return null;
 		if (!await User.verifyPassword(password, authUser.password)) return null;
-		const user = await User.findOne({
-			where: {
-				email: email
-			},
-			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode' ]
-			}
-		});
+		const user = await User.findUserUsingExclude(email);
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
@@ -64,14 +57,7 @@ class User extends Model {
 		if (!authUser) return null;
 		if (!await User.verifyPassword(password, authUser.password)) return null;
 
-		const user = await User.findOne({
-			where: {
-				phoneNumber: phoneNumber
-			},
-			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode' ]
-			}
-		});
+		const user = await User.findUserUsingExclude(phoneNumber);
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
@@ -85,14 +71,7 @@ class User extends Model {
 		if (!authUser) return null;
 		if (!await User.verifyPassword(password, authUser.password)) return null;
 
-		const user = await User.findOne({
-			where: {
-				citizenIdentificationId: citizenIdentificationId
-			},
-			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode' ]
-			}
-		});
+		const user = await User.findUserUsingExclude(citizenIdentificationId);
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
@@ -232,6 +211,17 @@ class User extends Model {
 		//send email here
 
 		return newUser;
+	}
+
+	static async checkInternalUser(request) {
+		const isExist = await User.findOne({
+			where: {
+				email: request.email,
+				type: 0
+			}
+		});
+		if (isExist) return isExist;
+		return null;
 	}
 
 	static hashPassword(passwordInput) {
