@@ -6,7 +6,15 @@ const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
 const Op = Sequelize.Op;
 class User extends Model {
-	static async findUser(username) {
+	static async findUserNoneExclude(username) {
+		const user = await User.findOne({
+			where: {
+				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
+			}
+		});
+		return user;
+	}
+	static async findUserUsingExclude(username) {
 		const user = await User.findOne({
 			where: {
 				[Op.or]: [ { email: username }, { citizenIdentificationId: username }, { phoneNumber: username } ]
@@ -19,10 +27,10 @@ class User extends Model {
 	}
 
 	static async authenticationLoginAIO({ username, password }) {
-		const authUser = await User.findUser(username);
+		const authUser = await User.findUserNoneExclude(username);
 		if (!authUser) return null;
 		if (!await User.verifyPassword(password, authUser.password)) return null;
-		const user = await User.selectUser(username);
+		const user = await User.findUserUsingExclude(username);
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
