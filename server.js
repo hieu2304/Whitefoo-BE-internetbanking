@@ -35,13 +35,15 @@ app.use(function(req, res, next) {
 	next();
 });
 
+// Middleware that uses body-parser won't work on multer
+app.use('/api/upload', require('./routes/upload.route'));
+
 //middleware secret key, này sẽ luôn dùng, 1 addition Authentication ngoài JWT
 app.use(authMiddleware.authSecret);
 
 //các API routes không cần JWT
 app.use('/api/auth', require('./routes/auth.route'));
 app.use('/api/register', require('./routes/register.route'));
-app.use('/api/upload', require('./routes/upload.route'));
 app.use('/api/user', require('./routes/user.route'));
 
 //các API cần JWT
@@ -56,12 +58,10 @@ app.use('/api/token', require('./routes/token.route'));
 app.use(authMiddleware.internalUserRequired);
 
 //server
-db
-	.sync()
-	.then(function() {
-		app.listen(port);
-		console.log(`\nServer is listening on port ${port}\n`);
-	})
-	.catch(function(err) {
-		console.error(err);
-	});
+db.sync().then(function() {
+	app.listen(port);
+	console.log(`\nServer is listening on port ${port}\n`);
+})
+.catch(function(err) {
+	console.error(err);
+});

@@ -27,6 +27,7 @@
 	},
 	"homepage": "https://github.com/ktt45678/web2-2020#readme",
 	"dependencies": {
+		"@azure/storage-blob": "^12.1.2",
 		"bcrypt": "^5.0.0",
 		"body-parser": "^1.19.0",
 		"cookie-session": "^1.4.0",
@@ -36,6 +37,7 @@
 		"express-async-handler": "^1.1.4",
 		"express-jwt": "^5.3.3",
 		"express-validator": "^6.5.0",
+		"into-stream": "^5.1.1",
 		"jsonwebtoken": "^8.5.1",
 		"multer": "^1.4.2",
 		"nodemailer": "^6.4.8",
