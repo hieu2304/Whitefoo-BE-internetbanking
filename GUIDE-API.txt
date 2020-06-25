@@ -12,7 +12,8 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         firstName:bug bug
         dateOfBirth:12/12/2012
         phoneNumber:0909090909
-        password:1234567890
+        password:a1234567890
+        confirmpassword:a1234567890
         userName:testerbugbughihi
         address:192 hàm tử, HCM, Việt Nam
         clientId:515hwrFpeLvGeVo2SvSe
@@ -49,7 +50,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 
 /api/token/renew
     method: POST
-    điều kiện: đã login
+    điều kiện: đã login, đã xác nhận email
     params:
         token: token còn đang hiệu lực
         clientId:515hwrFpeLvGeVo2SvSe
@@ -58,7 +59,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 /api/post
     method: GET
     note: api này tạm để test , xóa sau
-    điều kiện: đã login
+    điều kiện: đã login, đã xác nhận email
     params:
         token: token còn đang hiệu lực
         clientId:515hwrFpeLvGeVo2SvSe
@@ -67,4 +68,4 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 
 
 
-tạm thời chưa viết middleware check account đã verify chưa (trường hợp chưa verify mà login vẫn dùng tính năng bình thường, nếu đúng sẽ là khi người dùng login mà tài khoản chưa verify sẽ bị response error cần verify -> middleware verifyYet - chưa viết)
+tạm thời chưa viết middleware check account đã verify CMND chưa, add sau
