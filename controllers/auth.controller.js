@@ -64,6 +64,8 @@ module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 		firstName: curUser.firstName,
 		dateOfBirth: curUser.dateOfBirth,
 		phoneNumber: curUser.phoneNumber,
+		address: curUser.address,
+		userName: curUser.userName,
 		token: result.token,
 		message: 'OK'
 	});
