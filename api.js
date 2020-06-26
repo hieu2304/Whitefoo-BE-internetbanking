@@ -3,11 +3,11 @@ const router = express.Router();
 const jwt = require('./helpers/jwt.helper');
 const authMiddleware = require('./middlewares/auth.middleware');
 
-//middleware secret key, này sẽ luôn dùng, 1 addition Authentication ngoài JWT
-router.use(authMiddleware.authSecret);
-
 // Middleware that uses body-parser won't work on multer
 router.use('/upload', require('./routes/upload.route'));
+
+//middleware secret key, này sẽ luôn dùng, 1 addition Authentication ngoài JWT
+router.use(authMiddleware.authSecret);
 
 //các API routes không cần JWT, ko cần kích hoạt email, ko cần internal
 router.use('/auth', require('./routes/auth.route'));

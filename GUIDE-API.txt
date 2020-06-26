@@ -65,6 +65,23 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
 
+/api/upload
+    method: POST
+    params:
+        clientId,
+        secretKey,
+        images[2]
+    method: GET
+    params:
+        clientId,
+        secretKey,
+        id
+    method: DELETE (WIP)
+    params:
+        clientId,
+        secretKey,
+        id
+
 
 
 
