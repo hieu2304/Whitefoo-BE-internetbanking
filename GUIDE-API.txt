@@ -67,17 +67,24 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 
 /api/upload
     method: POST
-    params:
+    request:
         clientId,
         secretKey,
         images[2]
+    response:
+        container
+        blobName
+        blobSize
+        mimeType
     method: GET
-    params:
+    request:
         clientId,
         secretKey,
         id
+    response:
+        uri
     method: DELETE (WIP)
-    params:
+    request:
         clientId,
         secretKey,
         id

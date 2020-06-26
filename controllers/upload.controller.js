@@ -36,7 +36,7 @@ module.exports.getUpload = asyncHandler(async function (req, res, next) {
 		expiresOn: expiryDate
 	}, sharedKeyCredential).toString();
 	res.status(200).send({
-		url: `${process.env.AZURE_STORAGE_URL}/${blob.container}/${blob.blobName}?${sasToken}`
+		uri: `${process.env.AZURE_STORAGE_URL}/${blob.container}/${blob.blobName}?${sasToken}`
 	});
 });
 
