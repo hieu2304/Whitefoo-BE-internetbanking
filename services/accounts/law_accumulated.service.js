@@ -7,17 +7,17 @@ class law_accumulated extends Model {}
 law_accumulated.init(
 	{
 		term: {
-			type: Sequelize.STRING,
+			type: Sequelize.NUMBER, //number of months: example: 3 months -> 3, 12 months->12
 			allowNull: false
 		},
 		value: {
-			type: Sequelize.FLOAT,
+			type: Sequelize.DOUBLE,
 			allowNull: false
-        },
-        percent: {
-			type: Sequelize.STRING,
+		},
+		percent: {
+			type: Sequelize.DOUBLE, // 2% -> 0.02, 10% ->0.1
 			allowNull: false
-        }
+		}
 	},
 	{
 		sequelize: db,

@@ -11,13 +11,14 @@ fee_payment.init(
 			allowNull: false
 		},
 		value: {
-			type: Sequelize.FLOAT,
+			type: Sequelize.DOUBLE,
 			allowNull: false
-        },
-        transferType: {
-			type: Sequelize.STRING,
-			allowNull: false
-        }
+		},
+		transferType: {
+			type: Sequelize.STRING, // 0 is transferring Internal Bank, 1 is transferring External Bank
+			allowNull: false,
+			defaultValue: '0'
+		}
 	},
 	{
 		sequelize: db,

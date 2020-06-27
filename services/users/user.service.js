@@ -210,6 +210,14 @@ class User extends Model {
 		return false;
 	}
 
+	//hàm này ko async vì ta sẽ dùng req.session để nhận biết, ko dùng tới DB
+	static checkUserVeiryCitizenIdentificationIdYet(request) {
+		var result = String(request.citizenIdentificationId).startsWith('empty=[');
+		//nếu CMND bắt đầu bằng empty -> chưa xác nhận
+		if (result) return null;
+		return 'verified';
+	}
+
 	//hàm này đảm bảo code random được tạo ra là độc nhất, đang không tồn tại trong DB
 	static async getUniqueRandomCode() {
 		var randomCode = randomHelper.getRandomString(15);
@@ -226,7 +234,13 @@ class User extends Model {
 		const newVerifyCode = await User.getUniqueRandomCode();
 		const newUser = await User.create({
 			email: request.email,
-			citizenIdentificationId: 'empty=[' + new Date().toISOString() + ']=' + randomHelper.getRandomString(10),
+			citizenIdentificationId:
+				'empty=[' +
+				randomHelper.getRandomString(6) +
+				',cre: ' +
+				new Date().toISOString() +
+				']=' +
+				randomHelper.getRandomString(9),
 			lastName: request.lastName,
 			firstName: request.firstName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
