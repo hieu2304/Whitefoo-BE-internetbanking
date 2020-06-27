@@ -8,7 +8,7 @@ module.exports.getRegister = function(req, res) {
 
 module.exports.postRegister = asyncHandler(async function(req, res, next) {
 	const errors = validateRegister.validateErrorHandle(req);
-	if (errors) {
+	if (true) {
 		return res.status(409).json(errors);
 	}
 
