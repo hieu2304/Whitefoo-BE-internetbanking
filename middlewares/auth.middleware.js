@@ -4,11 +4,11 @@ const jwt = require('jsonwebtoken');
 const userService = require('../services/users/user.service');
 
 //yêu cầu tài khoản phải xác nhận Chứng minh nhân dân/Căn cước công dân
-module.exports.verifyCitizenIdentificationIdRequired = asyncHandler(async function(req, res, next) {
-	const result = await userService.checkUserVeiryCitizenIdentificationIdYet(req.session.user);
+module.exports.verifyCitizenIdentificationIdRequired = function(req, res, next) {
+	const result = req.session.user.citizenIdentificationId;
 	if (result) return next();
 	return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
-});
+};
 
 // yêu cầu tài khoản phải xác nhận email
 module.exports.verifyEmailRequired = asyncHandler(async function(req, res, next) {
@@ -18,11 +18,11 @@ module.exports.verifyEmailRequired = asyncHandler(async function(req, res, next)
 });
 
 // yêu cầu phải là nhân viên của ngân hàng
-module.exports.internalUserRequired = asyncHandler(async function(req, res, next) {
-	const result = await userService.checkInternalUser(req.session.user);
+module.exports.internalUserRequired = function(req, res, next) {
+	const result = req.session.user.citizenIdentificationId;
 	if (result) return next();
 	return res.status(403).send({ message: 'User do not have permission' });
-});
+};
 
 // yêu cầu phải đang tình trạng đã logout
 module.exports.logoutRequired = function(req, res, next) {

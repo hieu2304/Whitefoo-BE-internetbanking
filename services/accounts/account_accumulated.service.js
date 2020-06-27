@@ -14,7 +14,7 @@ account_accumulated.init(
 			type: Sequelize.NUMBER, //number of months: example: 3 months -> 3, 12 months->12
 			allowNull: false
 		},
-		startTermDare: {
+		startTermDate: {
 			type: Sequelize.DATEONLY,
 			allowNull: false
 		}

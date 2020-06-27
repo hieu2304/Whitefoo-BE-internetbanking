@@ -234,13 +234,6 @@ class User extends Model {
 		const newVerifyCode = await User.getUniqueRandomCode();
 		const newUser = await User.create({
 			email: request.email,
-			citizenIdentificationId:
-				'empty=[' +
-				randomHelper.getRandomString(6) +
-				',cre: ' +
-				new Date().toISOString() +
-				']=' +
-				randomHelper.getRandomString(9),
 			lastName: request.lastName,
 			firstName: request.firstName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
@@ -285,7 +278,8 @@ User.init(
 		citizenIdentificationId: {
 			type: Sequelize.STRING,
 			allowNull: true,
-			unique: true
+			unique: true,
+			defaultValue: null
 		},
 		lastName: {
 			type: Sequelize.STRING,
