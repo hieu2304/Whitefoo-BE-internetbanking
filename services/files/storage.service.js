@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
+const User = require('../users/user.service');
 const Model = Sequelize.Model;
 
 class Storage extends Model {}
@@ -26,5 +27,8 @@ Storage.init({
     sequelize: db,
     modelName: 'storage'
 });
+
+User.hasMany(Storage);
+Storage.belongsTo(User);
 
 module.exports = Storage;
