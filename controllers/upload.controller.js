@@ -1,88 +1,139 @@
 const { BlobServiceClient, ContainerSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const uuid = require('uuid');
 const intoStream = require('into-stream');
-const asyncHandler = require('express-async-handler');
-const storage = require('../services/files/storage.service');
+const Storage = require('../services/files/storage.service');
+const User = require('../services/users/user.service');
 
-module.exports.getUpload = asyncHandler(async function (req, res, next) {
-	console.log('ok');
+function validateCredential(clientId, secretKey) {
+	if (clientId !== process.env.CLIENT_ID || secretKey !== process.env.SECRET_KEY) {
+		return false;
+	}
+	return true;
+}
+
+async function getIdCard(req, res, next) {
+	// Validate credential
 	if (!req.body.clientId || !req.body.secretKey) {
 		return res.status(403).send({ message: 'The request is missing a valid credential.' });
 	}
-	else if (req.body.clientId != process.env.CLIENT_ID || req.body.secretKey != process.env.SECRET_KEY) {
+	else if (!validateCredential(req.body.clientId, req.body.secretKey)) {
 		return res.status(403).send({ message: 'Invalid credential.' });
 	}
-	const id = req.body.id;
-	const blob = await storage.findByPk(id);
+	const blob = await Storage.findByPk(req.body.id);
 	if (!blob) {
-		return res.status(404);
+		return res.status(404).send({ message: 'File not found.' });
 	}
+	const blobUri = blobUriGenerator(blob.container, blob.blobName);
+	return res.status(200).send({ uri: blobUri });
+};
+
+async function postIdCard(req, res, next) {
+	// Validate credential
+	if (!req.body.clientId || !req.body.secretKey) {
+		return res.status(403).send({ message: 'The request is missing a valid credential.' });
+	}
+	else if (!validateCredential(req.body.clientId, req.body.secretKey)) {
+		return res.status(403).send({ message: 'Invalid credential.' });
+	}
+	// Create a unique name for the blob
+	const sub = uuid.v1();
+	const containerName = 'idcards';
+	const blobName = `${sub}/${req.file.originalname}`;
+	const fileStream = intoStream(req.file.buffer);
+	const userId = req.session.user.id;
+	// Upload and save result to database
+	const upload = await blobUploadAsync(containerName, blobName, fileStream, req.file.buffer.length, req.file.mimetype, userId);
+	return res.status(200).send(upload);
+};
+
+async function deleteIdCard(req, res, next) {
+	// Validate credential
+	if (!req.body.clientId || !req.body.secretKey) {
+		return res.status(403).send({ message: 'The request is missing a valid credential.' });
+	}
+	else if (!validateCredential(req.body.clientId, req.body.secretKey)) {
+		return res.status(403).send({ message: 'Invalid credential.' });
+	}
+	const user = await User.findByPk(req.session.user.id);
+	if (user.userType !== '0') {
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete.' });
+	}
+	const blob = await Storage.findByPk(req.body.id);
+	if (!blob) {
+		return res.status(404).send({ message: 'File not found.' });
+	}
+	// Remove from blob storage and database
+	else if (blobDeleteAsync(blob.id, blob.container, blob.blobName)) {
+		return res.status(200).send({ message: 'Blob deleted successfully.' });
+	}
+	return res.status(404).send({ message: 'File not found on blob storage.' });;
+};
+
+async function blobUploadAsync(containerName, blobName, fileStream, fileLength, mimeType, userId) {
+	// Create the BlobServiceClient object which will be used to create a container client
+	const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+	// Get a reference to a container
+	const containerClient = blobServiceClient.getContainerClient(containerName);
+	// Create the container
+	if (!containerClient.exists()) {
+		const createContainerResponse = await containerClient.create();
+		//console.log("Container was created successfully. requestId: ", createContainerResponse.requestId);
+	}
+	// Get a block blob client
+	const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+	// Upload data to the blob
+	const uploadBlobResponse = await blockBlobClient.uploadStream(fileStream, fileLength);
+	//console.log("Blob was uploaded successfully. requestId: ", uploadBlobResponse.requestId);
+	// Save to storage database
+	const upload = await Storage.create({
+		container: containerName,
+		blobName: blobName,
+		blobSize: fileLength,
+		mimeType: mimeType,
+		userId: userId
+	});
+	// Return upload result
+	return upload;
+}
+
+function blobUriGenerator(containerName, blobName) {
 	// The following values can be used for permissions: 
 	// "a" (Add), "r" (Read), "w" (Write), "d" (Delete), "l" (List)
 	// Concatenate multiple permissions, such as "rwa" = Read, Write, Add
 	// Create the StorageSharedKeyCredential object which will be used to get the sas token
 	const sharedKeyCredential = new StorageSharedKeyCredential(process.env.AZURE_STORAGE_ACCOUNT_NAME, process.env.AZURE_STORAGE_ACCOUNT_KEY);
-	// Create a SAS token that expires in an hour
+	// Create a SAS token that expires in one day
 	// Set start time to five minutes ago to avoid clock skew.
 	const startDate = new Date();
 	startDate.setMinutes(startDate.getMinutes() - 5);
 	const expiryDate = new Date(startDate);
-	expiryDate.setMinutes(startDate.getMinutes() + 60);
+	expiryDate.setDate(startDate.getDate() + 1);
 	const sasToken = generateBlobSASQueryParameters({
-		containerName: blob.container,
-		blobName: blob.blobName,
+		containerName: containerName,
+		blobName: blobName,
 		permissions: ContainerSASPermissions.parse("r"),
 		startsOn: startDate,
 		expiresOn: expiryDate
 	}, sharedKeyCredential).toString();
-	res.status(200).send({
-		uri: `${process.env.AZURE_STORAGE_URL}/${blob.container}/${blob.blobName}?${sasToken}`
-	});
-});
+	return `${process.env.AZURE_STORAGE_URL}/${containerName}/${blobName}?${sasToken}`;
+}
 
-module.exports.postUpload = asyncHandler(async function (req, res, next) {
-	//some logical here
-	if (!req.body.clientId || !req.body.secretKey) {
-		return res.status(403).send({ message: 'The request is missing a valid credential.' });
-	}
-	else if (req.body.clientId != process.env.CLIENT_ID || req.body.secretKey != process.env.SECRET_KEY) {
-		return res.status(403).send({ message: 'Invalid credential.' });
-	}
-	const uploads = [];
-	for (const file of req.files) {
-		// Create the BlobServiceClient object which will be used to create a container client
-		const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
-		// Create a unique name for the container
-		const containerName = 'idcards';
-		// Get a reference to a container
-		const containerClient = blobServiceClient.getContainerClient(containerName);
-		// Create the container
-		if (!containerClient.exists()) {
-			const createContainerResponse = await containerClient.create();
-			//console.log("Container was created successfully. requestId: ", createContainerResponse.requestId);
-		}
-		// Create a unique name for the blob
-		const blobName = `${uuid.v1()}/${file.originalname}`;
-		const stream = intoStream(file.buffer);
-		const size = file.buffer.length;
-		// Get a block blob client
+async function blobDeleteAsync(id, containerName, blobName) {
+	const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+	const containerClient = blobServiceClient.getContainerClient(containerName);
+	if (containerClient.exists()) {
 		const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-		// Upload data to the blob
-		const uploadBlobResponse = await blockBlobClient.uploadStream(stream, size);
-		//console.log("Blob was uploaded successfully. requestId: ", uploadBlobResponse.requestId);
-		const upload = {
-			container: containerName,
-			blobName: blobName,
-			blobSize: size,
-			mimeType: file.mimetype
-		};
-		await storage.create(upload)
-		uploads.push(upload);
-	};
-	//if success
-	return res.status(200).send(uploads);
-});
+		if (blockBlobClient.exists()) {
+			blockBlobClient.delete();
+			Storage.removeById(id);
+			return true;
+		}
+	}
+	return false;
+}
 
-module.exports.deleteUpload = asyncHandler(async function (req, res, next) {
-	return res.status(403);
-});
+module.exports = {
+	getIdCard,
+	postIdCard,
+	deleteIdCard
+}

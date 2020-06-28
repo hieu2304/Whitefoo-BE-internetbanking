@@ -1,8 +1,17 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
+const User = require('../users/user.service');
 const Model = Sequelize.Model;
 
-class Storage extends Model {}
+class Storage extends Model {
+    static async removeById(id) {
+        return Storage.destroy({
+            where: {
+                id: id
+            }
+        })
+    }
+}
 
 //init here
 Storage.init({
@@ -26,5 +35,8 @@ Storage.init({
     sequelize: db,
     modelName: 'storage'
 });
+
+User.hasMany(Storage);
+Storage.belongsTo(User);
 
 module.exports = Storage;
