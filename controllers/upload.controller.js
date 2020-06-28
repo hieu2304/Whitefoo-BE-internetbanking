@@ -4,7 +4,18 @@ const intoStream = require('into-stream');
 const Storage = require('../services/files/storage.service');
 const User = require('../services/users/user.service');
 
-async function getIdCard(req, res, next) {
+async function getListBlob(req, res) {
+	const user = await User.findByPk(req.session.user.id);
+	if (user.userType !== '0') {
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
+	}
+	const containerName = req.body.container;
+	const userId = req.body.userId;
+	const blobs = await Storage.findAllBlobsByUserId(containerName, userId);
+	return res.status(200).send(blobs);
+}
+
+async function getIdCard(req, res) {
 	const blob = await Storage.findByPk(req.body.id);
 	if (!blob) {
 		return res.status(404).send({ message: 'File not found.' });
@@ -13,7 +24,7 @@ async function getIdCard(req, res, next) {
 	return res.status(200).send({ uri: blobUri });
 };
 
-async function postIdCard(req, res, next) {
+async function postIdCard(req, res) {
 	// Create a unique name for the blob
 	const sub = uuid.v1();
 	const containerName = 'idcards';
@@ -25,10 +36,10 @@ async function postIdCard(req, res, next) {
 	return res.status(200).send(upload);
 };
 
-async function deleteIdCard(req, res, next) {
+async function deleteIdCard(req, res) {
 	const user = await User.findByPk(req.session.user.id);
 	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete.' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete this file.' });
 	}
 	const blob = await Storage.findByPk(req.body.id);
 	if (!blob) {
@@ -105,6 +116,7 @@ async function blobDeleteAsync(id, containerName, blobName) {
 }
 
 module.exports = {
+	getListBlob,
 	getIdCard,
 	postIdCard,
 	deleteIdCard

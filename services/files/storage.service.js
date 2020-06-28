@@ -20,7 +20,7 @@ class Storage extends Model {
         });
     }
 
-    static async listContainerByUserId(container, userId) {
+    static async findAllBlobsByUserId(container, userId) {
         return Storage.findAll({
             attributes: ['id', 'container', 'blobName', 'blobSize', 'mimeType', 'userId'],
             where: {

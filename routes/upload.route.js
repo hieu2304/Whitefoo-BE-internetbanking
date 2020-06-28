@@ -7,8 +7,9 @@ const auth = require('../middlewares/auth.middleware');
 
 router.use(auth.loginRequired);
 
-router.get('/idcard', auth.authSecret, asyncHandler(controller.getIdCard));
-router.post('/idcard', upload.single('image'), auth.authSecret, asyncHandler(controller.postIdCard));
-router.delete('/idcard', auth.authSecret, asyncHandler(controller.deleteIdCard));
+router.get('/idcard', auth.authSecret, auth.authToken, asyncHandler(controller.getIdCard));
+router.post('/idcard', upload.single('image'), auth.authSecret, auth.authToken, asyncHandler(controller.postIdCard));
+router.delete('/idcard', auth.authSecret, auth.authToken, asyncHandler(controller.deleteIdCard));
+router.get('/list', auth.authSecret, auth.authToken, asyncHandler(controller.getListBlob));
 
 module.exports = router;
