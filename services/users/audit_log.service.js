@@ -2,7 +2,18 @@ const Sequelize = require('sequelize');
 const db = require('../db');
 const Model = Sequelize.Model;
 
-class audit_log extends Model {}
+class audit_log extends Model {
+	static async pushAuditLog(internalUserId, userId, action, description) {
+		//check Empty later
+		const newLog = await audit_log.create({
+			internalUserId: internalUserId,
+			userId: userId,
+			action: action,
+			description: description,
+			time: new Date()
+		});
+	}
+}
 audit_log.init(
 	{
 		internalUserId: {

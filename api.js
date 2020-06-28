@@ -28,6 +28,6 @@ router.use('/functional', require('./routes/functional.route'));
 
 //các API gọi từ nhân viên ngân hàng
 router.use(authMiddleware.internalUserRequired);
-route.use('/internal', require('./routes/internal.route'));
+router.use('/internal', require('./routes/internal.route'));
 
 module.exports = router;
