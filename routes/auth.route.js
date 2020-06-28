@@ -3,13 +3,14 @@ const router = express.Router();
 const controller = require('../controllers/auth.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 
-//các HTTP get
-router.get('/', authMiddleware.logoutRequired, controller.getAuth);
+//Login
 router.get('/login', authMiddleware.logoutRequired, controller.getAuthLogin);
+router.post('/login', authMiddleware.logoutRequired, controller.postAuthLoginAIO);
+
+//Logout
 router.get('/logout', authMiddleware.loginRequired, controller.getAuthLogout);
 
-//các HTTP post
-router.post('/login', authMiddleware.logoutRequired, controller.postAuthLoginAIO);
+//verify Email Code
 //API verify Email không cần trạng thái login hay chưa
 router.post('/verify', controller.postAuthVerify);
 

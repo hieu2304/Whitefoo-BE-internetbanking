@@ -6,7 +6,7 @@ const userService = require('../services/users/user.service');
 //yêu cầu tài khoản phải xác nhận Chứng minh nhân dân/Căn cước công dân
 module.exports.verifyCitizenIdentificationIdRequired = function(req, res, next) {
 	const result = req.session.user.citizenIdentificationId;
-	if (result) return next();
+	if (result && result.length > 0) return next();
 	return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
 };
 

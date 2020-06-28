@@ -19,12 +19,15 @@ router.use(jwt.authToken);
 
 //các API cần tài khoản đã kích hoạt email
 router.use(authMiddleware.verifyEmailRequired);
+
 //các API cần các tài khoản đã xác nhận CMND/CCCD
 router.use(authMiddleware.verifyCitizenIdentificationIdRequired);
 router.use('/post', require('./routes/post.route'));
 router.use('/token', require('./routes/token.route'));
+router.use('/functional', require('./routes/functional.route'));
 
 //các API gọi từ nhân viên ngân hàng
 router.use(authMiddleware.internalUserRequired);
+route.use('/internal', require('./routes/internal.route'));
 
 module.exports = router;
