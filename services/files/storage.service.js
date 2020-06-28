@@ -7,9 +7,27 @@ class Storage extends Model {
     static async removeById(id) {
         return Storage.destroy({
             where: {
-                id: id
+                id
             }
-        })
+        });
+    }
+
+    static async removeByUserId(userId) {
+        return Storage.destroy({
+            where: {
+                userId
+            }
+        });
+    }
+
+    static async listContainerByUserId(container, userId) {
+        return Storage.findAll({
+            attributes: ['id', 'container', 'blobName', 'blobSize', 'mimeType', 'userId'],
+            where: {
+                container,
+                userId
+            }
+        });
     }
 }
 
@@ -33,7 +51,8 @@ Storage.init({
     }
 }, {
     sequelize: db,
-    modelName: 'storage'
+    modelName: 'storage',
+    freezeTableName: true
 });
 
 User.hasMany(Storage);
