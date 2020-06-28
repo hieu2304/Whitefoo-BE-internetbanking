@@ -4,21 +4,7 @@ const intoStream = require('into-stream');
 const Storage = require('../services/files/storage.service');
 const User = require('../services/users/user.service');
 
-function validateCredential(clientId, secretKey) {
-	if (clientId !== process.env.CLIENT_ID || secretKey !== process.env.SECRET_KEY) {
-		return false;
-	}
-	return true;
-}
-
 async function getIdCard(req, res, next) {
-	// Validate credential
-	if (!req.body.clientId || !req.body.secretKey) {
-		return res.status(403).send({ message: 'The request is missing a valid credential.' });
-	}
-	else if (!validateCredential(req.body.clientId, req.body.secretKey)) {
-		return res.status(403).send({ message: 'Invalid credential.' });
-	}
 	const blob = await Storage.findByPk(req.body.id);
 	if (!blob) {
 		return res.status(404).send({ message: 'File not found.' });
@@ -28,13 +14,6 @@ async function getIdCard(req, res, next) {
 };
 
 async function postIdCard(req, res, next) {
-	// Validate credential
-	if (!req.body.clientId || !req.body.secretKey) {
-		return res.status(403).send({ message: 'The request is missing a valid credential.' });
-	}
-	else if (!validateCredential(req.body.clientId, req.body.secretKey)) {
-		return res.status(403).send({ message: 'Invalid credential.' });
-	}
 	// Create a unique name for the blob
 	const sub = uuid.v1();
 	const containerName = 'idcards';
@@ -47,13 +26,6 @@ async function postIdCard(req, res, next) {
 };
 
 async function deleteIdCard(req, res, next) {
-	// Validate credential
-	if (!req.body.clientId || !req.body.secretKey) {
-		return res.status(403).send({ message: 'The request is missing a valid credential.' });
-	}
-	else if (!validateCredential(req.body.clientId, req.body.secretKey)) {
-		return res.status(403).send({ message: 'Invalid credential.' });
-	}
 	const user = await User.findByPk(req.session.user.id);
 	if (user.userType !== '0') {
 		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete.' });

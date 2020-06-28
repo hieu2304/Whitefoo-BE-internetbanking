@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require('./helpers/jwt.helper');
 const authMiddleware = require('./middlewares/auth.middleware');
 
-// Middleware that uses body-parser won't work on multer
+// Pre-middleware won't work on multer
 router.use('/upload', require('./routes/upload.route'));
 
 //middleware secret key, này sẽ luôn dùng, 1 addition Authentication ngoài JWT
