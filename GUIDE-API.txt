@@ -65,7 +65,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
 
-/api/upload
+/api/upload/idcard
     method: POST
     request:
         clientId,
@@ -83,8 +83,10 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         id
     response:
         uri
-    method: DELETE (WIP)
+    method: DELETE (userType === '0')
     request:
         clientId,
         secretKey,
         id
+    response:
+        message
