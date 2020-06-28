@@ -2,11 +2,14 @@ const Sequelize = require('sequelize');
 const db = require('../db');
 const Model = Sequelize.Model;
 
-class history_accumulate extends Model {}
-
-history_accumulate.init(
+class audit_log extends Model {}
+audit_log.init(
 	{
-		accountId: {
+		internalUserId: {
+			type: Sequelize.STRING,
+			allowNull: false
+		},
+		userId: {
 			type: Sequelize.STRING,
 			allowNull: false
 		},
@@ -14,21 +17,17 @@ history_accumulate.init(
 			type: Sequelize.DATE,
 			allowNull: false
 		},
-		message: {
-			type: Sequelize.TEXT,
-			allowNull: false
-		},
-		value: {
-			type: Sequelize.DOUBLE,
-			allowNull: false
-		},
-		status: {
+		action: {
 			type: Sequelize.STRING,
 			allowNull: false
+		},
+		description: {
+			type: Sequelize.TEXT,
+			allowNull: true
 		}
 	},
 	{
 		sequelize: db,
-		modelName: 'history_accumulate'
+		modelName: 'audit_log'
 	}
 );

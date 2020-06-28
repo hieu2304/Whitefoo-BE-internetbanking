@@ -13,20 +13,20 @@ account.init(
 		userId: {
 			type: Sequelize.STRING,
 			allowNull: false
-        },
-        balance: {
+		},
+		balance: {
+			type: Sequelize.DOUBLE, //a large number, use Long int or double
+			allowNull: false
+		},
+		currencyType: {
 			type: Sequelize.STRING,
 			allowNull: false
-        },
-        currencyType: {
+		},
+		accountType: {
 			type: Sequelize.STRING,
 			allowNull: false
-        },
-        accountType: {
-			type: Sequelize.STRING,
-			allowNull: false
-        },
-        openedDate: {
+		},
+		openedDate: {
 			type: Sequelize.DATEONLY,
 			allowNull: false
 		},

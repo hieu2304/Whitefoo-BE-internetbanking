@@ -24,3 +24,9 @@ exchange_rate.init(
 		modelName: 'exchange_rate'
 	}
 );
+
+/* EXAMPLE
+id				unitA				unitB				value
+1				USD					VND					23211
+2				VND					USD					0,000043
+*/

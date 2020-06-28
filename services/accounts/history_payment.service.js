@@ -9,31 +9,32 @@ history_payment.init(
 		accountIdA: {
 			type: Sequelize.STRING,
 			allowNull: false
-        },
-        accountIdB: {
+		},
+		accountIdB: {
 			type: Sequelize.STRING,
 			allowNull: false
 		},
 		time: {
 			type: Sequelize.DATE,
 			allowNull: false
-        },
-        message: {
+		},
+		message: {
+			type: Sequelize.TEXT,
+			allowNull: false
+		},
+		value: {
+			type: Sequelize.DOUBLE,
+			allowNull: false
+		},
+		transferType: {
+			type: Sequelize.STRING, // 0 is transferring Internal Bank, 1 is transferring External
+			allowNull: false,
+			defaultValue: '0'
+		},
+		status: {
 			type: Sequelize.STRING,
 			allowNull: false
-        },
-        value: {
-			type: Sequelize.FLOAT,
-			allowNull: false
-        },
-        transferType: {
-			type: Sequelize.STRING,
-			allowNull: false
-        },
-        status: {
-			type: Sequelize.STRING,
-			allowNull: false
-        },
+		}
 	},
 	{
 		sequelize: db,
