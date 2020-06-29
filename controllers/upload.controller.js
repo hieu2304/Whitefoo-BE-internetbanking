@@ -4,7 +4,7 @@ const intoStream = require('into-stream');
 const Storage = require('../services/files/storage.service');
 const User = require('../services/users/user.service');
 
-async function getListBlob(req, res) {
+async function getListBlobs(req, res) {
 	const user = await User.findByPk(req.session.user.id);
 	if (user.userType !== '0') {
 		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
@@ -16,6 +16,10 @@ async function getListBlob(req, res) {
 }
 
 async function getIdCard(req, res) {
+	const user = await User.findByPk(req.session.user.id);
+	if (user.userType !== '0') {
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
+	}
 	const blob = await Storage.findByPk(req.body.id);
 	if (!blob) {
 		return res.status(404).send({ message: 'File not found.' });
@@ -116,7 +120,7 @@ async function blobDeleteAsync(id, containerName, blobName) {
 }
 
 module.exports = {
-	getListBlob,
+	getListBlobs,
 	getIdCard,
 	postIdCard,
 	deleteIdCard
