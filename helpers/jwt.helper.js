@@ -34,6 +34,7 @@ module.exports.generateToken = function(user) {
 module.exports.authToken = function(req, res, next) {
 	const token = req.body.token;
 	if (token == null) return res.status(401).send({ message: 'Invalid Token' });
+	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
 		if (err) {
 			return res.status(401).send({ message: 'Invalid Token' });
@@ -42,3 +43,20 @@ module.exports.authToken = function(req, res, next) {
 		}
 	});
 };
+
+module.exports.decodeToken = function decodeToken(token) {
+	return new Promise((resolve, reject) => {
+		jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+			if (err) {
+				return reject(err);
+			}
+			resolve(decoded);
+		});
+	});
+};
+
+function checkIsBlackList(token) {
+	if (blackListToken.includes(token)) return true;
+	return false;
+}
+module.exports.checkIsBlackList = checkIsBlackList;

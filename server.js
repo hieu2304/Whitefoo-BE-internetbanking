@@ -3,6 +3,13 @@ if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
 
+var currentUser = null;
+var currentToken = null;
+const blackListToken = [];
+global.currentUser = currentUser;
+global.currentToken = currentToken;
+global.blackListToken = blackListToken;
+
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -37,10 +44,12 @@ app.use(function(req, res, next) {
 app.use('/api', require('./api'));
 
 //server
-db.sync().then(function() {
-	app.listen(port);
-	console.log(`\nServer is listening on port ${port}\n`);
-})
-.catch(function(err) {
-	console.error(err);
-});
+db
+	.sync()
+	.then(function() {
+		app.listen(port);
+		console.log(`\nServer is listening on port ${port}\n`);
+	})
+	.catch(function(err) {
+		console.error(err);
+	});

@@ -13,9 +13,13 @@ router.use(authMiddleware.authSecret);
 router.use('/auth', require('./routes/auth.route'));
 router.use('/register', require('./routes/register.route'));
 router.use('/user', require('./routes/user.route'));
+router.use('/token', require('./routes/token.route'));
 
 //các API cần JWT còn hiệu lực
 router.use(jwt.authToken);
+
+//yêu cầu đã đăng nhập
+router.use(authMiddleware.loginRequired);
 
 //các API cần tài khoản đã kích hoạt email
 router.use(authMiddleware.verifyEmailRequired);
@@ -23,7 +27,6 @@ router.use(authMiddleware.verifyEmailRequired);
 //các API cần các tài khoản đã xác nhận CMND/CCCD
 router.use(authMiddleware.verifyCitizenIdentificationIdRequired);
 router.use('/post', require('./routes/post.route'));
-router.use('/token', require('./routes/token.route'));
 router.use('/functional', require('./routes/functional.route'));
 
 //các API gọi từ nhân viên ngân hàng

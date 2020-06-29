@@ -10,8 +10,9 @@ module.exports.getAuthLogin = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
 module.exports.getAuthLogout = function(req, res, next) {
-	req.session.user = null;
-	req.session.token = null;
+	blackListToken.push(currentToken);
+	currentUser = null;
+	currentToken = null;
 	return res.status(200).send({ message: 'OK' });
 };
 
@@ -22,8 +23,10 @@ module.exports.postAuthLoginViaEmail = asyncHandler(async function(req, res, nex
 	if (!result) {
 		return res.status(403).send({ message: 'Wrong email or password' });
 	}
-	req.session.user = result.user.dataValues;
-	req.session.token = result.token;
+
+	currentUser = result.user.dataValues;
+	currentToken = result.token;
+
 	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
 });
 
@@ -32,8 +35,10 @@ module.exports.postAuthLoginViaPhoneNumber = asyncHandler(async function(req, re
 	if (!result) {
 		return res.status(403).send({ message: 'Wrong phone number or password' });
 	}
-	req.session.user = result.user.dataValues;
-	req.session.token = result.token;
+
+	currentUser = result.user.dataValues;
+	currentToken = result.token;
+
 	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
 });
 
@@ -42,8 +47,10 @@ module.exports.postAuthLoginViaCitizenIdentificationId = asyncHandler(async func
 	if (!result) {
 		return res.status(403).send({ message: 'Wrong citizenIdentificationId or password' });
 	}
-	req.session.user = result.user.dataValues;
-	req.session.token = result.token;
+
+	currentUser = result.user.dataValues;
+	currentToken = result.token;
+
 	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
 });
 
@@ -53,8 +60,10 @@ module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 	if (!result) {
 		return res.status(403).send({ message: 'Wrong login name or password' });
 	}
-	req.session.user = result.user.dataValues;
-	req.session.token = result.token;
+
+	currentUser = result.user.dataValues;
+	currentToken = result.token;
+
 	return res.status(200).send({
 		token: result.token,
 		message: 'OK'
