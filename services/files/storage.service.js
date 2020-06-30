@@ -37,12 +37,20 @@ Storage.init({
         type: Sequelize.STRING,
         allowNull: false
     },
+    uuid: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
     blobName: {
         type: Sequelize.STRING,
         allowNull: false
     },
     blobSize: {
         type: Sequelize.INTEGER,
+        allowNull: false
+    },
+    quality: {
+        type: Sequelize.STRING,
         allowNull: false
     },
     mimeType: {
