@@ -7,5 +7,6 @@ router.use(authMiddleware.logoutRequired);
 router.post('/forgotpassword', controller.postForgotPassword);
 router.post('/verifyforgotcode', controller.postVerifyForgotCode);
 router.post('/updatenewpassword', controller.postUpdateNewPassword);
+router.post('/loginwithnewpassword',controller.postLoginNewPassword);
 
 module.exports = router;

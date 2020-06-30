@@ -267,6 +267,83 @@ class User extends Model {
 	static verifyPassword(passwordsUnHashed, passwordsHashed) {
 		return bcrypt.compareSync(passwordsUnHashed, passwordsHashed);
 	}
+
+	//hàm này khởi tạo mã quên mật khẩu và gửi qua email
+	static async createForgotCode(_username)
+	{
+		const isUserConflict = await User.checkConflictUserName(_username);
+		if (isUserConflict) return isUserConflict;
+		const newForgotCode = await User.getUniqueRandomCode();
+		const isExist = await User.findOne({
+			where: {
+				userName: _username
+			}
+		});
+		if(isExist){
+			await User.update(
+				{
+					forgotCode: newForgotCode 
+				}
+			);
+			return isExist;
+		}
+		return null;
+	}
+
+	//hàm này kiểm tra mã gửi dùng cho quên mật khẩu có giống không
+	static async verifyForgotCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				forgotCode: _code
+			}
+		});
+		if (isExist) return true;
+		return false;
+	}
+
+	//hàm này viết thay đổi mật khẩu cũ thành mật khẩu mới
+	static async updateNewpassword(_code,_password,confirmpassword) {
+		const isExist = await User.findOne({
+			where: {
+				forgotCode: _code
+			}
+		});
+		if (isExist)
+		{
+			await User.update(
+				{
+					password: _password 
+				},
+				{
+					where: {password: confirmpassword }
+				}
+			);
+			return isExist;
+		}
+		return null;
+	}
+
+	//hàm này được viết cho chức năng đã đăng nhập muốn đổi mật khẩu
+	static async LoginNewpassword(_password,Newpassword,confirmNewpassword) {
+		const isExist = await User.findOne({
+			where: {
+				password: _password
+			}
+		});
+		if (isExist)
+		{
+			await User.update(
+				{
+					password: Newpassword 
+				},
+				{
+					where: {Newpassword: confirmNewpassword }
+				}
+			);
+			return isExist;
+		}
+		return null;
+	}
 }
 User.init(
 	{

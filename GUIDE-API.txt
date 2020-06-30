@@ -45,7 +45,40 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
 
+/api/user/forgotpassword
+    method: POST
+    điều kiện: yêu cầu đã tồn tại username
+    params:
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+        username:admin@admin.com
+        ForgotCode: Code được send qua email để xác nhận quên mật khẩu
 
+/api/user/verifyforgotcode
+    method: POST
+    điều kiện: phải nhận được Forgot code đã send qua mail
+    params:
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+        ForgotCode: được so sánh với code có sẵn trong db
+
+/api/user/verifyforgotcode
+    method: POST
+    điều kiện: đã xác nhận Forgot code qua email
+    params:
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+        username:admin@admin.com
+        password: 123456789
+
+/api/user/loginNewpassword
+    method: POST
+    điều kiện: đã login,đã xác nhận email
+    params:
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+        username:admin@admin.com
+        password: 123456789
 
 
 /api/token/renew
