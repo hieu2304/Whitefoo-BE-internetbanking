@@ -3,7 +3,11 @@ LƯU Ý: khi gọi API luôn phải có clientID và secretKey mới gọi api �
 clientId:515hwrFpeLvGeVo2SvSe
 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
-/api/register
+
+##########################################################################################
+#######################[ các api khách - User chưa đăng nhập ]############################
+
+/api/guest/register
     method: POST
     điều kiện: đã logout
     request params: (email, password không được giống cái đã tồn tại trong DB, sẽ throw err conflict )
@@ -13,12 +17,11 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         dateOfBirth:12/12/2012
         phoneNumber:0909090909
         password:a1234567890
-        confirmpassword:a1234567890
+        confirmPassword:a1234567890
         userName:testerbugbughihi
         address:192 hàm tử, HCM, Việt Nam
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
-
 
 /api/auth/login
     method: POST
@@ -37,6 +40,34 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
         verifyCode: Code được send qua email để xác nhận tài khoản
 
+/api/guest/forgotpassword
+    method: POST
+    điều kiện: yêu cầu đã tồn tại email người dùng nhập 
+    params:
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+        email:admin@admin.com
+
+/api/guest/verifyforgotcode
+    method: POST
+    params:
+        forgotCode: mã này gửi kèm theo link của forntEnd, frontend sẽ call API này kèm code đó
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
+/api/guest/updatenewpassword
+    method: POST
+    params:
+        newPassword:khongcopass123466
+        confirmPassword:khongcopass123456
+        forgotCode: mã này gửi kèm theo link của forntEnd, frontend sẽ call API này kèm code đó
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
+
+
+##########################################################################################
+####################[ các api User - user có quyền hạn mức độ người dùng ]##################
 
 /api/auth/logout
     method: GET
@@ -44,42 +75,6 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
     params:
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
-
-/api/user/forgotpassword
-    method: POST
-    điều kiện: yêu cầu đã tồn tại username
-    params:
-        clientId:515hwrFpeLvGeVo2SvSe
-        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
-        username:admin@admin.com
-        ForgotCode: Code được send qua email để xác nhận quên mật khẩu
-
-/api/user/verifyforgotcode
-    method: POST
-    điều kiện: phải nhận được Forgot code đã send qua mail
-    params:
-        clientId:515hwrFpeLvGeVo2SvSe
-        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
-        ForgotCode: được so sánh với code có sẵn trong db
-
-/api/user/verifyforgotcode
-    method: POST
-    điều kiện: đã xác nhận Forgot code qua email
-    params:
-        clientId:515hwrFpeLvGeVo2SvSe
-        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
-        username:admin@admin.com
-        password: 123456789
-
-/api/user/loginNewpassword
-    method: POST
-    điều kiện: đã login,đã xác nhận email
-    params:
-        clientId:515hwrFpeLvGeVo2SvSe
-        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
-        username:admin@admin.com
-        password: 123456789
-
 
 /api/token/renew
     method: POST
@@ -97,6 +92,19 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         token: token còn đang hiệu lực
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
+
+/api/functional/changepassword
+    method: POST
+    điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
+    params:
+        currentPassword:khongcopassdau
+        newPassword:khongcopass123466
+        confirmPassword:khongcopass123456
+        token: token còn đang hiệu lực
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
 
 /api/upload/idcard
     method: POST
@@ -123,3 +131,8 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         id
     response:
         message
+
+
+
+##########################################################################################
+####################[ các api User Internal - user có quyền hạn nội bộ ]##################

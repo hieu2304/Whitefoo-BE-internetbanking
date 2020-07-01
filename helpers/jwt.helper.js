@@ -23,6 +23,8 @@ module.exports.reGenerateToken = function(req, res, next) {
 			phoneNumber: user.phoneNumber
 		});
 
+		blackListToken.push(previousToken);
+
 		return res.json({ token: token });
 	});
 };
@@ -59,4 +61,5 @@ function checkIsBlackList(token) {
 	if (blackListToken.includes(token)) return true;
 	return false;
 }
+
 module.exports.checkIsBlackList = checkIsBlackList;

@@ -6,27 +6,27 @@ const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
 const Op = Sequelize.Op;
 class User extends Model {
-	static async findUserNoneExclude(username) {
+	static async findUserNoneExclude(userName) {
 		const user = await User.findOne({
 			where: {
 				[Op.or]: [
-					{ email: username },
-					{ citizenIdentificationId: username },
-					{ phoneNumber: username },
-					{ userName: username }
+					{ email: userName },
+					{ citizenIdentificationId: userName },
+					{ phoneNumber: userName },
+					{ userName: userName }
 				]
 			}
 		});
 		return user;
 	}
-	static async findUserUsingExclude(username) {
+	static async findUserUsingExclude(userName) {
 		const user = await User.findOne({
 			where: {
 				[Op.or]: [
-					{ email: username },
-					{ citizenIdentificationId: username },
-					{ phoneNumber: username },
-					{ userName: username }
+					{ email: userName },
+					{ citizenIdentificationId: userName },
+					{ phoneNumber: userName },
+					{ userName: userName }
 				]
 			},
 			attributes: {
@@ -36,11 +36,11 @@ class User extends Model {
 		return user;
 	}
 
-	static async authenticationLoginAIO({ username, password }) {
-		const authUser = await User.findUserNoneExclude(username);
+	static async authenticationLoginAIO({ userName, password }) {
+		const authUser = await User.findUserNoneExclude(userName);
 		if (!authUser) return null;
 		if (!await User.verifyPassword(password, authUser.password)) return null;
-		const user = await User.findUserUsingExclude(username);
+		const user = await User.findUserUsingExclude(userName);
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
@@ -315,7 +315,7 @@ class User extends Model {
 		if (isExist) {
 			await User.update(
 				{
-					password: await User.hashPassword(request.newpassword)
+					password: await User.hashPassword(request.newPassword)
 				},
 				{
 					where: { forgotCode: isExist.forgotCode }
@@ -329,15 +329,15 @@ class User extends Model {
 	//hàm này được viết cho chức năng đã đăng nhập muốn đổi mật khẩu
 	// FE BE đều lưu USer , email,
 	static async changePasswordAfterLogin(request) {
-		//request.currentpassword, newpassword
+		//request.currentPassword, newPassword
 		const result = await User.findUserNoneExclude(currentUser.email);
 		if (!result) return null;
-		const verifyOldPassword = await User.verifyPassword(request.currentpassword, result.password);
+		const verifyOldPassword = await User.verifyPassword(request.currentPassword, result.password);
 		if (!verifyOldPassword) return null;
 
 		const newResult = await User.update(
 			{
-				password: await User.hashPassword(request.newpassword)
+				password: await User.hashPassword(request.newPassword)
 			},
 			{
 				where: {

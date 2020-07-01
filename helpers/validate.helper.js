@@ -22,7 +22,7 @@ module.exports.isNumber = isNumber;
 module.exports.validateRegisterInformation = function() {
 	var confirmPassword = '';
 	return [
-		body('confirmpassword').custom(function(inputConfirmPassword) {
+		body('confirmPassword').custom(function(inputConfirmPassword) {
 			internalConfirmPassword = inputConfirmPassword;
 			return true;
 		}),

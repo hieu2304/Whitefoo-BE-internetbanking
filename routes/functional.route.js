@@ -3,9 +3,11 @@ const router = express.Router();
 const controller = require('../controllers/functional.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 
-router.use(authMiddleware.loginRequired);
-
 //some User's functional here, ex: transferring money, withdrawal money.....
 router.get('/testfunctional', controller.testFunctional);
+
+//Tính năng người dùng tự đổi mật khẩu
+router.get('/changepassword', controller.getChangePasswordAfterLogin);
+router.post('/changepassword', controller.postChangePasswordAfterLogin);
 
 module.exports = router;

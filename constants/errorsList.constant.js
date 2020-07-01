@@ -23,7 +23,7 @@ module.exports.registerErrorValidate = {
 	PASSWORD_TOO_SHORT: { code: 'PASSWORD_TOO_SHORT', message: 'password to short, min is 8' },
 	PASSWORD_TOO_LONG: { code: 'PASSWORD_TOO_LONG', message: 'password to long, max is 40' },
 	PASSWORD_INVALID: { code: 'PASSWORD_INVALID', message: 'password must start with alphabetic' },
-	PASSWORD_NOT_EQUAL: { code: 'PASSWORD_NOT_EQUAL', message: 'password not equals to confirmpassword' },
+	PASSWORD_NOT_EQUAL: { code: 'PASSWORD_NOT_EQUAL', message: 'password not equals to confirmPassword' },
 
 	LASTNAME_TOO_SHORT: { code: 'LASTNAME_TOO_SHORT', message: 'lastName to short, min is 3' },
 	LASTNAME_TOO_LONG: { code: 'LASTNAME_TOO_LONG', message: 'lastName to long, max is 20' },

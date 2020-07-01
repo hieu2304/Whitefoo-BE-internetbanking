@@ -2,6 +2,7 @@ const middlewareHelper = require('../helpers/middleware.helper');
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const userService = require('../services/users/user.service');
+const jwtHelper = require('../helpers/jwt.helper');
 
 //yêu cầu tài khoản phải xác nhận Chứng minh nhân dân/Căn cước công dân
 module.exports.verifyCitizenIdentificationIdRequired = function(req, res, next) {
@@ -53,18 +54,40 @@ module.exports.authSecret = function(req, res, next) {
 };
 
 // yêu cầu có token hợp lệ
-module.exports.authToken = function(req, res, next) {
+module.exports.authToken = jwtHelper.authToken;
+
+// hàm này tổng hợp yêu cầu theo thứ tự sau:
+//token -> logged in -> email verify -> citizenIdentificationId verify
+module.exports.authAll = asyncHandler(async function(req, res, next) {
+	//token check
 	const token = req.headers['token'];
 	if (token == null) return res.status(401).send({ message: 'Invalid Token' });
 	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
+
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
 		if (err) {
 			return res.status(401).send({ message: 'Invalid Token' });
-		} else {
-			return next();
 		}
 	});
-};
+
+	//logged in check
+	if (!currentUser) {
+		//khi cố truy cập vào các trang cần login mà lỗi (chưa login) sẽ trả ra 401
+		return res.status(401).send({ message: 'User not logged in' });
+	}
+
+	//email verified check
+	const checkEmailVerify = await userService.checkUserVerifyEmailCodeYet(currentUser);
+	if (!checkEmailVerify) return res.status(401).send({ message: 'User not verified email yet' });
+
+	//citizenIdentificationId verified check
+	const checkCitizenIdentificationIdVerify = currentUser.citizenIdentificationId;
+	if (!checkCitizenIdentificationIdVerify || !checkCitizenIdentificationIdVerify.length > 0)
+		return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
+
+	//if user passed all verify actions -> success
+	return next();
+});
 
 function checkIsBlackList(token) {
 	if (blackListToken.includes(token)) return true;

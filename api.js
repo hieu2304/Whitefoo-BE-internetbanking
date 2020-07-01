@@ -10,23 +10,24 @@ router.use('/upload', require('./routes/upload.route'));
 router.use(authMiddleware.authSecret);
 
 //các API routes không cần JWT, ko cần kích hoạt email, ko cần internal
+//các API liên quan Authentication: login, logout, verify email
 router.use('/auth', require('./routes/auth.route'));
-router.use('/register', require('./routes/register.route'));
-router.use('/user', require('./routes/user.route'));
+
+//các API sử dụng khi chưa login vào: quên mật khẩu, đăng ký
+router.use('/guest', require('./routes/guest.route'));
+
+//các API liên quan JWT : gia hạn token
 router.use('/token', require('./routes/token.route'));
 
-//các API cần JWT còn hiệu lực
-router.use(jwt.authToken);
+//các API cần JWT còn hiệu lực, yêu cầu đã đăng nhập, tài khoản đã kích hoạt email, tài khoản đã xác nhận CMND/CCCD
+//các auth con trong authAll theo thứ tự: authToken, loginRequired, verifyEmailRequired, verifyCitizenIdentificationIdRequired
+router.use(authMiddleware.authAll);
 
-//yêu cầu đã đăng nhập
-router.use(authMiddleware.loginRequired);
-
-//các API cần tài khoản đã kích hoạt email
-router.use(authMiddleware.verifyEmailRequired);
-
-//các API cần các tài khoản đã xác nhận CMND/CCCD
-router.use(authMiddleware.verifyCitizenIdentificationIdRequired);
+//các api người dùng sử dụng sau khi login, verify hết các kiểu
+//API test
 router.use('/post', require('./routes/post.route'));
+
+//các API tính năng người dùng sau khi login thành công: đổi mật khẩu, chuyển khoản...
 router.use('/functional', require('./routes/functional.route'));
 
 //các API gọi từ nhân viên ngân hàng

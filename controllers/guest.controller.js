@@ -1,16 +1,16 @@
 const asyncHandler = require('express-async-handler');
 const userService = require('../services/users/user.service');
-const emailHelper = require('../helpers/email.helper');
+const validateRegister = require('../helpers/validate.helper');
 
-//check conflic Username generate Forgot code for User
-//step 1 - forgot password
+//Forgot password
+//step 1 - send request forgot password to generate code and send via email
 module.exports.postForgotPassword = asyncHandler(async function(req, res, next) {
 	const result = await userService.ForgotPasswordStepOne(req.body);
 	if (!result) return res.status(403).send({ message: 'User not exists' });
 	return res.status(200).send({ message: 'OK' });
 });
 
-//Check Forgotcode
+//Check forgotCode
 //step 2 - forgot password
 module.exports.postVerifyForgotCode = asyncHandler(async function(req, res, next) {
 	const result = await userService.verifyForgotCode(req.body.forgotCode);
@@ -22,12 +22,12 @@ module.exports.postVerifyForgotCode = asyncHandler(async function(req, res, next
 
 //UpdateNewPassword for User with Forgot Code
 //step 3 -forgot password
-//newpassword
-//confirmpassword
+//newPassword
+//confirmPassword
 //forgotCode
 module.exports.postUpdateNewPassword = asyncHandler(async function(req, res, next) {
-	if (req.body.newpassword !== req.body.confirmpassword || !forgotCode)
-		return res.status(409).send({ message: 'new password not equals to confirmpassword' });
+	if (req.body.newPassword !== req.body.confirmPassword || !forgotCode)
+		return res.status(409).send({ message: 'new password not equals to confirmPassword' });
 	const result = await userService.ForgotPasswordStepThree(req.body);
 	if (!result) {
 		return res.status(403).send({ message: 'Update failed' });
@@ -35,15 +35,22 @@ module.exports.postUpdateNewPassword = asyncHandler(async function(req, res, nex
 	return res.status(200).send({ message: 'OK' });
 });
 
-//change password after login success
-//currentpassword
-//newpassword
-//confirmpassword
-module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, res, next) {
-	if (req.body.newpassword !== req.body.confirmpassword)
-		return res.status(409).send({ message: 'new password not equals to confirmpassword' });
+//
+//
+//Register
+module.exports.getRegister = function(req, res) {
+	return res.status(200).send({ message: 'OK' });
+};
 
-	const result = await userService.changePasswordAfterLogin(req.body);
-	if (!result) return res.status(403).send({ message: 'Update failed' });
+module.exports.postRegister = asyncHandler(async function(req, res, next) {
+	const errors = validateRegister.validateErrorHandle(req);
+	if (errors) {
+		return res.status(409).json(errors);
+	}
+
+	const newUser = await userService.createNewUser(req.body);
+	if (typeof newUser === 'string') {
+		return res.status(409).send({ message: newUser });
+	}
 	return res.status(200).send({ message: 'OK' });
 });
