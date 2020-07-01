@@ -7,6 +7,14 @@ router.use(authMiddleware.logoutRequired);
 router.post('/forgotpassword', controller.postForgotPassword);
 router.post('/verifyforgotcode', controller.postVerifyForgotCode);
 router.post('/updatenewpassword', controller.postUpdateNewPassword);
-router.post('/loginwithnewpassword',controller.postLoginNewPassword);
+//điều kiện phải login
+router.post(
+	'/changepassword',
+	authMiddleware.loginRequired,
+	authMiddleware.authToken,
+	authMiddleware.verifyEmailRequired,
+	authMiddleware.verifyCitizenIdentificationIdRequired,
+	controller.postChangePasswordAfterLogin
+);
 
 module.exports = router;

@@ -39,7 +39,7 @@ module.exports.postUpdateNewPassword = asyncHandler(async function(req, res, nex
 //currentpassword
 //newpassword
 //confirmpassword
-module.exports.postLoginNewPassword = asyncHandler(async function(req, res, next) {
+module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, res, next) {
 	if (req.body.newpassword !== req.body.confirmpassword)
 		return res.status(409).send({ message: 'new password not equals to confirmpassword' });
 
