@@ -268,28 +268,30 @@ class User extends Model {
 		return bcrypt.compareSync(passwordsUnHashed, passwordsHashed);
 	}
 
-	//hàm này khởi tạo mã quên mật khẩu và gửi qua email
-	static async createForgotCode(_username)
-	{
-		const isUserConflict = await User.checkConflictUserName(_username);
-		if (isUserConflict) return isUserConflict;
-		const newForgotCode = await User.getUniqueRandomCode();
-		const isExist = await User.findOne({
-			where: {
-				userName: _username
-			}
-		});
-		if(isExist){
-			await User.update(
-				{
-					forgotCode: newForgotCode 
-				}
-			);
-			return isExist;
+	//quên mật khẩu bước 1: tạo forgotCode và gửi email cho user quên mât khẩu
+	static async ForgotPasswordStepOne(request) {
+		//tìm user
+		const forgotPasswordUser = await User.findUserUsingExclude(request.email);
+		if (!forgotPasswordUser) {
+			return null;
 		}
-		return null;
+		newForgotCode = await User.getUniqueRandomCode();
+		await User.update(
+			{
+				forgotCode: newForgotCode
+			},
+			{
+				where: { email: request.email }
+			}
+		);
+
+		//send email here
+
+		//return result
+		return newForgotCode;
 	}
 
+	//bước 2 - ForgotPasswordStepTwo
 	//hàm này kiểm tra mã gửi dùng cho quên mật khẩu có giống không
 	static async verifyForgotCode(_code) {
 		const isExist = await User.findOne({
@@ -301,21 +303,22 @@ class User extends Model {
 		return false;
 	}
 
+	//bước 3
 	//hàm này viết thay đổi mật khẩu cũ thành mật khẩu mới
-	static async updateNewpassword(_code,_password,confirmpassword) {
+	static async ForgotPasswordStepThree(request) {
 		const isExist = await User.findOne({
 			where: {
-				forgotCode: _code
+				forgotCode: request.forgotCode
 			}
 		});
-		if (isExist)
-		{
+
+		if (isExist) {
 			await User.update(
 				{
-					password: _password 
+					password: await User.hashPassword(request.newpassword)
 				},
 				{
-					where: {password: confirmpassword }
+					where: { forgotCode: isExist.forgotCode }
 				}
 			);
 			return isExist;
@@ -324,27 +327,28 @@ class User extends Model {
 	}
 
 	//hàm này được viết cho chức năng đã đăng nhập muốn đổi mật khẩu
-	static async LoginNewpassword(_password,Newpassword,confirmNewpassword) {
-		const isExist = await User.findOne({
-			where: {
-				password: _password
-			}
-		});
-		if (isExist)
-		{
-			await User.update(
-				{
-					password: Newpassword 
-				},
-				{
-					where: {Newpassword: confirmNewpassword }
+	// FE BE đều lưu USer , email,
+	static async changePasswordAfterLogin(request) {
+		//request.currentpassword, newpassword
+		const result = await User.findUserNoneExclude(currentUser.email);
+		if (!result) return null;
+		const verifyOldPassword = await User.verifyPassword(request.currentpassword, result.password);
+		if (!verifyOldPassword) return null;
+
+		const newResult = await User.update(
+			{
+				password: await User.hashPassword(request.newpassword)
+			},
+			{
+				where: {
+					email: currentUser.email
 				}
-			);
-			return isExist;
-		}
-		return null;
+			}
+		);
+		return result;
 	}
 }
+
 User.init(
 	{
 		email: {
