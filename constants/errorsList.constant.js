@@ -46,5 +46,15 @@ module.exports.registerErrorValidate = {
 	DATEOFBIRTH_INVALID: {
 		code: 'DATEOFBIRTH_INVALID',
 		message: 'invalid dateOfBirth, can only DD/MM/YYY or YYYY/MM/DD or MM/DD/YYYY'
+	},
+
+	VERIFYCODE_INVALID: {
+		code: 'VERIFYCODE_INVALID',
+		message: 'Invalid verifyCode'
+	},
+
+	FORGOTCODE_INVALID: {
+		code: 'FORGOTCODE_INVALID',
+		message: 'Invalid forgotCode'
 	}
 };

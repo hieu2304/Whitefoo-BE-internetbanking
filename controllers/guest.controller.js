@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const userService = require('../services/users/user.service');
-const validateRegister = require('../helpers/validate.helper');
+const validateHelper = require('../helpers/validate.helper');
 
 //Forgot password
 //step 1 - send request forgot password to generate code and send via email
@@ -9,6 +9,10 @@ module.exports.postForgotPassword = asyncHandler(async function(req, res, next) 
 	if (!result) return res.status(403).send({ message: 'User not exists' });
 	return res.status(200).send({ message: 'OK' });
 });
+
+module.exports.getForgotPassword = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
 
 //Check forgotCode
 //step 2 - forgot password
@@ -20,21 +24,37 @@ module.exports.postVerifyForgotCode = asyncHandler(async function(req, res, next
 	return res.status(200).send({ message: 'OK' });
 });
 
+module.exports.getVerifyForgotCode = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+
 //UpdateNewPassword for User with Forgot Code
 //step 3 -forgot password
+//this step required a validation
 //newPassword
 //confirmPassword
 //forgotCode
 module.exports.postUpdateNewPassword = asyncHandler(async function(req, res, next) {
-	if (req.body.newPassword !== req.body.confirmPassword || !req.body.forgotCode)
-		return res.status(409).send({ message: 'new password not equals to confirmPassword' });
+	const errors = validateHelper.validateErrorHandle(req);
+	if (errors) {
+		return res.status(409).json(errors);
+	}
+	if (!req.body.forgotCode) return res.status(403).send({ message: 'Invalid forgotCode' });
+
 	const result = await userService.ForgotPasswordStepThree(req.body);
 	if (!result) {
 		return res.status(403).send({ message: 'Update failed' });
 	}
+
 	return res.status(200).send({ message: 'OK' });
 });
 
+module.exports.getUpdateNewPassword = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+
+//
+//
 //
 //
 //Register
@@ -43,7 +63,7 @@ module.exports.getRegister = function(req, res) {
 };
 
 module.exports.postRegister = asyncHandler(async function(req, res, next) {
-	const errors = validateRegister.validateErrorHandle(req);
+	const errors = validateHelper.validateErrorHandle(req);
 	if (errors) {
 		return res.status(409).json(errors);
 	}

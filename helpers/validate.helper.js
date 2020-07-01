@@ -20,7 +20,7 @@ function isNumber(n) {
 
 module.exports.isNumber = isNumber;
 module.exports.validateRegisterInformation = function() {
-	var confirmPassword = '';
+	var internalConfirmPassword = '';
 	return [
 		body('confirmPassword').custom(function(inputConfirmPassword) {
 			internalConfirmPassword = inputConfirmPassword;
@@ -70,6 +70,23 @@ module.exports.validateRegisterInformation = function() {
 			//moment(scope.modelValue, 'DD-MMM-YYYY HH:mm a', true).isValid()
 			//moment(checked_date, DATE_FORMAT).format(DATE_FORMAT) === checked_date
 			//moment(checked_date, [DATE_FORMAT1, DATE_FORMAT2]).format(DATE_FORMAT) === checked_date
+		})
+	];
+};
+
+module.exports.validateUpdateNewPassword = function() {
+	var internalConfirmPassword = '';
+	return [
+		body('confirmPassword').custom(function(inputConfirmPassword) {
+			internalConfirmPassword = inputConfirmPassword;
+			return true;
+		}),
+		check('newPassword', errorConstant.PASSWORD_TOO_SHORT).isLength({ min: 8 }),
+		check('newPassword', errorConstant.PASSWORD_TOO_LONG).isLength({ max: 40 }),
+		check('newPassword', errorConstant.PASSWORD_INVALID).matches('^[A-za-z]'),
+		check('newPassword', errorConstant.PASSWORD_NOT_EQUAL).custom(function(password) {
+			if (password === internalConfirmPassword) return true;
+			return false;
 		})
 	];
 };

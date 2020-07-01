@@ -306,25 +306,26 @@ class User extends Model {
 	//bước 3
 	//hàm này viết thay đổi mật khẩu cũ thành mật khẩu mới
 	static async ForgotPasswordStepThree(request) {
+		if (!request.forgotCode) return null;
+
 		const isExist = await User.findOne({
 			where: {
 				forgotCode: request.forgotCode
 			}
 		});
 
-		if (isExist) {
-			await User.update(
-				{
-					password: await User.hashPassword(request.newPassword),
-					forgotCode: ''
-				},
-				{
-					where: { email: isExist.email }
-				}
-			);
-			return isExist;
-		}
-		return null;
+		if (!isExist) return null;
+
+		await User.update(
+			{
+				password: await User.hashPassword(request.newPassword),
+				forgotCode: ''
+			},
+			{
+				where: { email: isExist.email }
+			}
+		);
+		return isExist;
 	}
 
 	//hàm này được viết cho chức năng đã đăng nhập muốn đổi mật khẩu
