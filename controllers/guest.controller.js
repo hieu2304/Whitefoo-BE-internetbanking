@@ -26,7 +26,7 @@ module.exports.postVerifyForgotCode = asyncHandler(async function(req, res, next
 //confirmPassword
 //forgotCode
 module.exports.postUpdateNewPassword = asyncHandler(async function(req, res, next) {
-	if (req.body.newPassword !== req.body.confirmPassword || !forgotCode)
+	if (req.body.newPassword !== req.body.confirmPassword || !req.body.forgotCode)
 		return res.status(409).send({ message: 'new password not equals to confirmPassword' });
 	const result = await userService.ForgotPasswordStepThree(req.body);
 	if (!result) {

@@ -275,7 +275,7 @@ class User extends Model {
 		if (!forgotPasswordUser) {
 			return null;
 		}
-		newForgotCode = await User.getUniqueRandomCode();
+		const newForgotCode = await User.getUniqueRandomCode();
 		await User.update(
 			{
 				forgotCode: newForgotCode
@@ -315,10 +315,11 @@ class User extends Model {
 		if (isExist) {
 			await User.update(
 				{
-					password: await User.hashPassword(request.newPassword)
+					password: await User.hashPassword(request.newPassword),
+					forgotCode: ''
 				},
 				{
-					where: { forgotCode: isExist.forgotCode }
+					where: { email: isExist.email }
 				}
 			);
 			return isExist;
