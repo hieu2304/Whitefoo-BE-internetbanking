@@ -11,7 +11,7 @@ const thumbnailQuality = 'thumbnail';
 const smallQuality = 'smol';
 
 async function getListBlobs(req, res) {
-	const user = await User.findByPk(1);
+	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== '0') {
 		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
 	}
@@ -22,7 +22,7 @@ async function getListBlobs(req, res) {
 }
 
 async function getIdCard(req, res) {
-	const user = await User.findByPk(1);
+	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== '0') {
 		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
 	}
@@ -63,7 +63,7 @@ async function postIdCard(req, res) {
 }
 
 async function deleteIdCard(req, res) {
-	const user = await User.findByPk(1);
+	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== '0') {
 		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete this file.' });
 	}

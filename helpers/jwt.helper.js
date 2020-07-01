@@ -10,7 +10,7 @@ module.exports.jwtEx = function(req, res, next) {
 };
 
 module.exports.reGenerateToken = function(req, res, next) {
-	const previousToken = req.body.token;
+	const previousToken = req.headers['token'];
 	if (previousToken == null) return res.status(403).send({ message: 'Invalid token' });
 	jwt.verify(previousToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
 		if (err) return res.status(403).send({ message: 'Invalid token' });
@@ -32,7 +32,7 @@ module.exports.generateToken = function(user) {
 };
 
 module.exports.authToken = function(req, res, next) {
-	const token = req.body.token;
+	const token = req.headers['token'];
 	if (token == null) return res.status(401).send({ message: 'Invalid Token' });
 	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {

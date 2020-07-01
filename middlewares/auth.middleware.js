@@ -54,7 +54,7 @@ module.exports.authSecret = function(req, res, next) {
 
 // yêu cầu có token hợp lệ
 module.exports.authToken = function(req, res, next) {
-	const token = req.body.token;
+	const token = req.headers['token'];
 	if (token == null) return res.status(401).send({ message: 'Invalid Token' });
 	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
