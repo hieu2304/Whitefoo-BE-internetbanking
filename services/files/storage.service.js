@@ -22,7 +22,7 @@ class Storage extends Model {
 
     static async findAllBlobsByUserId(container, userId) {
         return Storage.findAll({
-            attributes: ['id', 'container', 'blobName', 'blobSize', 'mimeType', 'userId'],
+            attributes: ['id', 'container', 'uuid', 'blobName', 'blobSize', 'quality', 'mimeType', 'userId'],
             where: {
                 container,
                 userId

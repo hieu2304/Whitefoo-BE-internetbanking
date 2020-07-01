@@ -9,5 +9,6 @@ router.get('/idcard', auth.authSecret, auth.authAll, asyncHandler(controller.get
 router.post('/idcard', upload.single('image'), auth.authSecret, auth.authAll, asyncHandler(controller.postIdCard));
 router.delete('/idcard', auth.authSecret, auth.authAll, asyncHandler(controller.deleteIdCard));
 router.get('/list', auth.authSecret, auth.authAll, asyncHandler(controller.getListBlobs));
+router.delete('/list', auth.authSecret, auth.authAll, asyncHandler(controller.deleteListBlobs));
 
 module.exports = router;

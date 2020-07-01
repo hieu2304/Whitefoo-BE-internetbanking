@@ -18,7 +18,36 @@ async function getListBlobs(req, res) {
 	const containerName = req.body.container;
 	const userId = req.body.userId;
 	const blobs = await Storage.findAllBlobsByUserId(containerName, userId);
-	return res.status(200).send(blobs);
+	if (!blobs) {
+		return res.status(404).send({ message: 'This user has zero file.' });
+	}
+	const blobUris = [];
+	for (const blob of blobs) {
+		const blobName = `${blob.uuid}/${blob.quality}/${blob.blobName}`;
+		const blobUri = blobUriGenerator(blob.container, blobName);
+		blobUris.push({ file: blob.blobName, quality: blob.quality, uri: blobUri });
+	}
+	return res.status(200).send(blobUris);
+}
+
+async function deleteListBlobs (req, res) {
+	const user = await User.findByPk(currentUser.id);
+	if (user.userType !== '0') {
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
+	}
+	const containerName = req.body.container;
+	const userId = req.body.userId;
+	const blobs = await Storage.findAllBlobsByUserId(containerName, userId);
+	let deleted = 0;
+	if (!blobs) {
+		return res.status(404).send({ message: 'There is no file.' });
+	}
+	for (const blob of blobs) {
+		if (await blobDeleteAsync(blob.id, blob.container, blob.uuid, blob.quality, blob.blobName)) {
+			deleted++;
+		}
+	}
+	return res.status(200).send({ message: `Successfully deleted ${deleted} file(s).` });
 }
 
 async function getIdCard(req, res) {
@@ -32,7 +61,7 @@ async function getIdCard(req, res) {
 	}
 	const blobName = `${blob.uuid}/${blob.quality}/${blob.blobName}`;
 	const blobUri = blobUriGenerator(blob.container, blobName);
-	return res.status(200).send({ uri: blobUri });
+	return res.status(200).send({ file: blob.blobName, uri: blobUri });
 }
 
 async function postIdCard(req, res) {
@@ -70,7 +99,7 @@ async function deleteIdCard(req, res) {
 	const blob = await Storage.findByPk(req.body.id);
 	if (!blob) {
 		return res.status(404).send({ message: 'File not found.' });
-	} else if (blobDeleteAsync(blob.id, blob.container, blob.uuid, blob.quality, blob.blobName)) {
+	} else if (await blobDeleteAsync(blob.id, blob.container, blob.uuid, blob.quality, blob.blobName)) {
 		// Remove from blob storage and database
 		return res.status(200).send({ message: 'Blob deleted successfully.' });
 	}
@@ -110,7 +139,6 @@ async function blobUploadAsync(containerName, blobUuid, fileName, fileBuffer, fi
 	return upload;
 }
 
-// WIP
 async function imageResize(fileBuffer, width, height) {
 	// Preserving aspect ratio, resize the image to be as large as possible while ensuring its dimensions are less than or equal to both those specified
 	// Do not enlarge if the width or height are already less than the specified dimensions
@@ -147,8 +175,8 @@ async function blobDeleteAsync(id, containerName, blobUuid, quality, fileName) {
 	if (containerClient.exists()) {
 		const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 		if (blockBlobClient.exists()) {
-			blockBlobClient.delete();
-			Storage.removeById(id);
+			await blockBlobClient.delete();
+			await Storage.removeById(id);
 			return true;
 		}
 	}
@@ -157,6 +185,7 @@ async function blobDeleteAsync(id, containerName, blobUuid, quality, fileName) {
 
 module.exports = {
 	getListBlobs,
+	deleteListBlobs,
 	getIdCard,
 	postIdCard,
 	deleteIdCard
