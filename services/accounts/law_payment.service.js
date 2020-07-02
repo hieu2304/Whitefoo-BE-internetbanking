@@ -15,7 +15,7 @@ law_payment.init(
 			allowNull: false
 		},
 		transferType: {
-			type: Sequelize.DECIMAL, // 0 is transferring Internal Bank, 1 is transferring External
+			type: Sequelize.STRING, // 0 is transferring Internal Bank, 1 is transferring External
 			allowNull: false,
 			defaultValue: '0'
 		}

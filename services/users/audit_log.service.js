@@ -1,8 +1,15 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
 const Model = Sequelize.Model;
+const moment = require('moment');
 
 class audit_log extends Model {
+	static async getAuditLog(internalUserId) {
+		//add filter later
+		const list = audit_log.findAll();
+		return list;
+	}
+
 	static async pushAuditLog(internalUserId, userId, action, description) {
 		//check Empty later
 		const newLog = await audit_log.create({
@@ -10,7 +17,7 @@ class audit_log extends Model {
 			userId: userId,
 			action: action,
 			description: description,
-			time: new Date()
+			time: moment(new Date()).format('DD/MM/YYYY')
 		});
 	}
 }
@@ -26,7 +33,8 @@ audit_log.init(
 		},
 		time: {
 			type: Sequelize.DATE,
-			allowNull: false
+			allowNull: false,
+			defaultValue: moment(new Date()).format('DD/MM/YYYY')
 		},
 		action: {
 			type: Sequelize.STRING,
