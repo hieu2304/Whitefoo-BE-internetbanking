@@ -4,11 +4,14 @@ const controller = require('../controllers/internal.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 
 //create new account for user
-router.get('/createaccount', controller.getCreateAccount); ////tạo tài khoản nhân viên qua HTTP Get
-
-router.post('/createaccount', controller.postCreateAccount); //tạo tài khoản nhân viên qua HTTP Post
+router.get('/createaccount', controller.getCreateAccount);
+router.post('/createaccount', controller.postCreateAccount);
 
 //Internal staff Search User
+//search Unique information by keyword
+router.get('/searchkeyword', controller.getSearchKeyword);
+router.post('/searchkeyword', controller.postSearchKeyword);
+
 router.post('/searchlistuser', controller.searchListUser); //tìm kiếm danh sách các người dùng
 
 router.post('/searchuser', controller.searchUser); //tìm kiếm người dùng theo yêu cầu từ khóa

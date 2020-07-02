@@ -5,6 +5,7 @@ const Model = Sequelize.Model;
 const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
 const Op = Sequelize.Op;
+const moment = require('moment');
 class User extends Model {
 	static async findUserNoneExclude(username) {
 		const user = await User.findOne({
@@ -30,7 +31,7 @@ class User extends Model {
 				]
 			},
 			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode' ]
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
 			}
 		});
 		return user;
@@ -252,7 +253,7 @@ class User extends Model {
 			email: request.email,
 			lastName: request.lastName,
 			firstName: request.firstName,
-			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
+			dateOfBirth: request.dateOfBirth,
 			phoneNumber: request.phoneNumber,
 			username: request.username,
 			address: request.address,
@@ -363,6 +364,34 @@ class User extends Model {
 				}
 			}
 		);
+		return result;
+	}
+
+	//hàm tìm kiếm trả về list theo keyword
+	static async searchByKeyword(request) {
+		const keyword = request.keyword;
+		const list = await User.findAll({
+			where: {
+				[Op.or]: [
+					{ email: { [Op.like]: '%' + keyword + '%' } },
+					{ citizenIdentificationId: { [Op.like]: '%' + keyword + '%' } },
+					{ phoneNumber: { [Op.like]: '%' + keyword + '%' } },
+					{ username: { [Op.like]: '%' + keyword + '%' } },
+					{ firstName: { [Op.like]: '%' + keyword + '%' } },
+					{ lastName: { [Op.like]: '%' + keyword + '%' } }
+				],
+				userType: '1'
+			},
+			attributes: {
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
+			}
+		});
+
+		const result = [];
+		for (var i = 0; i < list.length; i++) {
+			result.push(list[i].dataValues);
+		}
+
 		return result;
 	}
 }
