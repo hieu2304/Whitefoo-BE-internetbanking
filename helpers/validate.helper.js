@@ -30,9 +30,9 @@ module.exports.validateRegisterInformation = function() {
 		check('email', errorConstant.EMAIL_INVALID).isEmail(),
 		check('email', errorConstant.EMAIL_TOO_SHORT).isLength({ min: 5 }),
 
-		check('userName', errorConstant.USERNAME_TOO_SHORT).isLength({ min: 3 }),
-		check('userName', errorConstant.USERNAME_TOO_LONG).isLength({ max: 20 }),
-		check('userName', errorConstant.USERNAME_INVALID).matches('^[A-za-z]+[A-Za-z0-9]+$'),
+		check('username', errorConstant.USERNAME_TOO_SHORT).isLength({ min: 3 }),
+		check('username', errorConstant.USERNAME_TOO_LONG).isLength({ max: 20 }),
+		check('username', errorConstant.USERNAME_INVALID).matches('^[A-za-z]+[A-Za-z0-9]+$'),
 
 		check('password', errorConstant.PASSWORD_TOO_SHORT).isLength({ min: 8 }),
 		check('password', errorConstant.PASSWORD_TOO_LONG).isLength({ max: 40 }),

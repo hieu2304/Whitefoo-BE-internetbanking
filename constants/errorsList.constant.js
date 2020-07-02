@@ -13,11 +13,11 @@ module.exports.registerErrorValidate = {
 	EMAIL_TOO_SHORT: { code: 'EMAIL_TOO_SHORT', message: 'Email to short, min is 5' },
 	EMAIL_INVALID: { code: 'EMAIL_INVALID', message: 'Invalid email type' },
 
-	USERNAME_TOO_SHORT: { code: 'USERNAME_TOO_SHORT', message: 'userName to short, min is 3' },
-	USERNAME_TOO_LONG: { code: 'USERNAME_TOO_LONG', message: 'userName to long, max is 20' },
+	USERNAME_TOO_SHORT: { code: 'USERNAME_TOO_SHORT', message: 'username to short, min is 3' },
+	USERNAME_TOO_LONG: { code: 'USERNAME_TOO_LONG', message: 'username to long, max is 20' },
 	USERNAME_INVALID: {
 		code: 'USERNAME_INVALID',
-		message: 'userName only can be alphabetic and number, start with alphabetic'
+		message: 'username only can be alphabetic and number, start with alphabetic'
 	},
 
 	PASSWORD_TOO_SHORT: { code: 'PASSWORD_TOO_SHORT', message: 'password to short, min is 8' },

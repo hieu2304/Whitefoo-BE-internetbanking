@@ -14,9 +14,9 @@ router.use(authMiddleware.authSecret);
 router.use('/auth', require('./routes/auth.route'));
 
 //các API sử dụng khi chưa login vào: quên mật khẩu, đăng ký
-router.use('/guest', require('./routes/guest.route'));
+router.use('/', require('./routes/guest.route'));
 
-//các API liên quan JWT : gia hạn token
+//các API liên quan JWT : gia hạn token (ko yêu cầu gì cả)
 router.use('/token', require('./routes/token.route'));
 
 //các API cần JWT còn hiệu lực, yêu cầu đã đăng nhập, tài khoản đã kích hoạt email, tài khoản đã xác nhận CMND/CCCD
@@ -28,10 +28,10 @@ router.use(authMiddleware.authAll);
 router.use('/post', require('./routes/post.route'));
 
 //các API tính năng người dùng sau khi login thành công: đổi mật khẩu, chuyển khoản...
-router.use('/functional', require('./routes/functional.route'));
+router.use('/', require('./routes/functional.route'));
 
 //các API gọi từ nhân viên ngân hàng
 router.use(authMiddleware.internalUserRequired);
-router.use('/internal', require('./routes/internal.route'));
+router.use('/', require('./routes/internal.route'));
 
 module.exports = router;

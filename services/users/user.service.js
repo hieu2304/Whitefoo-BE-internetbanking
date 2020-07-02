@@ -6,27 +6,27 @@ const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
 const Op = Sequelize.Op;
 class User extends Model {
-	static async findUserNoneExclude(userName) {
+	static async findUserNoneExclude(username) {
 		const user = await User.findOne({
 			where: {
 				[Op.or]: [
-					{ email: userName },
-					{ citizenIdentificationId: userName },
-					{ phoneNumber: userName },
-					{ userName: userName }
+					{ email: username },
+					{ citizenIdentificationId: username },
+					{ phoneNumber: username },
+					{ userName: username }
 				]
 			}
 		});
 		return user;
 	}
-	static async findUserUsingExclude(userName) {
+	static async findUserUsingExclude(username) {
 		const user = await User.findOne({
 			where: {
 				[Op.or]: [
-					{ email: userName },
-					{ citizenIdentificationId: userName },
-					{ phoneNumber: userName },
-					{ userName: userName }
+					{ email: username },
+					{ citizenIdentificationId: username },
+					{ phoneNumber: username },
+					{ userName: username }
 				]
 			},
 			attributes: {
@@ -36,11 +36,11 @@ class User extends Model {
 		return user;
 	}
 
-	static async authenticationLoginAIO({ userName, password }) {
-		const authUser = await User.findUserNoneExclude(userName);
+	static async authenticationLoginAIO({ username, password }) {
+		const authUser = await User.findUserNoneExclude(username);
 		if (!authUser) return null;
 		if (!await User.verifyPassword(password, authUser.password)) return null;
-		const user = await User.findUserUsingExclude(userName);
+		const user = await User.findUserUsingExclude(username);
 		const token = jwtHelper.generateToken(user.dataValues);
 		return { user, token };
 	}
@@ -86,10 +86,10 @@ class User extends Model {
 		return { user, token };
 	}
 
-	static async checkConflictUserName(userName) {
+	static async checkConflictUserName(username) {
 		const conflictEmail = await User.findAll({
 			where: {
-				userName: userName
+				userName: username
 			}
 		});
 		if (conflictEmail.length > 0) return 'Conflict User Name';
@@ -134,8 +134,8 @@ class User extends Model {
 			return 'Empty email';
 		}
 
-		if (typeof request.userName !== 'undefined' && request.userName != null) {
-			var isConflictUserName = await User.checkConflictUserName(request.userName);
+		if (typeof request.username !== 'undefined' && request.username != null) {
+			var isConflictUserName = await User.checkConflictUserName(request.username);
 			if (isConflictUserName) return isConflictUserName;
 		} else {
 			return 'Empty userName';
@@ -238,7 +238,7 @@ class User extends Model {
 			firstName: request.firstName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
 			phoneNumber: request.phoneNumber,
-			userName: request.userName,
+			userName: request.username,
 			address: request.address,
 			password: await User.hashPassword(request.password),
 			verifyCode: newVerifyCode
