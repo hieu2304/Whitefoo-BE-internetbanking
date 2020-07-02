@@ -19,13 +19,13 @@ module.exports.verifyEmailRequired = asyncHandler(async function(req, res, next)
 });
 
 // yêu cầu phải là nhân viên của ngân hàng
-module.exports.internalUserRequired = function(req, res, next) {
+module.exports.internalUserRequired = asyncHandler(async function(req, res, next) {
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 
-	const result = currentUser.citizenIdentificationId;
+	const result = await userService.checkInternalUser(currentUser);
 	if (result) return next();
 	return res.status(403).send({ message: 'User do not have permission' });
-};
+});
 
 // yêu cầu phải đang tình trạng đã logout
 function logoutRequired(req, res, next) {

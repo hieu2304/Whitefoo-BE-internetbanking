@@ -270,7 +270,7 @@ class User extends Model {
 		const isExist = await User.findOne({
 			where: {
 				email: currentUser.email,
-				type: 0
+				userType: '0'
 			}
 		});
 		if (isExist) return isExist;
