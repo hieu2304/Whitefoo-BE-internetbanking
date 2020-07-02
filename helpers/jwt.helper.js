@@ -31,7 +31,7 @@ module.exports.reGenerateToken = function(req, res, next) {
 };
 
 module.exports.generateToken = function(user) {
-	return (accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h' }));
+	return (accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' }));
 };
 
 module.exports.authToken = function(req, res, next) {

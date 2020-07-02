@@ -44,11 +44,15 @@ module.exports.validateRegisterInformation = function() {
 
 		check('lastName', errorConstant.LASTNAME_TOO_SHORT).isLength({ min: 3 }),
 		check('lastName', errorConstant.LASTNAME_TOO_LONG).isLength({ max: 20 }),
-		check('lastName', errorConstant.LASTNAME_INVALID).matches('^[0-9' + regexConstant.vietnameseUnicode + '.]+$'),
+		check('lastName', errorConstant.LASTNAME_INVALID).matches(
+			'^[' + regexConstant.vietnameseUnicode + ']+[0-9 ' + regexConstant.vietnameseUnicode + '.]+$'
+		),
 
 		check('firstName', errorConstant.FIRSTNAME_TOO_SHORT).isLength({ min: 3 }),
 		check('firstName', errorConstant.FIRSTNAME_TOO_LONG).isLength({ max: 20 }),
-		check('firstName', errorConstant.FIRSTNAME_INVALID).matches('^[0-9' + regexConstant.vietnameseUnicode + '.]+$'),
+		check('firstName', errorConstant.FIRSTNAME_INVALID).matches(
+			'^[' + regexConstant.vietnameseUnicode + ']+[0-9 ' + regexConstant.vietnameseUnicode + '.]+$'
+		),
 
 		check('address', errorConstant.ADDRESS_TOO_SHORT).isLength({ min: 6 }),
 		check('address', errorConstant.LASTNAME_TOO_LONG).isLength({ max: 60 }),

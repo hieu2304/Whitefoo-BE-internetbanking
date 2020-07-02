@@ -17,7 +17,7 @@ module.exports.registerErrorValidate = {
 	USERNAME_TOO_LONG: { code: 'USERNAME_TOO_LONG', message: 'username to long, max is 20' },
 	USERNAME_INVALID: {
 		code: 'USERNAME_INVALID',
-		message: 'username only can be alphabetic and number, start with alphabetic'
+		message: 'username only can be alphabetic none UTF-8 and number, start with alphabetic none-UTF8'
 	},
 
 	PASSWORD_TOO_SHORT: { code: 'PASSWORD_TOO_SHORT', message: 'password to short, min is 8' },
@@ -27,11 +27,17 @@ module.exports.registerErrorValidate = {
 
 	LASTNAME_TOO_SHORT: { code: 'LASTNAME_TOO_SHORT', message: 'lastName to short, min is 3' },
 	LASTNAME_TOO_LONG: { code: 'LASTNAME_TOO_LONG', message: 'lastName to long, max is 20' },
-	LASTNAME_INVALID: { code: 'LASTNAME_INVALID', message: 'lastName only can be alphabetic utf8, number and dot' },
+	LASTNAME_INVALID: {
+		code: 'LASTNAME_INVALID',
+		message: 'lastName only can be alphabetic utf8, number and dot, must start with alphabetic uft8'
+	},
 
 	FIRSTNAME_TOO_SHORT: { code: 'FIRSTNAME_TOO_SHORT', message: 'firstName to short, min is 3' },
 	FIRSTNAME_TOO_LONG: { code: 'FIRSTNAME_TOO_LONG', message: 'firstName to long, max is 20' },
-	FIRSTNAME_INVALID: { code: 'FIRSTNAME_INVALID', message: 'firstName only can be alphabetic utf8, number and dot' },
+	FIRSTNAME_INVALID: {
+		code: 'FIRSTNAME_INVALID',
+		message: 'firstName only can be alphabetic utf8, number and dot, must start with alphabetic utf8'
+	},
 
 	ADDRESS_TOO_SHORT: { code: 'ADDRESS_TOO_SHORT', message: 'address to short, min is 6' },
 	ADDRESS_TOO_LONG: { code: 'ADDRESS_TOO_LONG', message: 'address to long, max is 60' },

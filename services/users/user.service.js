@@ -370,7 +370,7 @@ class User extends Model {
 	//hàm tìm kiếm trả về list theo keyword
 	static async searchByKeyword(request) {
 		const keyword = request.keyword;
-		const list = await User.findAll({
+		const listNumberOne = await User.findAll({
 			where: {
 				[Op.or]: [
 					{ email: { [Op.like]: '%' + keyword + '%' } },
@@ -378,7 +378,12 @@ class User extends Model {
 					{ phoneNumber: { [Op.like]: '%' + keyword + '%' } },
 					{ username: { [Op.like]: '%' + keyword + '%' } },
 					{ firstName: { [Op.like]: '%' + keyword + '%' } },
-					{ lastName: { [Op.like]: '%' + keyword + '%' } }
+					{ lastName: { [Op.like]: '%' + keyword + '%' } },
+					//Họ + ' ' + Tên
+					Sequelize.where(
+						Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName')),
+						{ [Op.like]: '%' + keyword + '%' }
+					)
 				],
 				userType: '1'
 			},
@@ -388,8 +393,8 @@ class User extends Model {
 		});
 
 		const result = [];
-		for (var i = 0; i < list.length; i++) {
-			result.push(list[i].dataValues);
+		for (var i = 0; i < listNumberOne.length; i++) {
+			result.push(listNumberOne[i].dataValues);
 		}
 
 		return result;
