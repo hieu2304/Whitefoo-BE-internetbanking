@@ -12,6 +12,6 @@ router.get('/logout', authMiddleware.loginRequired, controller.getAuthLogout);
 
 //verify Email Code
 //API verify Email không cần trạng thái login hay chưa
-router.post('/verify', controller.postAuthVerify);
+router.post('/active', controller.postAuthActive);
 
 module.exports = router;

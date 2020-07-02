@@ -1,9 +1,15 @@
-const { BlobServiceClient, ContainerSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } = require('@azure/storage-blob');
+const {
+	BlobServiceClient,
+	ContainerSASPermissions,
+	generateBlobSASQueryParameters,
+	StorageSharedKeyCredential
+} = require('@azure/storage-blob');
 const uuid = require('uuid');
 const intoStream = require('into-stream');
 const sharp = require('sharp');
 const Storage = require('../services/files/storage.service');
 const User = require('../services/users/user.service');
+const jwtHelper = require('../helpers/jwt.helper');
 
 const originalQuality = 'original';
 const normalQuality = 'normal';
@@ -11,9 +17,16 @@ const thumbnailQuality = 'thumbnail';
 const smallQuality = 'smol';
 
 async function getListBlobs(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
 	}
 	const containerName = req.body.container;
 	const userId = req.body.userId;
@@ -30,10 +43,17 @@ async function getListBlobs(req, res) {
 	return res.status(200).send(blobUris);
 }
 
-async function deleteListBlobs (req, res) {
+async function deleteListBlobs(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
 	}
 	const containerName = req.body.container;
 	const userId = req.body.userId;
@@ -51,9 +71,16 @@ async function deleteListBlobs (req, res) {
 }
 
 async function getIdCard(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
 	}
 	const blob = await Storage.findByPk(req.body.id);
 	if (!blob) {
@@ -77,24 +104,67 @@ async function postIdCard(req, res) {
 	// File name
 	const fileName = req.file.originalname;
 	// Upload the original version
-	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
+	const upload = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		req.file.buffer,
+		req.file.buffer.length,
+		req.file.mimetype,
+		originalQuality,
+		userId
+	);
 	// Upload the resized version at normal level
 	let resizedFile = await imageResize(req.file.buffer, 960, 540);
-	const uploadNormal = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, normalQuality, userId);
+	const uploadNormal = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		normalQuality,
+		userId
+	);
 	// Upload the resized version at thumbnail level
 	resizedFile = await imageResize(req.file.buffer, 426, 240);
-	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
+	const uploadThumbnail = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		thumbnailQuality,
+		userId
+	);
 	// Upload the resized version at small level
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
-	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
+	const uploadSmall = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		smallQuality,
+		userId
+	);
 	// Return success message
-	return res.status(200).send({upload, uploadNormal, uploadThumbnail, uploadSmall});
+	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
 }
 
 async function deleteIdCard(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete this file.' });
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete this file.' });
 	}
 	const blob = await Storage.findByPk(req.body.id);
 	if (!blob) {
@@ -142,7 +212,9 @@ async function blobUploadAsync(containerName, blobUuid, fileName, fileBuffer, fi
 async function imageResize(fileBuffer, width, height) {
 	// Preserving aspect ratio, resize the image to be as large as possible while ensuring its dimensions are less than or equal to both those specified
 	// Do not enlarge if the width or height are already less than the specified dimensions
-	const transformer = await sharp(fileBuffer).resize(width, height, { fit: 'inside', withoutEnlargement: true }).toBuffer();
+	const transformer = await sharp(fileBuffer)
+		.resize(width, height, { fit: 'inside', withoutEnlargement: true })
+		.toBuffer();
 	return transformer;
 }
 
@@ -151,20 +223,26 @@ function blobUriGenerator(containerName, blobName) {
 	// "a" (Add), "r" (Read), "w" (Write), "d" (Delete), "l" (List)
 	// Concatenate multiple permissions, such as "rwa" = Read, Write, Add
 	// Create the StorageSharedKeyCredential object which will be used to get the sas token
-	const sharedKeyCredential = new StorageSharedKeyCredential(process.env.AZURE_STORAGE_ACCOUNT_NAME, process.env.AZURE_STORAGE_ACCOUNT_KEY);
+	const sharedKeyCredential = new StorageSharedKeyCredential(
+		process.env.AZURE_STORAGE_ACCOUNT_NAME,
+		process.env.AZURE_STORAGE_ACCOUNT_KEY
+	);
 	// Create a SAS token that expires in one day
 	// Set start time to five minutes ago to avoid clock skew.
 	const startDate = new Date();
 	startDate.setMinutes(startDate.getMinutes() - 5);
 	const expiryDate = new Date(startDate);
 	expiryDate.setDate(startDate.getDate() + 1);
-	const sasToken = generateBlobSASQueryParameters({
-		containerName: containerName,
-		blobName: blobName,
-		permissions: ContainerSASPermissions.parse('r'),
-		startsOn: startDate,
-		expiresOn: expiryDate
-	}, sharedKeyCredential).toString();
+	const sasToken = generateBlobSASQueryParameters(
+		{
+			containerName: containerName,
+			blobName: blobName,
+			permissions: ContainerSASPermissions.parse('r'),
+			startsOn: startDate,
+			expiresOn: expiryDate
+		},
+		sharedKeyCredential
+	).toString();
 	return `${process.env.AZURE_STORAGE_URL}/${containerName}/${blobName}?${sasToken}`;
 }
 

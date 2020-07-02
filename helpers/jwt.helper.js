@@ -47,13 +47,22 @@ module.exports.authToken = function(req, res, next) {
 };
 
 module.exports.decodeToken = function decodeToken(token) {
-	return new Promise((resolve, reject) => {
-		jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-			if (err) {
-				return reject(err);
-			}
-			resolve(decoded);
-		});
+	//Use promise, to use return result, have to use json decode
+	// return new Promise((resolve, reject) => {
+	// 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+	// 		if (err) {
+	// 			return reject(err);
+	// 		}
+	// 		resolve({ user: decoded });
+	// 	});
+	// });
+
+	return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
+		if (err) {
+			return null;
+		} else {
+			return user;
+		}
 	});
 };
 

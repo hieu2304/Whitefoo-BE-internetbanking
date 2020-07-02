@@ -32,13 +32,13 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         username:admin@admin.com
         password:123456789
 
-/api/auth/verify
+/api/auth/active
     method: POST
     điều kiện: ko yêu cầu logout hay login
     params:
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
-        verifyCode: Code được send qua email để xác nhận tài khoản
+        activeCode: Code được send qua email để xác nhận tài khoản
 
 /api/forgotpassword
 (step 1 của quên mật khẩu)

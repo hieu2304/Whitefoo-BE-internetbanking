@@ -3,11 +3,8 @@ if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
 
-var currentUser = null;
-var currentToken = null;
+//expire or logout token
 const blackListToken = [];
-global.currentUser = currentUser;
-global.currentToken = currentToken;
 global.blackListToken = blackListToken;
 
 const express = require('express');

@@ -11,8 +11,6 @@ module.exports.getAuthLogin = function(req, res, next) {
 };
 module.exports.getAuthLogout = function(req, res, next) {
 	blackListToken.push(currentToken);
-	currentUser = null;
-	currentToken = null;
 	return res.status(200).send({ message: 'OK' });
 };
 
@@ -24,9 +22,6 @@ module.exports.postAuthLoginViaEmail = asyncHandler(async function(req, res, nex
 		return res.status(403).send({ message: 'Wrong email or password' });
 	}
 
-	currentUser = result.user.dataValues;
-	currentToken = result.token;
-
 	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
 });
 
@@ -36,9 +31,6 @@ module.exports.postAuthLoginViaPhoneNumber = asyncHandler(async function(req, re
 		return res.status(403).send({ message: 'Wrong phone number or password' });
 	}
 
-	currentUser = result.user.dataValues;
-	currentToken = result.token;
-
 	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
 });
 
@@ -47,9 +39,6 @@ module.exports.postAuthLoginViaCitizenIdentificationId = asyncHandler(async func
 	if (!result) {
 		return res.status(403).send({ message: 'Wrong citizenIdentificationId or password' });
 	}
-
-	currentUser = result.user.dataValues;
-	currentToken = result.token;
 
 	return res.status(200).send({ user: result.user.dataValues, token: result.token, message: 'OK' });
 });
@@ -61,19 +50,16 @@ module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 		return res.status(403).send({ message: 'Wrong login name or password' });
 	}
 
-	currentUser = result.user.dataValues;
-	currentToken = result.token;
-
 	return res.status(200).send({
 		token: result.token,
 		message: 'OK'
 	});
 });
 
-module.exports.postAuthVerify = asyncHandler(async function(req, res, next) {
-	const result = await userService.verifyEmailCode(req.body.verifyCode);
+module.exports.postAuthActive = asyncHandler(async function(req, res, next) {
+	const result = await userService.activeEmailCode(req.body.activeCode);
 	if (!result) {
-		return res.status(403).send({ message: 'Wrong verify code' });
+		return res.status(403).send({ message: 'Wrong active code' });
 	}
 	return res.status(200).send({ message: 'OK' });
 });

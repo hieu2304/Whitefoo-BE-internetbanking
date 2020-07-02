@@ -13,7 +13,7 @@ class User extends Model {
 					{ email: username },
 					{ citizenIdentificationId: username },
 					{ phoneNumber: username },
-					{ userName: username }
+					{ username: username }
 				]
 			}
 		});
@@ -26,7 +26,7 @@ class User extends Model {
 					{ email: username },
 					{ citizenIdentificationId: username },
 					{ phoneNumber: username },
-					{ userName: username }
+					{ username: username }
 				]
 			},
 			attributes: {
@@ -89,7 +89,7 @@ class User extends Model {
 	static async checkConflictUserName(username) {
 		const conflictEmail = await User.findAll({
 			where: {
-				userName: username
+				username: username
 			}
 		});
 		if (conflictEmail.length > 0) return 'Conflict User Name';
@@ -126,6 +126,8 @@ class User extends Model {
 		return null;
 	}
 
+	//hàm này kiểm tra xem các thông tin: SDT, CMND, email, username có bị trùng với ai trong DB ko
+	//để đăng ký mới thì 4 thông tin trên phải ko trùng với bất kỳ ai đã tồn tại trong DB
 	static async checkConflictUser(request) {
 		if (typeof request.email !== 'undefined' && request.email != null) {
 			var isConflictEmail = await User.checkConflictEmail(request.email);
@@ -159,19 +161,19 @@ class User extends Model {
 		return null;
 	}
 
-	static async verifyEmailCode(_code) {
+	static async activeEmailCode(_code) {
 		const isExist = await User.findOne({
 			where: {
-				verifyCode: _code
+				activeCode: _code
 			}
 		});
 		if (isExist) {
 			await User.update(
 				{
-					verifyCode: ''
+					activeCode: ''
 				},
 				{
-					where: { verifyCode: _code }
+					where: { activeCode: _code }
 				}
 			);
 			return isExist;
@@ -179,11 +181,11 @@ class User extends Model {
 		return null;
 	}
 
-	static async checkUserVerifyEmailCodeYet(request) {
+	static async checkUserActiveEmailCodeYet(currentUser) {
 		const isExist = await User.findOne({
 			where: {
-				email: request.email,
-				verifyCode: ''
+				email: currentUser.email,
+				activeCode: ''
 			}
 		});
 		if (isExist) return isExist;
@@ -194,6 +196,16 @@ class User extends Model {
 		const isExist = await User.findOne({
 			where: {
 				verifyCode: _code
+			}
+		});
+		if (isExist) return true;
+		return false;
+	}
+
+	static async checkIfExistActiveCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				activeCode: _code
 			}
 		});
 		if (isExist) return true;
@@ -211,17 +223,21 @@ class User extends Model {
 	}
 
 	//hàm này ko async vì ta sẽ dùng req.session để nhận biết, ko dùng tới DB
-	static checkUserVeiryCitizenIdentificationIdYet(request) {
-		var result = String(request.citizenIdentificationId).startsWith('empty=[');
+	static checkUserVeiryCitizenIdentificationIdYet(currentUser) {
+		var result = String(currentUser.citizenIdentificationId).startsWith('empty=[');
 		//nếu CMND bắt đầu bằng empty -> chưa xác nhận
 		if (result) return null;
-		return 'verified';
+		return 'activated';
 	}
 
 	//hàm này đảm bảo code random được tạo ra là độc nhất, đang không tồn tại trong DB
 	static async getUniqueRandomCode() {
 		var randomCode = randomHelper.getRandomString(15);
-		while ((await User.checkIfExistVerifyCode(randomCode)) || (await User.checkIfExistForgotCode(randomCode))) {
+		while (
+			(await User.checkIfExistVerifyCode(randomCode)) ||
+			(await User.checkIfExistForgotCode(randomCode)) ||
+			(await User.checkIfExistActiveCode(randomCode))
+		) {
 			randomCode = randomHelper.getRandomString(15);
 		}
 		return randomCode;
@@ -231,17 +247,17 @@ class User extends Model {
 		const isUserConflict = await User.checkConflictUser(request);
 		if (isUserConflict) return isUserConflict; //trả về lỗi conflict hoặc thiếu gì đó
 
-		const newVerifyCode = await User.getUniqueRandomCode();
+		const newActiveCode = await User.getUniqueRandomCode();
 		const newUser = await User.create({
 			email: request.email,
 			lastName: request.lastName,
 			firstName: request.firstName,
 			dateOfBirth: Sequelize.DATE(request.dateOfBirth),
 			phoneNumber: request.phoneNumber,
-			userName: request.username,
+			username: request.username,
 			address: request.address,
 			password: await User.hashPassword(request.password),
-			verifyCode: newVerifyCode
+			activeCode: newActiveCode
 		});
 
 		//send email here
@@ -249,10 +265,10 @@ class User extends Model {
 		return newUser;
 	}
 
-	static async checkInternalUser(request) {
+	static async checkInternalUser(currentUser) {
 		const isExist = await User.findOne({
 			where: {
-				email: request.email,
+				email: currentUser.email,
 				type: 0
 			}
 		});
@@ -330,7 +346,7 @@ class User extends Model {
 
 	//hàm này được viết cho chức năng đã đăng nhập muốn đổi mật khẩu
 	// FE BE đều lưu USer , email,
-	static async changePasswordAfterLogin(request) {
+	static async changePasswordAfterLogin(request, currentUser) {
 		//request.currentPassword, newPassword
 		const result = await User.findUserNoneExclude(currentUser.email);
 		if (!result) return null;
@@ -381,7 +397,7 @@ User.init(
 			allowNull: false,
 			unique: true
 		},
-		userName: {
+		username: {
 			type: Sequelize.STRING,
 			allowNull: false,
 			unique: true
@@ -400,11 +416,19 @@ User.init(
 			type: Sequelize.STRING,
 			allowNull: false
 		},
+		//mã xác nhận 2 bước
 		verifyCode: {
 			type: Sequelize.STRING,
 			allowNull: true
 		},
+		//mã quên mật khẩu
 		forgotCode: {
+			type: Sequelize.STRING,
+			allowNull: true,
+			defaultValue: ''
+		},
+		//mã kích hoạt tài khoản khi đăng ký
+		activeCode: {
 			type: Sequelize.STRING,
 			allowNull: true,
 			defaultValue: ''

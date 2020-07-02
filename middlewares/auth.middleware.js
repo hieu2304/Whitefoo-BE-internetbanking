@@ -6,20 +6,22 @@ const jwtHelper = require('../helpers/jwt.helper');
 
 //yêu cầu tài khoản phải xác nhận Chứng minh nhân dân/Căn cước công dân
 module.exports.verifyCitizenIdentificationIdRequired = function(req, res, next) {
-	const result = currentUser.citizenIdentificationId;
+	const result = req.user.citizenIdentificationId;
 	if (result && result.length > 0) return next();
 	return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
 };
 
 // yêu cầu tài khoản phải xác nhận email
 module.exports.verifyEmailRequired = asyncHandler(async function(req, res, next) {
-	const result = await userService.checkUserVerifyEmailCodeYet(currentUser);
+	const result = await userService.checkUserActiveEmailCodeYet(req.user);
 	if (result) return next();
 	return res.status(401).send({ message: 'User not verified email yet' });
 });
 
 // yêu cầu phải là nhân viên của ngân hàng
 module.exports.internalUserRequired = function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+
 	const result = currentUser.citizenIdentificationId;
 	if (result) return next();
 	return res.status(403).send({ message: 'User do not have permission' });
@@ -27,7 +29,7 @@ module.exports.internalUserRequired = function(req, res, next) {
 
 // yêu cầu phải đang tình trạng đã logout
 function logoutRequired(req, res, next) {
-	if (!currentUser) {
+	if (!req.headers['token']) {
 		return next();
 	}
 	return res.status(403).send({ message: 'User already logged in' });
@@ -36,7 +38,7 @@ module.exports.logoutRequired = logoutRequired;
 
 // yêu cầu phải đang tình trạng đã login
 function loginRequired(req, res, next) {
-	if (currentUser) {
+	if (req.headers['token']) {
 		return next();
 	}
 	//khi cố truy cập vào các trang cần login mà lỗi (chưa login) sẽ trả ra 401
@@ -61,7 +63,13 @@ module.exports.authToken = jwtHelper.authToken;
 module.exports.authAll = asyncHandler(async function(req, res, next) {
 	//token check
 	const token = req.headers['token'];
-	if (token == null) return res.status(401).send({ message: 'Invalid Token' });
+
+	//logged in check
+	if (!token) {
+		//khi cố truy cập vào các trang cần login mà lỗi (chưa login) sẽ trả ra 401
+		return res.status(401).send({ message: 'User not logged in' });
+	}
+
 	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
 
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
@@ -70,14 +78,14 @@ module.exports.authAll = asyncHandler(async function(req, res, next) {
 		}
 	});
 
-	//logged in check
+	//nếu token hợp lệ thì decode ra lấy thông tin
+	currentUser = jwtHelper.decodeToken(token);
 	if (!currentUser) {
-		//khi cố truy cập vào các trang cần login mà lỗi (chưa login) sẽ trả ra 401
-		return res.status(401).send({ message: 'User not logged in' });
+		return res.status(401).send({ message: 'Invalid Token' });
 	}
 
 	//email verified check
-	const checkEmailVerify = await userService.checkUserVerifyEmailCodeYet(currentUser);
+	const checkEmailVerify = await userService.checkUserActiveEmailCodeYet(currentUser);
 	if (!checkEmailVerify) return res.status(401).send({ message: 'User not verified email yet' });
 
 	//citizenIdentificationId verified check
