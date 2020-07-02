@@ -15,7 +15,7 @@ exchange_rate.init(
 			allowNull: false
 		},
 		value: {
-			type: Sequelize.DOUBLE,
+			type: Sequelize.DECIMAL,
 			allowNull: false
 		}
 	},
@@ -24,6 +24,8 @@ exchange_rate.init(
 		modelName: 'exchange_rate'
 	}
 );
+
+module.exports = exchange_rate;
 
 /* EXAMPLE
 id				unitA				unitB				value

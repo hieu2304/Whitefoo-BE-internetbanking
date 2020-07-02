@@ -23,7 +23,7 @@ history_payment.init(
 			allowNull: false
 		},
 		value: {
-			type: Sequelize.DOUBLE,
+			type: Sequelize.DECIMAL,
 			allowNull: false
 		},
 		transferType: {
@@ -41,3 +41,5 @@ history_payment.init(
 		modelName: 'history_payment'
 	}
 );
+
+module.exports = history_payment;

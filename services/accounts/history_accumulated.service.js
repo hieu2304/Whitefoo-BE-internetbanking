@@ -2,9 +2,9 @@ const Sequelize = require('sequelize');
 const db = require('../db');
 const Model = Sequelize.Model;
 
-class history_accumulate extends Model {}
+class history_accumulated extends Model {}
 
-history_accumulate.init(
+history_accumulated.init(
 	{
 		accountId: {
 			type: Sequelize.STRING,
@@ -19,7 +19,7 @@ history_accumulate.init(
 			allowNull: false
 		},
 		value: {
-			type: Sequelize.DOUBLE,
+			type: Sequelize.DECIMAL,
 			allowNull: false
 		},
 		status: {
@@ -29,6 +29,8 @@ history_accumulate.init(
 	},
 	{
 		sequelize: db,
-		modelName: 'history_accumulate'
+		modelName: 'history_accumulated'
 	}
 );
+
+module.exports = history_accumulated;

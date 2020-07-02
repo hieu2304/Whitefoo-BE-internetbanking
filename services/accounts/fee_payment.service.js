@@ -7,11 +7,11 @@ class fee_payment extends Model {}
 fee_payment.init(
 	{
 		fee: {
-			type: Sequelize.DOUBLE, //tiền phải trả
+			type: Sequelize.DECIMAL, //tiền phải trả
 			allowNull: false
 		},
 		value: {
-			type: Sequelize.DOUBLE, //mức tiền giao dịch để trả cái fee trên
+			type: Sequelize.DECIMAL, //mức tiền giao dịch để trả cái fee trên
 			allowNull: false
 		},
 		transferType: {
@@ -25,6 +25,8 @@ fee_payment.init(
 		modelName: 'fee_payment'
 	}
 );
+
+module.exports = fee_payment;
 
 /* Example
 id				fe					value				transferType

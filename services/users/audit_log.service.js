@@ -42,3 +42,5 @@ audit_log.init(
 		modelName: 'audit_log'
 	}
 );
+
+module.exports = audit_log;

@@ -25,3 +25,5 @@ exchange_rate.init(
 		modelName: 'citizen_identification'
 	}
 );
+
+module.exports = citizen_identification;

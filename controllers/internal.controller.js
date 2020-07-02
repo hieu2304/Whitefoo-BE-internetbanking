@@ -5,7 +5,14 @@ const jwtHelper = require('../helpers/jwt.helper');
 
 // create Account Internal post
 module.exports.postCreateAccount = asyncHandler(async function(req, res, next) {
-	return res.json({ message: 'success get into post Create account', postsList });
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+	const result = await accountService.createNewAccount(req.body, currentUser);
+
+	if (!result) return res.status(409).send({ message: 'fail' });
+	return res.status(200).send({ message: 'OK' });
 });
 
 // create Account Internal get
