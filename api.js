@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('./helpers/jwt.helper');
 const authMiddleware = require('./middlewares/auth.middleware');
+//################## CÁC API KHÔNG AUTHENTICATION ##################
+//nếu muốn thêm chi tiết nhỏ như yêu cầu logout cho register thì vào bên trong auth rồi thêm
 
 // Pre-middleware won't work on multer
 router.use('/upload', require('./routes/upload.route'));
@@ -17,8 +19,9 @@ router.use('/auth', require('./routes/auth.route'));
 router.use('/', require('./routes/guest.route'));
 
 //các API liên quan JWT : gia hạn token (ko yêu cầu gì cả)
-router.use('/token', require('./routes/token.route'));
+router.use('/', require('./routes/token.route'));
 
+//################## CÁC API CÓ AUTHENTICATION ##################
 //các API cần JWT còn hiệu lực, yêu cầu đã đăng nhập, tài khoản đã kích hoạt email, tài khoản đã xác nhận CMND/CCCD
 //các auth con trong authAll theo thứ tự: authToken, loginRequired, verifyEmailRequired, verifyCitizenIdentificationIdRequired
 router.use(authMiddleware.authAll);

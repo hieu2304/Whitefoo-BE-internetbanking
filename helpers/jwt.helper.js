@@ -12,6 +12,7 @@ module.exports.jwtEx = function(req, res, next) {
 module.exports.reGenerateToken = function(req, res, next) {
 	const previousToken = req.headers['token'];
 	if (previousToken == null) return res.status(403).send({ message: 'Invalid token' });
+
 	jwt.verify(previousToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
 		if (err) return res.status(403).send({ message: 'Invalid token' });
 		const token = this.generateToken({
