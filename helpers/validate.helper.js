@@ -1,7 +1,9 @@
 const { check, validationResult, body } = require('express-validator');
 const moment = require('moment');
 const regexConstant = require('../constants/regex.constants');
+const asyncHandler = require('express-async-handler');
 const errorConstant = require('../constants/errorsList.constant').registerErrorValidate;
+const Sequelize = require('sequelize');
 
 module.exports.validateErrorHandle = function(req) {
 	var isThereAnyErrors = validationResult(req);
@@ -69,7 +71,10 @@ module.exports.validateRegisterInformation = function() {
 		}),
 
 		check('dateOfBirth', errorConstant.DATEOFBIRTH_INVALID).custom(function(dateOfBirth) {
-			return moment(dateOfBirth, [ 'DD/MM/YYYY' ]).isValid(); //, 'YYYY/MM/DD', 'MM/DD/YYYY'
+			dateFormat = [ 'DD/MM/YYYY' ]; // , 'MM/DD/YYYY', 'YYYY/MM/DD'
+			const result = moment(dateOfBirth, dateFormat).format(dateFormat);
+			console.log(result);
+			return moment(result, dateFormat).isValid();
 
 			//moment(scope.modelValue, 'DD-MMM-YYYY HH:mm a', true).isValid()
 			//moment(checked_date, DATE_FORMAT).format(DATE_FORMAT) === checked_date

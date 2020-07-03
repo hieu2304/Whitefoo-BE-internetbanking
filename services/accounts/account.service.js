@@ -21,6 +21,18 @@ class account extends Model {
 		return list;
 	}
 
+	static async getAllAccountByIdNoneExclude(_id) {
+		const list = await account.findAll({
+			where: {
+				userId: _id
+			},
+			attributes: {
+				exclude: []
+			}
+		});
+		return list;
+	}
+
 	static async checkIfExistAccountId(_id) {
 		const isExist = await account.findOne({
 			where: {

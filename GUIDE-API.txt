@@ -162,17 +162,17 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
     method: POST
         nếu tạo tài khoản thanh toán (accountType là 0)
             params: 
-                accountType:0   HOẶC  type:0
-                userId:3    HOẶC    id:3
-                currencyType:VND        HOẶC currency:VND
+                accountType:0       HOẶC    type:0
+                userId:3            HOẶC    id:3
+                currencyType:VND    HOẶC    currency:VND
                 clientId:515hwrFpeLvGeVo2SvSe
                 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
         nếu tạo tài khoản tiết kiệm (accountType là 1 và có thêm thuộc tính term, term là số tháng khi đăng ký kỳ hạn, vd:3 là kỳ hạn 3 tháng)
             params: 
-                accountType:1   HOẶC  type:1
-                userId:3    HOẶC    id:3
-                term:3
-                currencyType:VND        HOẶC currency:VND
+                accountType:1       HOẶC    type:1
+                userId:3            HOẶC    id:3
+                currencyType:VND    HOẶC    currency:VND
+                                term:3
                 clientId:515hwrFpeLvGeVo2SvSe
                 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi

@@ -271,7 +271,9 @@ class User extends Model {
 			email: request.email,
 			lastName: request.lastName,
 			firstName: request.firstName,
-			dateOfBirth: request.dateOfBirth,
+			//ép sang dạng của Postgre là MM/DD/YYYY, DB của postgre ko chứa DD/MM/YYYY
+			//đừng lo vì DB đã có hàm format sẵn khi lấy ra
+			dateOfBirth: moment(request.dateOfBirth, 'DD/MM/YYYY').format('MM/DD/YYYY'),
 			phoneNumber: request.phoneNumber,
 			username: request.username,
 			address: request.address,
@@ -464,7 +466,12 @@ User.init(
 		},
 		dateOfBirth: {
 			type: Sequelize.DATEONLY,
-			allowNull: false
+			//định dạng khi lấy dữ liệu ra, sẽ tự format thành Ngày/tháng/năm
+			//vì postgre trả ra dạng YYYY-MM-DD
+			//postgre khi input date chỉ nhận 2 dạng: YYYY-MM-DD và MM-DD-YYYY (dấu - hoặc /)
+			get: function() {
+				return moment.utc(this.getDataValue('dateOfBirth')).format('DD/MM/YYYY');
+			}
 		},
 		phoneNumber: {
 			type: Sequelize.STRING,
