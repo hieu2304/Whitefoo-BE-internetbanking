@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
+const moment = require('moment');
 const Model = Sequelize.Model;
 
 class account_accumulated extends Model {
@@ -9,7 +10,7 @@ class account_accumulated extends Model {
 			term: request.term,
 			startTermDate: moment(new Date()).format('DD/MM/YYYY')
 		});
-		return null;
+		return result;
 	}
 }
 

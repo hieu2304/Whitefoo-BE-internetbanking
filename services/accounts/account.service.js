@@ -3,10 +3,24 @@ const db = require('../db');
 const Model = Sequelize.Model;
 const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
+const userService = require('../users/user.service');
 const moment = require('moment');
 const audit_log = require('../users/audit_log.service');
+const User = require('../users/user.service');
 
 class account extends Model {
+	static async getAllAccountByIdUsingExclude(_id) {
+		const list = await account.findAll({
+			where: {
+				userId: _id
+			},
+			attributes: {
+				exclude: [ 'createdAt', 'updatedAt', 'closedDate', 'accountType', 'status' ]
+			}
+		});
+		return list;
+	}
+
 	static async checkIfExistAccountId(_id) {
 		const isExist = await account.findOne({
 			where: {
@@ -26,22 +40,29 @@ class account extends Model {
 	}
 
 	static async createNewAccount(request, currentUser) {
-		newAccountId = await account.getUniqueRandomAccountId();
+		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
+		const accountType = typeof request.accountType !== 'undefined' ? request.accountType : request.type;
+		const currencyType = typeof request.currencyType !== 'undefined' ? request.currencyType : request.currency;
+
+		//kiếm tra userId có hợp lệ
+		const checkUser = await User.findByPk(userId);
+		if (!checkUser) return null;
+		const newAccountId = await account.getUniqueRandomAccountId();
 
 		//nếu tài khoản thanh toán thì chỉ thêm bảng account
 		const result = await account.create({
 			accountId: newAccountId,
-			userId: request.userId,
+			userId: userId,
 			status: '0',
 			balance: 0,
-			currencyType: request.currencyType,
-			accountType: request.accountType,
+			currencyType: currencyType,
+			accountType: accountType,
 			openedDate: moment(new Date()).format('DD/MM/YYYY'),
 			closedDate: null
 		});
 
 		// 0: payment, 1: accumulated
-		if (request.accountType == '1') {
+		if (accountType == '1') {
 			//nếu tài khoản tiết kiệm, phải gọi và thêm vào account_accumulated
 			const result_accumulated = await account_accumulatedService.createNewAccumulatedAccount(
 				request,
@@ -53,9 +74,9 @@ class account extends Model {
 		if (result) {
 			await audit_log.pushAuditLog(
 				currentUser.id,
-				request.userId,
+				userId,
 				'create account',
-				'create account type ' + request.accountType
+				'create account type ' + accountType
 			);
 		}
 

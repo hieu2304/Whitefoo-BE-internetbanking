@@ -5,8 +5,25 @@ const Model = Sequelize.Model;
 const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
 const Op = Sequelize.Op;
+const accountService = require('../accounts/account.service');
 const moment = require('moment');
 class User extends Model {
+	static async findUserByPKNoneExclude(id) {
+		const user = await User.findByPk(id);
+
+		return user;
+	}
+	static async findUserByPKUsingExclude(id) {
+		const user = await User.findOne({
+			where: { id: id },
+			attributes: {
+				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
+			}
+		});
+
+		return user;
+	}
+
 	static async findUserNoneExclude(username) {
 		const user = await User.findOne({
 			where: {
@@ -20,6 +37,7 @@ class User extends Model {
 		});
 		return user;
 	}
+
 	static async findUserUsingExclude(username) {
 		const user = await User.findOne({
 			where: {
@@ -414,6 +432,12 @@ class User extends Model {
 		}
 
 		return result;
+	}
+
+	static async getInfo(request) {
+		const accountList = await accountService.getAllAccountByIdUsingExclude(request.id);
+		const user = await User.findUserByPKUsingExclude(request.id);
+		return { user, accountList };
 	}
 }
 
