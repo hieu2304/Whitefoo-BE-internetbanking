@@ -147,6 +147,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 /api/getinfo
 (người dùng tự lấy các thông tin cá nhân cơ bản + thông tin các STK)
     method: POST
+    điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
         params:
             id:3 (id khóa chính trong bảng users)
             clientId:515hwrFpeLvGeVo2SvSe
@@ -155,6 +156,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 
 ##########################################################################################
 ####################[ các api User Internal - user có quyền hạn nội bộ ]##################
+điều kiện chung: đã login, đã xác nhận email, dẵ kích hoạt CMND, là nhân viên ngân hàng
 
 /api/createaccount
     method: POST
@@ -166,9 +168,9 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
                 clientId:515hwrFpeLvGeVo2SvSe
                 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
-        nếu tạo tài khoản tiết kiệm (accountType là 1 và có thêm thuộc tính term)
+        nếu tạo tài khoản tiết kiệm (accountType là 1 và có thêm thuộc tính term, term là số tháng khi đăng ký kỳ hạn, vd:3 là kỳ hạn 3 tháng)
             params: 
-                accountType:0   HOẶC  type:0
+                accountType:1   HOẶC  type:1
                 userId:3    HOẶC    id:3
                 term:3
                 currencyType:VND        HOẶC currency:VND

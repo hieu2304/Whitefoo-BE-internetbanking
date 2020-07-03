@@ -15,7 +15,7 @@ class account extends Model {
 				userId: _id
 			},
 			attributes: {
-				exclude: [ 'createdAt', 'updatedAt', 'closedDate', 'accountType', 'status' ]
+				exclude: [ 'createdAt', 'updatedAt', 'closedDate', 'accountType', 'status', 'id' ]
 			}
 		});
 		return list;
