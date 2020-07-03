@@ -369,20 +369,36 @@ class User extends Model {
 
 	//hàm tìm kiếm trả về list theo keyword
 	static async searchByKeyword(request) {
-		const keyword = request.keyword;
+		const keyword = request.keyword.toLowerCase();
 		const listNumberOne = await User.findAll({
 			where: {
 				[Op.or]: [
-					{ email: { [Op.like]: '%' + keyword + '%' } },
-					{ citizenIdentificationId: { [Op.like]: '%' + keyword + '%' } },
-					{ phoneNumber: { [Op.like]: '%' + keyword + '%' } },
-					{ username: { [Op.like]: '%' + keyword + '%' } },
-					{ firstName: { [Op.like]: '%' + keyword + '%' } },
-					{ lastName: { [Op.like]: '%' + keyword + '%' } },
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), { [Op.like]: '%' + keyword + '%' }),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('citizenIdentificationId')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('phoneNumber')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstName')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastName')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+
 					//Họ + ' ' + Tên
 					Sequelize.where(
-						Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName')),
-						{ [Op.like]: '%' + keyword + '%' }
+						Sequelize.fn(
+							'lower',
+							Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName'))
+						),
+						{
+							[Op.like]: '%' + keyword + '%'
+						}
 					)
 				],
 				userType: '1'

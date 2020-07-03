@@ -6,14 +6,18 @@ const jwtHelper = require('../helpers/jwt.helper');
 
 //yêu cầu tài khoản phải xác nhận Chứng minh nhân dân/Căn cước công dân
 module.exports.verifyCitizenIdentificationIdRequired = function(req, res, next) {
-	const result = req.user.citizenIdentificationId;
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+
+	const result = currentUser.user.citizenIdentificationId;
 	if (result && result.length > 0) return next();
 	return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
 };
 
 // yêu cầu tài khoản phải xác nhận email
 module.exports.verifyEmailRequired = asyncHandler(async function(req, res, next) {
-	const result = await userService.checkUserActiveEmailCodeYet(req.user);
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+
+	const result = await userService.checkUserActiveEmailCodeYet(currentUser.user);
 	if (result) return next();
 	return res.status(401).send({ message: 'User not verified email yet' });
 });
