@@ -3,10 +3,8 @@ const db = require('../db');
 const Model = Sequelize.Model;
 const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
-const userService = require('../users/user.service');
 const moment = require('moment');
 const audit_log = require('../users/audit_log.service');
-const User = require('../users/user.service');
 
 class account extends Model {
 	static async getAllAccountByIdUsingExclude(_id) {
@@ -56,9 +54,6 @@ class account extends Model {
 		const accountType = typeof request.accountType !== 'undefined' ? request.accountType : request.type;
 		const currencyType = typeof request.currencyType !== 'undefined' ? request.currencyType : request.currency;
 
-		//kiếm tra userId có hợp lệ
-		const checkUser = await User.findByPk(userId);
-		if (!checkUser) return null;
 		const newAccountId = await account.getUniqueRandomAccountId();
 
 		//nếu tài khoản thanh toán thì chỉ thêm bảng account

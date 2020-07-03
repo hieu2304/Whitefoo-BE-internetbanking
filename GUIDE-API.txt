@@ -154,6 +154,16 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
             secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
 
+/api/requeststaff
+(Người dùng muốn lên nhân viên ngân hàng, chỉ thằng đầu tiên sẽ dc)
+    method: POST
+    điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
+        params:
+            id:1
+            clientId:515hwrFpeLvGeVo2SvSe
+            secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
 ##########################################################################################
 ####################[ các api User Internal - user có quyền hạn nội bộ ]##################
 điều kiện chung: đã login, đã xác nhận email, dẵ kích hoạt CMND, là nhân viên ngân hàng

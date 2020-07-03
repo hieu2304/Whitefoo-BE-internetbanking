@@ -436,10 +436,43 @@ class User extends Model {
 		return result;
 	}
 
+	//hàm user xem thông tin bản thân
 	static async getInfo(request) {
 		const accountList = await accountService.getAllAccountByIdUsingExclude(request.id);
 		const user = await User.findUserByPKUsingExclude(request.id);
 		return { user, accountList };
+	}
+
+	//hàm user xin làm nhân viên
+	//thằng nào xin trước thằng đó được làm
+	static async requestStaff(request) {
+		if (typeof request.id === 'undefined') return { message: 'id must not empty' };
+		const checkUser = await User.findByPk(request.id);
+		if (!checkUser) return { message: 'id not exists' };
+
+		const countList = await User.findAndCountAll({
+			where: {
+				userType: '0'
+			}
+		});
+
+		const count = countList.count;
+
+		//nếu đã có ít nhất 1 nhân viên rồi thì chờ thằng đã làm nhân viên set lên
+		if (count > 0) return { message: 'fail' };
+
+		//nếu chưa có thì thằng này lên làm nhân viên
+		const result = await User.update(
+			{
+				userType: '0'
+			},
+			{
+				where: {
+					id: request.id
+				}
+			}
+		);
+		return null;
 	}
 }
 
@@ -500,7 +533,8 @@ User.init(
 		//mã xác nhận 2 bước
 		verifyCode: {
 			type: Sequelize.STRING,
-			allowNull: true
+			allowNull: true,
+			defaultValue: ''
 		},
 		//mã quên mật khẩu
 		forgotCode: {

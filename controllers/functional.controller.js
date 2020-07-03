@@ -42,3 +42,17 @@ module.exports.postGetInfo = asyncHandler(async function(req, res, next) {
 module.exports.getGetInfo = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
+
+//User xin làm nhân viên, thằng nào xin trước thằng đó làm
+module.exports.getRequestStaff = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+
+module.exports.postRequestStaff = asyncHandler(async function(req, res, next) {
+	const result = await userService.requestStaff(req.body);
+
+	//nếu có lỗi
+	if (result) return res.status(409).send(result);
+	//nếu ok
+	return res.status(200).send({ message: 'OK' });
+});

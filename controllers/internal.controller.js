@@ -9,6 +9,10 @@ module.exports.postCreateAccount = asyncHandler(async function(req, res, next) {
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
+	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
+	const checkUser = await userService.findByPk(userId);
+	if (!checkUser) return res.status(409).send({ message: 'fail' });
+	
 	const result = await accountService.createNewAccount(req.body, currentUser);
 
 	if (!result) return res.status(409).send({ message: 'fail' });

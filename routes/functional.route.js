@@ -15,4 +15,8 @@ router.post('/changepassword', validateHelper.validateUpdateNewPassword(), contr
 router.get('/getinfo', controller.getGetInfo);
 router.post('/getinfo', controller.postGetInfo);
 
+//User xin làm nhân viên, thằng nào xin trước thằng đó làm
+router.get('/requeststaff', controller.getRequestStaff);
+router.post('/requeststaff', controller.postRequestStaff);
+
 module.exports = router;

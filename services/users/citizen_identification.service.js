@@ -17,6 +17,9 @@ exchange_rate.init(
 		},
 		issueDate: {
 			type: Sequelize.DATEONLY,
+			get: function() {
+				return moment.utc(this.getDataValue('issueDate')).format('DD/MM/YYYY');
+			},
 			allowNull: false
 		}
 	},

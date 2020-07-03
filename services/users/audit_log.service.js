@@ -17,7 +17,7 @@ class audit_log extends Model {
 			userId: userId,
 			action: action,
 			description: description,
-			time: moment(new Date()).format('DD/MM/YYYY')
+			time: new Date()
 		});
 	}
 }
@@ -34,7 +34,10 @@ audit_log.init(
 		time: {
 			type: Sequelize.DATE,
 			allowNull: false,
-			defaultValue: moment(new Date()).format('DD/MM/YYYY')
+			defaultValue: new Date(),
+			get: function() {
+				return moment.utc(this.getDataValue('time')).format('DD/MM/YYYY hh:mm:ss');
+			}
 		},
 		action: {
 			type: Sequelize.STRING,

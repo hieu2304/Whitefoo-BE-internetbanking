@@ -16,6 +16,9 @@ history_payment.init(
 		},
 		time: {
 			type: Sequelize.DATE,
+			get: function() {
+				return moment.utc(this.getDataValue('time')).format('DD/MM/YYYY hh:mm:ss');
+			},
 			allowNull: false
 		},
 		message: {
