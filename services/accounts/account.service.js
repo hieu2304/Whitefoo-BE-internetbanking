@@ -15,7 +15,7 @@ class account extends Model {
 		});
 		if (!foundAccount) return null;
 
-		const result = foundAccount;
+		const result = foundAccount.dataValues;
 		// 0: payment, 1: accumulated
 		//nếu đây là TK TK, thì thêm fields của TK TK
 		if (foundAccount.accountType == '1') {
@@ -24,9 +24,13 @@ class account extends Model {
 			result.term = moreFields.term;
 			result.startTermDate = moreFields.startTermDate;
 		}
+		//dùng từ getter để được định dạng
+		result.openedDate = foundAccount.openedDate;
+		result.closedDate = foundAccount.closedDate;
 
 		return result;
 	}
+
 	static async getAccountUsingExclude(accountId) {
 		const foundAccount = await account.findOne({
 			where: {
@@ -38,15 +42,17 @@ class account extends Model {
 		});
 		if (!foundAccount) return null;
 
-		const result = foundAccount;
+		const result = foundAccount.dataValues;
 		// 0: payment, 1: accumulated
 		//nếu đây là TK TK, thì thêm fields của TK TK
 		if (foundAccount.accountType == '1') {
 			const moreFields = await account_accumulatedService.getAccountAccumulatedById(result.accountId);
 
-			result.term = moreFields.term;
+			result.term = moreFields.dataValues.term;
 			result.startTermDate = moreFields.startTermDate;
 		}
+		//dùng từ getter để được định dạng
+		result.openedDate = foundAccount.openedDate;
 
 		return result;
 	}
@@ -80,7 +86,8 @@ class account extends Model {
 
 		//kiểm tra từng account trong list, nếu có account tiết kiệm thì phải thêm trường
 		for (var i = 0; i < list.length; i++) {
-			result.push(list[i]);
+			result.push(list[i].dataValues);
+			result[i].openedDate = list[i].openedDate;
 			// 0: payment, 1: accumulated
 			if (result[i].accountType == '1') {
 				//lấy thêm trường term và startTermDate
@@ -88,6 +95,7 @@ class account extends Model {
 				//set thêm term và startTermDate
 				// cách 1: records.set('Name', 'test')
 				// cách 2: records.Name = 'test'
+				//không dùng .dataValues vì cần định dạng từ getter
 				result[i].term = moreFields.term;
 				result[i].startTermDate = moreFields.startTermDate;
 			}
@@ -103,7 +111,8 @@ class account extends Model {
 
 		//kiểm tra từng account trong list, nếu có account tiết kiệm thì phải thêm trường
 		for (var i = 0; i < list.length; i++) {
-			result.push(list[i]);
+			result.push(list[i].dataValues);
+			result[i].openedDate = list[i].openedDate;
 			// 0: payment, 1: accumulated
 			if (result[i].accountType == '1') {
 				//lấy thêm trường term và startTermDate
@@ -111,6 +120,7 @@ class account extends Model {
 				//set thêm term và startTermDate
 				// cách 1: records.set('Name', 'test')
 				// cách 2: records.Name = 'test'
+				//không dùng .dataValues vì cần định dạng từ getter
 				result[i].term = moreFields.term;
 				result[i].startTermDate = moreFields.startTermDate;
 			}
@@ -152,8 +162,7 @@ class account extends Model {
 			balance: 0,
 			currencyType: currencyType,
 			accountType: accountType,
-			openedDate: moment(),
-			closedDate: null
+			openedDate: moment()
 		});
 
 		// 0: payment, 1: accumulated

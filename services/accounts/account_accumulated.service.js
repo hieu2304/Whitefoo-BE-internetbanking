@@ -18,7 +18,7 @@ class account_accumulated extends Model {
 		const result = await account_accumulated.create({
 			accountId: newAccountId,
 			term: request.term,
-			startTermDate: moment(new Date()).format('DD/MM/YYYY')
+			startTermDate: moment()
 		});
 		return result;
 	}
