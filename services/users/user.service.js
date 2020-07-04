@@ -273,7 +273,7 @@ class User extends Model {
 			firstName: request.firstName,
 			//ép sang dạng của Postgre là MM/DD/YYYY, DB của postgre ko chứa DD/MM/YYYY
 			//đừng lo vì DB đã có hàm format sẵn khi lấy ra
-			dateOfBirth: moment(request.dateOfBirth, 'DD/MM/YYYY').format('MM/DD/YYYY'),
+			dateOfBirth: moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss'),
 			phoneNumber: request.phoneNumber,
 			username: request.username,
 			address: request.address,
@@ -431,6 +431,9 @@ class User extends Model {
 		const result = [];
 		for (var i = 0; i < listNumberOne.length; i++) {
 			result.push(listNumberOne[i].dataValues);
+			//vì .dataValues là lấy dữ liệu gốc chưa qua getter fotmat
+			//muốn lấy dạng format DD/MM/YYYY phải xài dữ liệu trả từ getter
+			result[i].dateOfBirth = listNumberOne[i].dateOfBirth;
 		}
 
 		return result;
@@ -519,8 +522,9 @@ User.init(
 		dateOfBirth: {
 			type: Sequelize.DATEONLY,
 			//định dạng khi lấy dữ liệu ra, sẽ tự format thành Ngày/tháng/năm
-			//vì postgre trả ra dạng YYYY-MM-DD
-			//postgre khi input date chỉ nhận 2 dạng: YYYY-MM-DD và MM-DD-YYYY (dấu - hoặc /)
+			//vì postgre mặc định sẽ trả ra dạng YYYY-MM-DD
+			//postgre khi input date chỉ nhận 2 dạng: YYYY-MM-DD hh:mm:ss và MM-DD-YYYY hh:mm:ss (dấu - hoặc /)
+			//nếu muốn data lấy ra đã được getter định dạng thì ko dùng .dataValues
 			get: function() {
 				return moment.utc(this.getDataValue('dateOfBirth')).format('DD/MM/YYYY');
 			}

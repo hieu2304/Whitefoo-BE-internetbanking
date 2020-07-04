@@ -71,10 +71,9 @@ module.exports.validateRegisterInformation = function() {
 		}),
 
 		check('dateOfBirth', errorConstant.DATEOFBIRTH_INVALID).custom(function(dateOfBirth) {
-			dateFormat = [ 'DD/MM/YYYY' ]; // , 'MM/DD/YYYY', 'YYYY/MM/DD'
-			const result = moment(dateOfBirth, dateFormat).format(dateFormat);
-			console.log(result);
-			return moment(result, dateFormat).isValid();
+			const dateFormat = [ 'DD/MM/YYYY' ]; // , 'MM/DD/YYYY', 'YYYY/MM/DD'
+			const result = moment(dateOfBirth, dateFormat).format('DD/MM/YYYY');
+			return moment(result, 'DD/MM/YYYY').isValid();
 
 			//moment(scope.modelValue, 'DD-MMM-YYYY HH:mm a', true).isValid()
 			//moment(checked_date, DATE_FORMAT).format(DATE_FORMAT) === checked_date

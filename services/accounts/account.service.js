@@ -15,14 +15,14 @@ class account extends Model {
 		});
 		if (!foundAccount) return null;
 
-		const result = foundAccount.dataValues;
+		const result = foundAccount;
 		// 0: payment, 1: accumulated
 		//nếu đây là TK TK, thì thêm fields của TK TK
 		if (foundAccount.accountType == '1') {
 			const moreFields = await account_accumulatedService.getAccountAccumulatedById(result.accountId);
 
-			result.term = moreFields.dataValues.term;
-			result.startTermDate = moreFields.dataValues.startTermDate;
+			result.term = moreFields.term;
+			result.startTermDate = moreFields.startTermDate;
 		}
 
 		return result;
@@ -38,14 +38,14 @@ class account extends Model {
 		});
 		if (!foundAccount) return null;
 
-		const result = foundAccount.dataValues;
+		const result = foundAccount;
 		// 0: payment, 1: accumulated
 		//nếu đây là TK TK, thì thêm fields của TK TK
 		if (foundAccount.accountType == '1') {
 			const moreFields = await account_accumulatedService.getAccountAccumulatedById(result.accountId);
 
-			result.term = moreFields.dataValues.term;
-			result.startTermDate = moreFields.dataValues.startTermDate;
+			result.term = moreFields.term;
+			result.startTermDate = moreFields.startTermDate;
 		}
 
 		return result;
@@ -80,18 +80,16 @@ class account extends Model {
 
 		//kiểm tra từng account trong list, nếu có account tiết kiệm thì phải thêm trường
 		for (var i = 0; i < list.length; i++) {
-			result.push(list[i].dataValues);
+			result.push(list[i]);
 			// 0: payment, 1: accumulated
 			if (result[i].accountType == '1') {
 				//lấy thêm trường term và startTermDate
-				const moreFields = await account_accumulatedService.getAccountAccumulatedById(
-					list[i].dataValues.accountId
-				);
+				const moreFields = await account_accumulatedService.getAccountAccumulatedById(list[i].accountId);
 				//set thêm term và startTermDate
 				// cách 1: records.set('Name', 'test')
 				// cách 2: records.Name = 'test'
-				result[i].term = moreFields.dataValues.term;
-				result[i].startTermDate = moreFields.dataValues.startTermDate;
+				result[i].term = moreFields.term;
+				result[i].startTermDate = moreFields.startTermDate;
 			}
 		}
 
@@ -105,18 +103,16 @@ class account extends Model {
 
 		//kiểm tra từng account trong list, nếu có account tiết kiệm thì phải thêm trường
 		for (var i = 0; i < list.length; i++) {
-			result.push(list[i].dataValues);
+			result.push(list[i]);
 			// 0: payment, 1: accumulated
 			if (result[i].accountType == '1') {
 				//lấy thêm trường term và startTermDate
-				const moreFields = await account_accumulatedService.getAccountAccumulatedById(
-					list[i].dataValues.accountId
-				);
+				const moreFields = await account_accumulatedService.getAccountAccumulatedById(list[i].accountId);
 				//set thêm term và startTermDate
 				// cách 1: records.set('Name', 'test')
 				// cách 2: records.Name = 'test'
-				result[i].term = moreFields.dataValues.term;
-				result[i].startTermDate = moreFields.dataValues.startTermDate;
+				result[i].term = moreFields.term;
+				result[i].startTermDate = moreFields.startTermDate;
 			}
 		}
 
@@ -156,7 +152,7 @@ class account extends Model {
 			balance: 0,
 			currencyType: currencyType,
 			accountType: accountType,
-			openedDate: moment(new Date()).format('DD/MM/YYYY'),
+			openedDate: moment(),
 			closedDate: null
 		});
 
@@ -215,15 +211,19 @@ account.init(
 		},
 		openedDate: {
 			type: Sequelize.DATEONLY,
-			get: function() {
-				return moment.utc(this.getDataValue('openedDate')).format('DD/MM/YYYY');
+			//getter
+			get() {
+				const result = moment.utc(this.getDataValue('openedDate')).format('DD/MM/YYYY');
+				return result;
 			},
 			allowNull: true
 		},
 		closedDate: {
 			type: Sequelize.DATEONLY,
-			get: function() {
-				return moment.utc(this.getDataValue('closedDate')).format('DD/MM/YYYY');
+			//getter
+			get() {
+				const result = moment.utc(this.getDataValue('closedDate')).format('DD/MM/YYYY');
+				return result;
 			},
 			allowNull: true
 		}
