@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-async function send(_to, _subject, _content, _html) {
+async function send(toEmail, emailSubject, emailContent, yourCustomHTML) {
 	const transporter = nodemailer.createTransport({
 		host: process.env.EMAIL_HOST,
 		port: Number(process.env.EMAIL_PORT),
@@ -13,10 +13,10 @@ async function send(_to, _subject, _content, _html) {
 	//const info = await
 	return transporter.sendMail({
 		from: process.env.EMAIL_FROM,
-		to: _to,
-		subject: _subject,
-		text: _content,
-		html: _html
+		to: toEmail,
+		subject: emailSubject,
+		text: emailContent,
+		html: yourCustomHTML
 	});
 }
 

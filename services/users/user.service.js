@@ -1,12 +1,15 @@
 const bcrypt = require('bcrypt');
 const Sequelize = require('sequelize');
-const db = require('../db');
+const moment = require('moment');
 const Model = Sequelize.Model;
+const Op = Sequelize.Op;
+const db = require('../db');
 const randomHelper = require('../../helpers/random.helper');
 const jwtHelper = require('../../helpers/jwt.helper');
-const Op = Sequelize.Op;
+const emailHelper = require('../../helpers/email.helper');
+const makeMessageHelper = require('../../helpers/makeMessage.helper');
 const accountService = require('../accounts/account.service');
-const moment = require('moment');
+
 class User extends Model {
 	static async findUserByPKNoneExclude(id) {
 		const user = await User.findByPk(id);
@@ -282,7 +285,21 @@ class User extends Model {
 		});
 
 		//send email here
-
+		if (newUser) {
+			const newEmailVerifyMessage = makeMessageHelper.verifyEmailMessage(
+				newUser.email,
+				newUser.lastName,
+				newUser.firstName,
+				newActiveCode
+			);
+			await emailHelper.send(
+				newUser.email,
+				'Kích hoạt tài khoản',
+				newEmailVerifyMessage.content,
+				newEmailVerifyMessage.html
+			);
+		}
+		//return newUser to controller know action was success
 		return newUser;
 	}
 
@@ -308,7 +325,14 @@ class User extends Model {
 	//quên mật khẩu bước 1: tạo forgotCode và gửi email cho user quên mât khẩu
 	static async ForgotPasswordStepOne(request) {
 		//tìm user
-		const forgotPasswordUser = await User.findUserUsingExclude(request.email);
+		//user phải kích hoạt email rồi mới quên mật khẩu lấy lại qua email được
+		const forgotPasswordUser = await User.findOne({
+			where: {
+				email: request.email,
+				activeCode: ''
+			}
+		});
+
 		if (!forgotPasswordUser) {
 			return null;
 		}
@@ -321,7 +345,21 @@ class User extends Model {
 				where: { email: request.email }
 			}
 		);
-
+		//send email here
+		if (forgotPasswordUser) {
+			const newEmailVerifyMessage = makeMessageHelper.forgotPasswordMessage(
+				forgotPasswordUser.email,
+				forgotPasswordUser.lastName,
+				forgotPasswordUser.firstName,
+				newForgotCode
+			);
+			await emailHelper.send(
+				forgotPasswordUser.email,
+				'Lấy lại mật khẩu',
+				newEmailVerifyMessage.content,
+				newEmailVerifyMessage.html
+			);
+		}
 		//send email here
 
 		//return result

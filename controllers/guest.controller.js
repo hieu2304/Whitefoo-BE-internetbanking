@@ -6,7 +6,7 @@ const validateHelper = require('../helpers/validate.helper');
 //step 1 - send request forgot password to generate code and send via email
 module.exports.postForgotPassword = asyncHandler(async function(req, res, next) {
 	const result = await userService.ForgotPasswordStepOne(req.body);
-	if (!result) return res.status(403).send({ message: 'User not exists' });
+	if (!result) return res.status(403).send({ message: 'User not exists or not verify email yet' });
 	return res.status(200).send({ message: 'OK' });
 });
 

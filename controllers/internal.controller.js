@@ -53,7 +53,9 @@ module.exports.getGetAccountInfo = function(req, res, next) {
 };
 module.exports.postGetAccountInfo = asyncHandler(async function(req, res, next) {
 	const accountId = typeof req.body.accountId !== 'undefined' ? req.body.accountId : req.body.id;
+	if (!accountId) return res.status(409).send({ message: 'not exist Id ' + accountId });
 	const result = await accountService.getAccountNoneExclude(accountId);
+
 	if (!result) return res.status(409).send({ message: 'not exist accountId ' + accountId });
 	return res.status(200).send(result);
 });
