@@ -5,30 +5,79 @@ const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
 const moment = require('moment');
 const audit_log = require('../users/audit_log.service');
+const { countStaff } = require('../users/user.service');
 
 class account extends Model {
-	static async getAllAccountByIdUsingExclude(_id) {
+	static async getAllAccountNoneExclude(_id) {
+		const list = await account.findAll({
+			where: {
+				userId: _id
+			}
+		});
+
+		return list;
+	}
+	static async getAllAccountUsingExclude(_id) {
 		const list = await account.findAll({
 			where: {
 				userId: _id
 			},
 			attributes: {
-				exclude: [ 'createdAt', 'updatedAt', 'closedDate', 'accountType', 'status', 'id' ]
+				exclude: [ 'createdAt', 'updatedAt', 'closedDate', 'id' ]
 			}
 		});
+
 		return list;
 	}
 
-	static async getAllAccountByIdNoneExclude(_id) {
-		const list = await account.findAll({
-			where: {
-				userId: _id
-			},
-			attributes: {
-				exclude: []
+	//hàm này cho user, sẽ ẩn 1 số thuộc tính bí mật/bảo mật
+	static async getAllAccountReferenceByIdUsingExclude(_id) {
+		const list = await account.getAllAccountUsingExclude(_id);
+		const result = [];
+
+		//kiểm tra từng account trong list, nếu có account tiết kiệm thì phải thêm trường
+		for (var i = 0; i < list.length; i++) {
+			result.push(list[i].dataValues);
+			// 0: payment, 1: accumulated
+			if (result[i].accountType == '1') {
+				//lấy thêm trường term và startTermDate
+				const moreFields = await account_accumulatedService.getAccountAccumulatedById(
+					list[i].dataValues.accountId
+				);
+				//set thêm term và startTermDate
+				// cách 1: records.set('Name', 'test')
+				// cách 2: records.Name = 'test'
+				result[i].term = moreFields.dataValues.term;
+				result[i].startTermDate = moreFields.dataValues.startTermDate;
 			}
-		});
-		return list;
+		}
+
+		return result;
+	}
+
+	//hàm này cho nhân viên, không ẩn bất cứ gì
+	static async getAllAccountReferenceByIdNoneExclude(_id) {
+		const list = await account.getAllAccountNoneExclude(_id);
+		const result = [];
+
+		//kiểm tra từng account trong list, nếu có account tiết kiệm thì phải thêm trường
+		for (var i = 0; i < list.length; i++) {
+			result.push(list[i].dataValues);
+			// 0: payment, 1: accumulated
+			if (result[i].accountType == '1') {
+				//lấy thêm trường term và startTermDate
+				const moreFields = await account_accumulatedService.getAccountAccumulatedById(
+					list[i].dataValues.accountId
+				);
+				//set thêm term và startTermDate
+				// cách 1: records.set('Name', 'test')
+				// cách 2: records.Name = 'test'
+				result[i].term = moreFields.dataValues.term;
+				result[i].startTermDate = moreFields.dataValues.startTermDate;
+			}
+		}
+
+		return result;
 	}
 
 	static async checkIfExistAccountId(_id) {
@@ -120,10 +169,16 @@ account.init(
 		},
 		openedDate: {
 			type: Sequelize.DATEONLY,
+			get: function() {
+				return moment.utc(this.getDataValue('openedDate')).format('DD/MM/YYYY');
+			},
 			allowNull: true
 		},
 		closedDate: {
 			type: Sequelize.DATEONLY,
+			get: function() {
+				return moment.utc(this.getDataValue('closedDate')).format('DD/MM/YYYY');
+			},
 			allowNull: true
 		}
 	},

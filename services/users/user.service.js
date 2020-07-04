@@ -438,8 +438,15 @@ class User extends Model {
 
 	//hàm user xem thông tin bản thân
 	static async getInfo(request) {
-		const accountList = await accountService.getAllAccountByIdUsingExclude(request.id);
+		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id);
 		const user = await User.findUserByPKUsingExclude(request.id);
+		return { user, accountList };
+	}
+
+	//hàm nhân viên xem thông tin ai đó hoặc bản thân, ko ẩn bất kỳ fields nào
+	static async getUserInfo(request) {
+		const accountList = await accountService.getAllAccountReferenceByIdNoneExclude(request.id);
+		const user = await User.findUserByPKNoneExclude(request.id);
 		return { user, accountList };
 	}
 

@@ -32,8 +32,7 @@ module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, r
 	return res.status(200).send({ message: 'OK' });
 });
 
-//user get personal information
-
+//user get self's information
 module.exports.postGetInfo = asyncHandler(async function(req, res, next) {
 	const result = await userService.getInfo(req.body);
 	return res.status(200).send(result);

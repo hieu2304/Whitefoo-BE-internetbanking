@@ -4,6 +4,16 @@ const moment = require('moment');
 const Model = Sequelize.Model;
 
 class account_accumulated extends Model {
+	static async getAccountAccumulatedById(accountId) {
+		const result = await account_accumulated.findOne({
+			where: {
+				accountId: accountId
+			}
+		});
+
+		return result;
+	}
+
 	static async createNewAccumulatedAccount(request, newAccountId) {
 		const result = await account_accumulated.create({
 			accountId: newAccountId,
@@ -27,6 +37,9 @@ account_accumulated.init(
 		},
 		startTermDate: {
 			type: Sequelize.DATEONLY,
+			get: function() {
+				return moment.utc(this.getDataValue('startTermDate')).format('DD/MM/YYYY');
+			},
 			allowNull: false
 		}
 	},

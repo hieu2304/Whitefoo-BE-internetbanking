@@ -163,6 +163,12 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
             clientId:515hwrFpeLvGeVo2SvSe
             secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
+/api/requeststaff
+(đếm số nhân viên hiện tại)
+    method: GET
+    điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
+    params: không
+
 
 ##########################################################################################
 ####################[ các api User Internal - user có quyền hạn nội bộ ]##################
@@ -186,3 +192,10 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
                                 term:3
                 clientId:515hwrFpeLvGeVo2SvSe
                 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
+/api/getuserinfo
+(api này của nhân viên ngân hàng, xem mọi thông tin của user, còn user thì dùng /api/getinfo)
+    method: POST
+    params:
+        id: 1  (id của user cần xem thông tin, bản thân id nhân viên cũng dc)

@@ -12,4 +12,7 @@ router.post('/createaccount', controller.postCreateAccount);
 router.get('/searchkeyword', controller.getSearchKeyword);
 router.post('/searchkeyword', controller.postSearchKeyword);
 
+//nhân viên lấy thông tin cá nhân của ai đó + các STK của người đó
+router.get('/getuserinfo', controller.getGetUserInfo);
+router.post('/getuserinfo', controller.postGetUserInfo);
 module.exports = router;

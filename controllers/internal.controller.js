@@ -33,3 +33,13 @@ module.exports.postSearchKeyword = asyncHandler(async function(req, res, next) {
 	const list = await userService.searchByKeyword(req.body);
 	return res.status(200).send(list);
 });
+
+// getuserinfo
+//nhân viên lấy thông tin cá nhân của ai đó + các STK của người đó
+module.exports.getGetUserInfo = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+module.exports.postGetUserInfo = asyncHandler(async function(req, res, next) {
+	const result = await userService.getUserInfo(req.body);
+	return res.status(200).send(result);
+});
