@@ -443,12 +443,24 @@ class User extends Model {
 		return { user, accountList };
 	}
 
+	//hàm đếm số lượng nhân viên hiện có
+	static async countStaff() {
+		const countList = await User.findAndCountAll({
+			where: {
+				userType: '0'
+			}
+		});
+
+		const count = countList.count;
+		return count;
+	}
+
 	//hàm user xin làm nhân viên
 	//thằng nào xin trước thằng đó được làm
 	static async requestStaff(request) {
-		if (typeof request.id === 'undefined') return { message: 'id must not empty' };
+		if (typeof request.id === 'undefined') return 'id must not empty';
 		const checkUser = await User.findByPk(request.id);
-		if (!checkUser) return { message: 'id not exists' };
+		if (!checkUser) return 'id not exists';
 
 		const countList = await User.findAndCountAll({
 			where: {
@@ -459,7 +471,7 @@ class User extends Model {
 		const count = countList.count;
 
 		//nếu đã có ít nhất 1 nhân viên rồi thì chờ thằng đã làm nhân viên set lên
-		if (count > 0) return { message: 'fail' };
+		if (count > 0) return 'fail';
 
 		//nếu chưa có thì thằng này lên làm nhân viên
 		const result = await User.update(
