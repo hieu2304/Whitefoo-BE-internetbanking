@@ -10,12 +10,19 @@ law_accumulated.init(
 			type: Sequelize.INTEGER, //number of months: example: 3 months -> 3, 12 months->12
 			allowNull: false
 		},
-		value: {
-			type: Sequelize.DECIMAL,
+		interestMonth: {
+			//lãi hàng tháng
+			type: Sequelize.DECIMAL, //4.0% -> lưu lại là 0.004 ; 1.5% -> 0.015
 			allowNull: false
 		},
-		percent: {
-			type: Sequelize.DECIMAL, // 2% -> 0.02, 10% ->0.1
+		interestQuarterYear: {
+			//lãi hàng quý
+			type: Sequelize.DECIMAL, //4.0% -> lưu lại là 0.004 ; 1.5% -> 0.015
+			allowNull: false
+		},
+		interestTerm: {
+			//lãi hàng nằm
+			type: Sequelize.DECIMAL, //4.0% -> lưu lại là 0.004 ; 1.5% -> 0.015
 			allowNull: false
 		}
 	},

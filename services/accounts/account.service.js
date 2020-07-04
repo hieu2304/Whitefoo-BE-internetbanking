@@ -212,7 +212,8 @@ account.init(
 		},
 		currencyType: {
 			type: Sequelize.STRING,
-			allowNull: false
+			allowNull: false,
+			defaultValue: 'VND'
 		},
 		accountType: {
 			type: Sequelize.STRING, // 0: payment, 1: accumulated

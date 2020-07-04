@@ -32,7 +32,7 @@ module.exports = fee_payment;
 id				fe					value				transferType
 1				10000				300000				0
 2				20000				300000				1
-3				15000				1000000				0
+3				0.025(25%)			1000000				0
 
 giải thích
 id:1

@@ -20,7 +20,16 @@ class User extends Model {
 		const user = await User.findOne({
 			where: { id: id },
 			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
+				exclude: [
+					'password',
+					'userType',
+					'createdAt',
+					'updatedAt',
+					'verifyCode',
+					'forgotCode',
+					'activeCode',
+					'status'
+				]
 			}
 		});
 
@@ -52,7 +61,16 @@ class User extends Model {
 				]
 			},
 			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
+				exclude: [
+					'password',
+					'userType',
+					'createdAt',
+					'updatedAt',
+					'verifyCode',
+					'forgotCode',
+					'activeCode',
+					'status'
+				]
 			}
 		});
 		return user;
@@ -538,16 +556,26 @@ class User extends Model {
 
 User.init(
 	{
-		email: {
-			type: Sequelize.STRING,
-			allowNull: false,
-			unique: true
-		},
 		citizenIdentificationId: {
 			type: Sequelize.STRING,
 			allowNull: true,
 			unique: true,
 			defaultValue: null
+		},
+		email: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			unique: true
+		},
+		phoneNumber: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			unique: true
+		},
+		username: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			unique: true
 		},
 		lastName: {
 			type: Sequelize.STRING,
@@ -567,16 +595,6 @@ User.init(
 				return moment.utc(this.getDataValue('dateOfBirth')).format('DD/MM/YYYY');
 			}
 		},
-		phoneNumber: {
-			type: Sequelize.STRING,
-			allowNull: false,
-			unique: true
-		},
-		username: {
-			type: Sequelize.STRING,
-			allowNull: false,
-			unique: true
-		},
 		address: {
 			type: Sequelize.STRING,
 			allowNull: false,
@@ -586,6 +604,11 @@ User.init(
 			type: Sequelize.STRING,
 			allowNull: false,
 			defaultValue: '1' // 1 = member, 0 = internal user
+		},
+		status: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			defaultValue: '1' // 1 = OK, 0 = Locked
 		},
 		password: {
 			type: Sequelize.STRING,

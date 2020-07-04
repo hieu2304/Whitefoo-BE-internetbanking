@@ -12,7 +12,7 @@ history_payment.init(
 		},
 		accountIdB: {
 			type: Sequelize.STRING,
-			allowNull: false
+			allowNull: true
 		},
 		time: {
 			type: Sequelize.DATE,

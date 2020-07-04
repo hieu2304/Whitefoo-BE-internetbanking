@@ -6,18 +6,13 @@ class law_payment extends Model {}
 
 law_payment.init(
 	{
-		maxPerDay: {
-			type: Sequelize.DECIMAL,
+		unit: {
+			type: Sequelize.STRING,
 			allowNull: false
 		},
-		maxPerTransfer: {
+		limit: {
 			type: Sequelize.DECIMAL,
 			allowNull: false
-		},
-		transferType: {
-			type: Sequelize.STRING, // 0 is transferring Internal Bank, 1 is transferring External
-			allowNull: false,
-			defaultValue: '0'
 		}
 	},
 	{
@@ -25,5 +20,12 @@ law_payment.init(
 		modelName: 'law_payment'
 	}
 );
+
+/*
+id			unit			limit
+1			transfer		200tr
+2			day				500tr
+3			month			10tỷ
+*/
 
 module.exports = law_payment;
