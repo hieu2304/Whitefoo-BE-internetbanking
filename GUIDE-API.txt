@@ -192,10 +192,18 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
                                 term:3
                 clientId:515hwrFpeLvGeVo2SvSe
                 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+                
+
+/api/getaccountinfo
+(api này khi nhân viên biết STK của 1 user và muốn bấm vào xem thông tin cụ thể)
+    method: POST
+    params:
+        accountId (xem accountId ở bảng account, lúc request có thể ghi tắt là id, nhưng bản chất là accountId)
+
 
 
 /api/getuserinfo
-(api này của nhân viên ngân hàng, xem mọi thông tin của user, còn user thì dùng /api/getinfo)
+(api này của nhân viên ngân hàng, xem mọi thông tin của user + mọi thông tin các STK, còn user thì dùng /api/getinfo)
     method: POST
     params:
         id: 1  (id của user cần xem thông tin, bản thân id nhân viên cũng dc)

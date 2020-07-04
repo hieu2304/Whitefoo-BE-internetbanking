@@ -3,7 +3,7 @@ const asyncHandler = require('express-async-handler');
 const userService = require('../services/users/user.service');
 const jwtHelper = require('../helpers/jwt.helper');
 
-// create Account Internal post
+// Nhân viên tạo tài khoản ngân hàng cho user
 module.exports.postCreateAccount = asyncHandler(async function(req, res, next) {
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
@@ -16,7 +16,7 @@ module.exports.postCreateAccount = asyncHandler(async function(req, res, next) {
 	const result = await accountService.createNewAccount(req.body, currentUser);
 
 	if (!result) return res.status(409).send({ message: 'fail' });
-	return res.status(200).send({ message: 'OK' });
+	return res.status(200).send(result);
 });
 
 // create Account Internal get
@@ -41,5 +41,17 @@ module.exports.getGetUserInfo = function(req, res, next) {
 };
 module.exports.postGetUserInfo = asyncHandler(async function(req, res, next) {
 	const result = await userService.getUserInfo(req.body);
+	return res.status(200).send(result);
+});
+
+//getaccountinfo
+//nhân viên lấy toàn bộ thông tin STK của 1 người nào đó dựa vào accountId
+module.exports.getGetAccountInfo = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+module.exports.postGetAccountInfo = asyncHandler(async function(req, res, next) {
+	const accountId = typeof req.body.accountId !== 'undefined' ? req.body.accountId : req.body.id;
+	const result = await accountService.getAccountNoneExclude(accountId);
+	if (!result) return res.status(409).send({ message: 'not exist accountId ' + accountId });
 	return res.status(200).send(result);
 });

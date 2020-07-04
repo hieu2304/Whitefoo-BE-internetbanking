@@ -5,9 +5,52 @@ const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
 const moment = require('moment');
 const audit_log = require('../users/audit_log.service');
-const { countStaff } = require('../users/user.service');
 
 class account extends Model {
+	static async getAccountNoneExclude(accountId) {
+		const foundAccount = await account.findOne({
+			where: {
+				accountId: accountId
+			}
+		});
+		if (!foundAccount) return null;
+
+		const result = foundAccount.dataValues;
+		// 0: payment, 1: accumulated
+		//nếu đây là TK TK, thì thêm fields của TK TK
+		if (foundAccount.accountType == '1') {
+			const moreFields = await account_accumulatedService.getAccountAccumulatedById(result.accountId);
+
+			result.term = moreFields.dataValues.term;
+			result.startTermDate = moreFields.dataValues.startTermDate;
+		}
+
+		return result;
+	}
+	static async getAccountUsingExclude(accountId) {
+		const foundAccount = await account.findOne({
+			where: {
+				accountId: accountId
+			},
+			attributes: {
+				exclude: [ 'createdAt', 'updatedAt', 'closedDate', 'id' ]
+			}
+		});
+		if (!foundAccount) return null;
+
+		const result = foundAccount.dataValues;
+		// 0: payment, 1: accumulated
+		//nếu đây là TK TK, thì thêm fields của TK TK
+		if (foundAccount.accountType == '1') {
+			const moreFields = await account_accumulatedService.getAccountAccumulatedById(result.accountId);
+
+			result.term = moreFields.dataValues.term;
+			result.startTermDate = moreFields.dataValues.startTermDate;
+		}
+
+		return result;
+	}
+
 	static async getAllAccountNoneExclude(_id) {
 		const list = await account.findAll({
 			where: {
@@ -106,7 +149,7 @@ class account extends Model {
 		const newAccountId = await account.getUniqueRandomAccountId();
 
 		//nếu tài khoản thanh toán thì chỉ thêm bảng account
-		const result = await account.create({
+		const newAccount = await account.create({
 			accountId: newAccountId,
 			userId: userId,
 			status: '0',
@@ -127,7 +170,7 @@ class account extends Model {
 		}
 
 		//sau khi thêm xog thì push log
-		if (result) {
+		if (newAccount) {
 			await audit_log.pushAuditLog(
 				currentUser.id,
 				userId,
@@ -135,6 +178,9 @@ class account extends Model {
 				'create account type ' + accountType
 			);
 		}
+
+		//trả về STK và các thông tin cơ bản cho nhân viên thấy
+		const result = await account.getAccountUsingExclude(newAccount.accountId);
 
 		return result;
 	}
