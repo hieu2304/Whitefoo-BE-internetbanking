@@ -202,7 +202,7 @@ account.init(
 			allowNull: false
 		},
 		status: {
-			type: Sequelize.STRING, //0: OK, 1: closed, 2: locked
+			type: Sequelize.STRING, //1: OK, 0: closed, -1: locked
 			allowNull: false,
 			defaultValue: '1'
 		},

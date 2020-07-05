@@ -30,12 +30,12 @@ history_payment.init(
 			allowNull: false
 		},
 		transferType: {
-			type: Sequelize.STRING, // 0 is transferring Internal Bank, 1 is transferring External
+			type: Sequelize.STRING, // 1 is transferring Internal Bank, 0 is transferring External Bank
 			allowNull: false,
-			defaultValue: '0'
+			defaultValue: '1'
 		},
 		status: {
-			type: Sequelize.STRING,
+			type: Sequelize.STRING, // 1 is OK, 0 is failed
 			allowNull: false
 		}
 	},

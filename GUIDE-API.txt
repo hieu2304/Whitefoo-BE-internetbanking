@@ -1,11 +1,43 @@
+CÁC THÔNG TIN NÊN NHỚ:
+
+- Bảng User:
+    + userType: '1' là khách hàng và '0' là nhân viên
+    + status:   '1' = OK, '0' = Locked
+    + verifyCode, activeCode, forgotCode: '' nghĩa là đã kích hoạt, không trống nghĩa là chưa 
+
+- Bảng account:
+    + accountType: '1' là accumulated (tiết kiệm), '0' là payment (thanh toán)
+    + status: '1' là OK, '0' closed, '-1'là locked
+
+- Bảng fee_payment:
+    + transferType: '1' chuyển nội bộ, '0' is chuyển liên ngân hàng
+
+- Bảng history_payment:
+    + transferType: '1' chuyển nội bộ, '0' is chuyển liên ngân hàng
+    + status:   '1' = OK, '0' = failed
+
+- bảng history_accumulated:
+    + status:   '1' = OK, '0' = failed
+
+
+
+
+##########################################################################################
+##########################################################################################
+
+
+
 một số API đã hoàn tất:
 LƯU Ý: khi gọi API luôn phải có clientID và secretKey mới gọi api được
+(thiết lập trong .env nhé, đây là mẫu ví dụ)
 clientId:515hwrFpeLvGeVo2SvSe
 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
 
 ##########################################################################################
+##########################################################################################
 #######################[ các api khách - User chưa đăng nhập ]############################
+
 
 /api/register
     method: POST và GET
@@ -83,6 +115,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 
 
 
+##########################################################################################
 ##########################################################################################
 ####################[ các api User - user có quyền hạn mức độ người dùng ]##################
 
@@ -170,6 +203,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
     params: không
 
 
+##########################################################################################
 ##########################################################################################
 ####################[ các api User Internal - user có quyền hạn nội bộ ]##################
 điều kiện chung: đã login, đã xác nhận email, dẵ kích hoạt CMND, là nhân viên ngân hàng
