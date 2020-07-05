@@ -9,6 +9,7 @@ const jwtHelper = require('../../helpers/jwt.helper');
 const emailHelper = require('../../helpers/email.helper');
 const makeMessageHelper = require('../../helpers/makeMessage.helper');
 const accountService = require('../accounts/account.service');
+const errorListConstant = require('../../constants/errorsList.constant');
 
 class User extends Model {
 	static async findUserByPKNoneExclude(id) {
@@ -159,35 +160,40 @@ class User extends Model {
 	//hàm này kiểm tra xem các thông tin: SDT, CMND, email, username có bị trùng với ai trong DB ko
 	//để đăng ký mới thì 4 thông tin trên phải ko trùng với bất kỳ ai đã tồn tại trong DB
 	static async checkConflictUser(request) {
+		//tạo 1 Error List sẵn
+		const errorList = [];
+
+		//ở đây ta sẽ dùng lỗi của phần đăng nhập được khai báo từ trước
+		const registerErrors = errorListConstant.registerErrorValidate;
+
+		//Kiểm tra Email trùng
 		if (typeof request.email !== 'undefined' && request.email != null) {
 			var isConflictEmail = await User.checkConflictEmail(request.email);
-			if (isConflictEmail) return isConflictEmail;
+			if (isConflictEmail) errorList.push(registerErrors.EMAIL_CONFLICT);
 		} else {
-			return 'Empty email';
+			errorList.push(registerErrors.EMAIL_TOO_SHORT);
 		}
 
+		//Kiểm tra username trùng
 		if (typeof request.username !== 'undefined' && request.username != null) {
 			var isConflictUserName = await User.checkConflictUserName(request.username);
-			if (isConflictUserName) return isConflictUserName;
+			if (isConflictUserName) errorList.push(registerErrors.USERNAME_CONFLICT);
 		} else {
-			return 'Empty userName';
+			errorList.push(registerErrors.USERNAME_TOO_SHORT);
 		}
 
-		// if (typeof request.citizenIdentificationId !== 'undefined' && request.citizenIdentificationId != null) {
-		// 	var isConflictCitizenIdentificationId = await User.checkConflictCitizenIdentificationId(
-		// 		request.citizenIdentificationId
-		// 	);
-		// 	if (isConflictCitizenIdentificationId) return isConflictCitizenIdentificationId;
-		// } else {
-		// 	return 'Empty citizenIdentificationId';
-		// }
-
+		//Kiểm tra phoneNumber trùng
 		if (typeof request.phoneNumber !== 'undefined' && request.phoneNumber != null) {
 			var isConflictPhoneNumber = await User.checkConflictPhoneNumber(request.phoneNumber);
-			if (isConflictPhoneNumber) return isConflictPhoneNumber;
+			if (isConflictPhoneNumber) errorList.push(registerErrors.PHONENUMBER_CONFLICT);
 		} else {
-			return 'Empty phoneNumber';
+			errorList.push(registerErrors.PHONENUMBER_TOO_SHORT);
 		}
+
+		//nếu danh sách lỗi có ít nhất 1 thì trả ra cho bên create, bên create trả cho controller
+		if (errorList.length > 0) return errorList;
+
+		//nếu danh sách lỗi trống -> nghĩa là không trùng gì cả, return null cho hàm create biết
 		return null;
 	}
 
@@ -275,7 +281,9 @@ class User extends Model {
 
 	static async createNewUser(request) {
 		const isUserConflict = await User.checkConflictUser(request);
-		if (isUserConflict) return isUserConflict; //trả về lỗi conflict hoặc thiếu gì đó
+
+		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
+		if (isUserConflict) return isUserConflict;
 
 		const newActiveCode = await User.getUniqueRandomCode();
 		const newUser = await User.create({
@@ -307,8 +315,8 @@ class User extends Model {
 				newEmailVerifyMessage.html
 			);
 		}
-		//return newUser to controller know action was success
-		return newUser;
+		//return null to controller know action was success
+		return null;
 	}
 
 	static async checkInternalUser(currentUser) {

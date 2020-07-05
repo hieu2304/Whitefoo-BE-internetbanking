@@ -69,8 +69,12 @@ module.exports.postRegister = asyncHandler(async function(req, res, next) {
 	}
 
 	const newUser = await userService.createNewUser(req.body);
-	if (typeof newUser === 'string') {
-		return res.status(409).send({ message: newUser });
+
+	//if not null, mean errors returned form model's Service, send error for FE
+	if (newUser) {
+		return res.status(409).send(newUser);
 	}
+
+	//if null, mean no errors returned from model's Service = success
 	return res.status(200).send({ message: 'OK' });
 });
