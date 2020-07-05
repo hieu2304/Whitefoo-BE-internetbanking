@@ -49,20 +49,8 @@ module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 	if (!result) {
 		return res.status(403).send({ message: 'Wrong login name or password' });
 	}
-	const user = result.user.dataValues;
-	return res.status(200).send({
-		id: user.id,
-		email: user.email,
-		citizenIdentificationId: user.citizenIdentificationId,
-		lastName: user.lastName,
-		firstName: user.firstName,
-		dateOfBirth: user.dateOfBirth,
-		phoneNumber: user.phoneNumber,
-		address: user.address,
-		userName: user.userName,
-		token: result.token,
-		message: 'OK'
-	});
+
+	return res.status(200).send(result);
 });
 
 module.exports.postAuthActive = asyncHandler(async function(req, res, next) {

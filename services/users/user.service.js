@@ -20,16 +20,7 @@ class User extends Model {
 		const user = await User.findOne({
 			where: { id: id },
 			attributes: {
-				exclude: [
-					'password',
-					'userType',
-					'createdAt',
-					'updatedAt',
-					'verifyCode',
-					'forgotCode',
-					'activeCode',
-					'status'
-				]
+				exclude: [ 'password', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode', 'status' ]
 			}
 		});
 
@@ -61,28 +52,27 @@ class User extends Model {
 				]
 			},
 			attributes: {
-				exclude: [
-					'password',
-					'userType',
-					'createdAt',
-					'updatedAt',
-					'verifyCode',
-					'forgotCode',
-					'activeCode',
-					'status'
-				]
+				exclude: [ 'password', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode', 'status' ]
 			}
 		});
 		return user;
 	}
 
 	static async authenticationLoginAIO({ username, password }) {
+		//tìm user và lấy mật khẩu + các thông tin mật để authentication
 		const authUser = await User.findUserNoneExclude(username);
+
 		if (!authUser) return null;
 		if (!await User.verifyPassword(password, authUser.password)) return null;
+
+		//tìm user nhưng ko trả ra mật khẩu và các thông tin mật
 		const user = await User.findUserUsingExclude(username);
 		const token = jwtHelper.generateToken(user.dataValues);
-		return { user, token };
+		const result = user.dataValues;
+		result.dateOfBirth = user.dateOfBirth;
+		result.token = token;
+		result.message = 'OK';
+		return result;
 	}
 
 	static async authenticationLoginByEmail({ email, password }) {
