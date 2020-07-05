@@ -11,9 +11,9 @@ module.exports.verifyEmailMessage = function(email, lastName, firstName, activeC
 	const html =
 		'<body>' +
 		'<h2>Xin chào ' +
-		lastName +
-		' ' +
 		firstName +
+		' ' +
+		lastName +
 		',<br><br>Đường dẫn kích hoạt tài khoản của bạn là:<br><b>' +
 		'<a href="' +
 		linkDirect +
@@ -32,9 +32,9 @@ module.exports.resendVerifyEmailMessage = function(email, lastName, firstName, a
 	const html =
 		'<body>' +
 		'<h2>Xin chào ' +
-		lastName +
-		' ' +
 		firstName +
+		' ' +
+		lastName +
 		',<br><br>Đường dẫn kích hoạt lại tài khoản của bạn là:<br><b>' +
 		'<a href="' +
 		linkDirect +
@@ -82,9 +82,9 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 	const html =
 		'<body>' +
 		'<h2>Xin chào ' +
-		lastName +
-		' ' +
 		firstName +
+		' ' +
+		lastName +
 		',<br><br>Đường dẫn lấy lại mật khẩu của bạn là:<br><b>' +
 		'<a href="' +
 		linkDirect +
