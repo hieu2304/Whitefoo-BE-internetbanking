@@ -5,7 +5,10 @@ const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
 const moment = require('moment');
 const audit_log = require('../users/audit_log.service');
-const { DECIMAL } = require('sequelize');
+const exchange_currencyService = require('../currency/exchange_currency.service');
+
+// https://github.com/MikeMcl/decimal.js/
+const Decimal = require('decimal.js');
 
 class account extends Model {
 	static async getAccountNoneExclude(accountId) {
@@ -191,33 +194,57 @@ class account extends Model {
 		return result;
 	}
 
-	static async addBalance(request, currentUser) {
-		// const accountId = typeof request.accountId !== 'undefined' ? request.accountId : request.id;
-		// if(!accountId) return null;
-		// const addUser = await account.findOne({
-		// 	where:{
-		// 		accountId:accountId
-		// 	}
-		// })
-		// if(!addUser)return null;
+	static async addBalanceForAccount(request, currentUser) {
+		//lấy accountId
+		const accountId = typeof request.accountId !== 'undefined' ? request.accountId : request.id;
+		if (!accountId) return null;
+		if (typeof request.currency === 'undefined') return null;
+		if (request.currency !== 'VND' && request.currency !== 'USD') return null;
+		//tìm kiếm account này
+		const theChosenAccount = await account.findOne({
+			where: {
+				accountId: accountId
+			}
+		});
+		if (!theChosenAccount) return null;
 
-		// const Newbalance = addUser.balance + (DECIMAL)request.balance;
-		// const resultupdate = await account.update(
-		// 	{
-		// 		balance = Newbalance
-		// 	},
-		// 	{
-		// 		where: { accountId: accountId }
-		// 	}
-		// );
-		// if (resultupdate) {
-		// 	await audit_log.pushAuditLog(
-		// 		currentUser.id,
-		// 		addUser.userId,
-		// 		'add balance',
-		// 		'add '+accountId+' ' + request.balance +addUser.currency
-		// 	);
-		// }
+		//giá trị hiện tại và giá trị sẽ được thêm
+		var newBalance = new Decimal(theChosenAccount.balance);
+		var addBalance = new Decimal(request.balance);
+
+		//kiểm tra đơn vị tiền tệ, quy đổi nếu khác nhau, rồi mới thêm
+		//exchange_currencyService
+		if (theChosenAccount.currencyType !== request.currency) {
+			const newAddBalance = await exchange_currencyService.exchangeMoney(addBalance, request.currency);
+			addBalance = new Decimal(newAddBalance);
+		}
+
+		console.log('\n\n');
+		console.log(newBalance);
+		console.log('+');
+		console.log(addBalance);
+		console.log('------------------------------');
+		newBalance = newBalance.plus(addBalance);
+		console.log(newBalance);
+		console.log('\n\n');
+
+		const result = await account.update(
+			{
+				balance: newBalance
+			},
+			{
+				where: { accountId: accountId }
+			}
+		);
+		if (result) {
+			await audit_log.pushAuditLog(
+				currentUser.id,
+				theChosenAccount.userId,
+				'add balance',
+				'id: ' + accountId + ', add:' + request.balance + theChosenAccount.currencyType
+			);
+			return result;
+		}
 		return null;
 	}
 }

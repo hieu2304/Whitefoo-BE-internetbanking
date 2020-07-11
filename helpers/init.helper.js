@@ -10,4 +10,5 @@ module.exports.initBaseValueAllNeededModel = asyncHandler(async function() {
 	await law_paymentService.initBaseValueLaw_Payment();
 	await fee_paymentService.initBaseValueFee_Payment();
 	await exchange_CurrencyService.initBaseValueExchange_Currency();
+	console.log('\nSERVER JUST INITIALIZED BASIC DATABASE VALUES FOR LAW&FEE TABLES...\n');
 });

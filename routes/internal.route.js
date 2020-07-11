@@ -23,8 +23,8 @@ router.get('/getaccountinfo', controller.getGetAccountInfo);
 router.post('/getaccountinfo', controller.postGetAccountInfo);
 
 //nhân viên thêm tiền vào tài khoản cho 1 người nào đó
-router.post('addbalance', controller.addBalance);
+router.post('/addbalance', controller.postAddBalance);
 
 //nhân viên cập nhật thông tin người dùng nào đó
-router.post('updateinfo', controller.updateInfo);
+router.post('/updateinfo', controller.postUpdateInfo);
 module.exports = router;

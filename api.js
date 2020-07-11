@@ -2,6 +2,20 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('./helpers/jwt.helper');
 const authMiddleware = require('./middlewares/auth.middleware');
+const initHelper = require('./helpers/init.helper');
+const currencyHelper = require('./helpers/currency.helper');
+const updateExchangeThread = require('node-cron');
+
+//################## SCHEDULE HERE ##################
+
+//init DB lần đầu khi khởi động server 6s
+setTimeout(initHelper.initBaseValueAllNeededModel, 6000);
+
+//mỗi 6 tiếng cập nhật tỷ giá VND USD 1 lần
+updateExchangeThread.schedule('* */6 * * *', () => {
+	currencyHelper.updateExchange;
+});
+
 //################## CÁC API KHÔNG AUTHENTICATION ##################
 
 //================== PUBLIC API ============================

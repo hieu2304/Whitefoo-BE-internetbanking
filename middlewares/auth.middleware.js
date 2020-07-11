@@ -76,11 +76,13 @@ module.exports.authAll = asyncHandler(async function(req, res, next) {
 
 	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
 
+	var errTemp;
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
 		if (err) {
-			return res.status(401).send({ message: 'Invalid Token' });
+			errTemp = err;
 		}
 	});
+	if (errTemp) return res.status(401).send({ message: 'Invalid Token' });
 
 	//nếu token hợp lệ thì decode ra lấy thông tin
 	currentUser = jwtHelper.decodeToken(token);

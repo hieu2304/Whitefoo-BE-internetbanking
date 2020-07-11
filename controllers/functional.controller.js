@@ -34,7 +34,13 @@ module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, r
 
 //user get self's information
 module.exports.postGetInfo = asyncHandler(async function(req, res, next) {
-	const result = await userService.getInfo(req.body);
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getInfo(currentUser);
+
 	return res.status(200).send(result);
 });
 

@@ -189,7 +189,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
     method: POST
     điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
         params:
-            id:3 (id khóa chính trong bảng users)
+            không có gì thêm
             clientId:515hwrFpeLvGeVo2SvSe
             secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
@@ -230,7 +230,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
                 accountType:1       HOẶC    type:1
                 userId:3            HOẶC    id:3
                 currencyType:VND    HOẶC    currency:VND
-                                term:3
+                term:3
                 clientId:515hwrFpeLvGeVo2SvSe
                 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
                 
@@ -248,3 +248,14 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
     method: POST
     params:
         id: 1  (id của user cần xem thông tin, bản thân id nhân viên cũng dc)
+
+
+/api/addbalance
+    method: POST
+    params:
+        accountId:993425809660893 (1 account phải tồn tại trong DB)
+        balance:69.915156324776543577463978956340462871944791856968 (giá trị muốn thêm)
+        currency:VND (chỉ nhận duy nhất VND hoặc USD)
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+        

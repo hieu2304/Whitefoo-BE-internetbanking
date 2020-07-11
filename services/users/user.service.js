@@ -493,17 +493,20 @@ class User extends Model {
 		return result;
 	}
 
-	//hàm user xem thông tin bản thân
+	//hàm user xem thông tin bản thân dựa vào id
 	static async getInfo(request) {
-		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id);
+		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id.toString());
 		const user = await User.findUserByPKUsingExclude(request.id);
+
 		return { user, accountList };
 	}
 
 	//hàm nhân viên xem thông tin ai đó hoặc bản thân, ko ẩn bất kỳ fields nào
 	static async getUserInfo(request) {
-		const accountList = await accountService.getAllAccountReferenceByIdNoneExclude(request.id);
 		const user = await User.findUserByPKNoneExclude(request.id);
+		if (!user) return null;
+		const accountList = await accountService.getAllAccountReferenceByIdNoneExclude(request.id);
+
 		return { user, accountList };
 	}
 
@@ -550,47 +553,44 @@ class User extends Model {
 		);
 		return null;
 	}
-	static async updateInfo(request, currentUser) {
-		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
-		if (!userId) return null;
-		const updateUser = await user.findOne({
-			where: {
-				userId: userId
-			}
-		});
-		if (!updateUser) return null;
-		const resultupdate = await account.update(
-			{
-				lastname: request.lastname,
-				firstName: request.firstname,
-				address: request.address,
-				status: request.status,
-				dateOfBirth: request.dateOfBirth
-			},
-			{
-				where: { userId: userId }
-			}
-		);
-		if (resultupdate) {
-			await audit_log.pushAuditLog(
-				currentUser.id,
-				updateUser.userId,
-				'update info',
-				'update ' +
-					userId +
-					': ' +
-					request.lastname +
-					',' +
-					request.firstname +
-					',' +
-					request.address +
-					',' +
-					request.dateOfBirth +
-					',' +
-					request.status
-			);
-		}
-		return resultupdate;
+
+	static async updateUserInfo(request, currentUser) {
+		// const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
+		// if (!userId) return null;
+		// const updateUser = await User.findUserByPKNoneExclude(userId);
+		// if (!updateUser) return null;
+		// const resultupdate = await account.update(
+		// 	{
+		// 		lastname: request.lastname,
+		// 		firstName: request.firstname,
+		// 		address: request.address,
+		// 		status: request.status,
+		// 		dateOfBirth: request.dateOfBirth
+		// 	},
+		// 	{
+		// 		where: { userId: userId }
+		// 	}
+		// );
+		// if (resultupdate) {
+		// 	await audit_log.pushAuditLog(
+		// 		currentUser.id,
+		// 		updateUser.userId,
+		// 		'update info',
+		// 		'update ' +
+		// 			userId +
+		// 			': ' +
+		// 			request.lastname +
+		// 			',' +
+		// 			request.firstname +
+		// 			',' +
+		// 			request.address +
+		// 			',' +
+		// 			request.dateOfBirth +
+		// 			',' +
+		// 			request.status
+		// 	);
+		// }
+		return null;
 	}
 }
 

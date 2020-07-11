@@ -1,8 +1,8 @@
-const request = require('request');
+const requestService = require('request');
 
 /*
 
-READ THE API FORM THE THIRD SERVER:
+READ THE API FROM THE THIRD SERVER:
 https://medium.com/@samuelhenshaw2020/recaptcha-v2-in-angular-8-with-back-end-verification-with-nodejs-9574f297fdef#9534
 
 SPECIAL THANKS TO GOOGLE
@@ -25,7 +25,7 @@ module.exports.reCaptchaV2_ReceivingAndValidating = function(req, res) {
 	var result = { success: true, message: 'OK' };
 
 	//gọi api bên server thứ 3, chờ kết quả gửi về server chúng ta rồi mới response cho client chúng ta
-	request(url, function(err, response, body) {
+	requestService(url, function(err, response, body) {
 		body = JSON.parse(body);
 
 		if (typeof body.success !== 'undefined' && !body.success) {
