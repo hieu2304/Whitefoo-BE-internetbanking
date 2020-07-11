@@ -52,7 +52,7 @@ class exchange_currency extends Model {
 
 	//cập nhật tỷ giá tiền tệ từ 1 USD = ? VND
 	static async updateExchangeRateUSDAndVND() {
-		console.log('Server is trying to get new data from www.freeforexapi.com');
+		console.log('Server is trying to get new Exchange Rate data...');
 		var result = null;
 		const myurl = 'https://www.freeforexapi.com/api/live?pairs=USDVND';
 
