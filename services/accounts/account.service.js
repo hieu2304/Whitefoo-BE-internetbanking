@@ -189,6 +189,37 @@ class account extends Model {
 
 		return result;
 	}
+
+	static async addBalance(request, currentUser){
+		const accountId = typeof request.accountId !== 'undefined' ? request.accountId : request.id;
+		if(!accountId) return null;
+		const addUser = await account.findOne({
+			where:{
+				accountId:accountId
+			}
+		})
+		if(!addUser)return null;
+
+		const Newbalance = addUser.balance + request.balance;
+		const resultupdate = await account.update(
+			{
+				balance = Newbalance
+			},
+			{
+				where: { accountId: accountId }
+			}
+		);
+		if (resultupdate) {
+			await audit_log.pushAuditLog(
+				currentUser.id,
+				addUser.userId,
+				'add balance',
+				'add '+accountId+' ' + request.balance +addUser.currency
+			);
+		}
+		return resultupdate;
+	}
+	
 }
 
 account.init(

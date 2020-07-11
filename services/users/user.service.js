@@ -550,6 +550,37 @@ class User extends Model {
 		);
 		return null;
 	}
+	static async updateInfo(request,currentUser){
+		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
+		if(!userId) return null;
+		const updateUser = await user.findOne({
+			where:{
+				userId:userId
+			}
+		})
+		if(!updateUser)return null;
+		const resultupdate = await account.update(
+			{
+				lastname=request.lastName,
+				firstName=request.firstName,
+				address=request.address,
+				status=request.status,
+				dateOfBirth=request.dateOfBirth
+			},
+			{
+				where: { userId: userId }
+			}
+		);
+		if (resultupdate) {
+			await audit_log.pushAuditLog(
+				currentUser.id,
+				updateUser.userId,
+				'update info',
+				'update '+ userId+': '+request.lastName+','+request.firstName +',' + request.address+',' + request.dateOfBirth +','+request.status
+			);
+		}
+		return resultupdate;
+	}
 }
 
 User.init(
