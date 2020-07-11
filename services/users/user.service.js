@@ -561,8 +561,8 @@ class User extends Model {
 		if(!updateUser)return null;
 		const resultupdate = await account.update(
 			{
-				lastname=request.lastName,
-				firstName=request.firstName,
+				lastname=request.lastname,
+				firstName=request.firstname,
 				address=request.address,
 				status=request.status,
 				dateOfBirth=request.dateOfBirth
@@ -576,7 +576,7 @@ class User extends Model {
 				currentUser.id,
 				updateUser.userId,
 				'update info',
-				'update '+ userId+': '+request.lastName+','+request.firstName +',' + request.address+',' + request.dateOfBirth +','+request.status
+				'update '+ userId+': '+request.lastname+','+request.firstname +',' + request.address+',' + request.dateOfBirth +','+request.status
 			);
 		}
 		return resultupdate;
