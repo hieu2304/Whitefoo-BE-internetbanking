@@ -60,21 +60,33 @@ module.exports.postGetAccountInfo = asyncHandler(async function(req, res, next) 
 	return res.status(200).send(result);
 });
 
-//nhân viên nạp tiền vào tài khoản cho 1 người nào đó 
-module.exports.addBalance = asyncHandler(async function(req,res,next){
+//nhân viên nạp tiền vào tài khoản cho 1 người nào đó
+module.exports.addBalance = asyncHandler(async function(req, res, next) {
 	const accountId = typeof req.body.accountId !== 'undefined' ? req.body.accountId : req.body.id;
 	if (!accountId) return res.status(409).send({ message: 'not exist Id ' + accountId });
-	const result = await accountService.addBalance(req.body,currentUser);
+
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await accountService.addBalance(req.body, currentUser);
 
 	if (!result) return res.status(409).send({ message: 'update failed ' + accountId });
 	return res.status(200).send(result);
 });
 
 //nhân viên cập nhật thông tin cá nhân
-module.exports.updateInfo = asyncHandler(async function(req,res,next){
+module.exports.updateInfo = asyncHandler(async function(req, res, next) {
 	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
 	if (!userId) return res.status(409).send({ message: 'not exist Id ' + userdId });
-	const result = await userService.updateInfo(req.body,currentUser);
+
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.updateInfo(req.body, currentUser);
 
 	if (!result) return res.status(409).send({ message: 'update failed ' + userId });
 	return res.status(200).send(result);

@@ -5,6 +5,7 @@ const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
 const moment = require('moment');
 const audit_log = require('../users/audit_log.service');
+const { DECIMAL } = require('sequelize');
 
 class account extends Model {
 	static async getAccountNoneExclude(accountId) {
@@ -190,36 +191,35 @@ class account extends Model {
 		return result;
 	}
 
-	static async addBalance(request, currentUser){
-		const accountId = typeof request.accountId !== 'undefined' ? request.accountId : request.id;
-		if(!accountId) return null;
-		const addUser = await account.findOne({
-			where:{
-				accountId:accountId
-			}
-		})
-		if(!addUser)return null;
+	static async addBalance(request, currentUser) {
+		// const accountId = typeof request.accountId !== 'undefined' ? request.accountId : request.id;
+		// if(!accountId) return null;
+		// const addUser = await account.findOne({
+		// 	where:{
+		// 		accountId:accountId
+		// 	}
+		// })
+		// if(!addUser)return null;
 
-		const Newbalance = addUser.balance + request.balance;
-		const resultupdate = await account.update(
-			{
-				balance = Newbalance
-			},
-			{
-				where: { accountId: accountId }
-			}
-		);
-		if (resultupdate) {
-			await audit_log.pushAuditLog(
-				currentUser.id,
-				addUser.userId,
-				'add balance',
-				'add '+accountId+' ' + request.balance +addUser.currency
-			);
-		}
-		return resultupdate;
+		// const Newbalance = addUser.balance + (DECIMAL)request.balance;
+		// const resultupdate = await account.update(
+		// 	{
+		// 		balance = Newbalance
+		// 	},
+		// 	{
+		// 		where: { accountId: accountId }
+		// 	}
+		// );
+		// if (resultupdate) {
+		// 	await audit_log.pushAuditLog(
+		// 		currentUser.id,
+		// 		addUser.userId,
+		// 		'add balance',
+		// 		'add '+accountId+' ' + request.balance +addUser.currency
+		// 	);
+		// }
+		return null;
 	}
-	
 }
 
 account.init(

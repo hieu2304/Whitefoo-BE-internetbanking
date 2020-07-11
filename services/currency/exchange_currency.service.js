@@ -1,8 +1,20 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
+const initConstant = require('../../constants/init.constants');
 const Model = Sequelize.Model;
 
-class exchange_currency extends Model {}
+class exchange_currency extends Model {
+	static async initBaseValueExchange_Currency() {
+		//xóa dữ liệu cũ
+		await exchange_currency.destroy({
+			where: {},
+			truncate: true
+		});
+
+		//thêm data chuẩn
+		await exchange_currency.bulkCreate(initConstant.exchange_currencyBaseValue);
+	}
+}
 
 exchange_currency.init(
 	{

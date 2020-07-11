@@ -114,6 +114,13 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
 
 
+/api/recaptcha
+(validating captcha nhận từ FE)
+    method: POST
+    params:
+        recaptcha:.....
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
 
 ##########################################################################################
 ##########################################################################################

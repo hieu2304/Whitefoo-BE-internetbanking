@@ -3,13 +3,18 @@ const router = express.Router();
 const jwt = require('./helpers/jwt.helper');
 const authMiddleware = require('./middlewares/auth.middleware');
 //################## CÁC API KHÔNG AUTHENTICATION ##################
-//nếu muốn thêm chi tiết nhỏ như yêu cầu logout cho register thì vào bên trong auth rồi thêm
+
+//================== PUBLIC API ============================
 
 // Pre-middleware won't work on multer
 router.use('/upload', require('./routes/upload.route'));
 
+//================ NON-PUBLIC API ==========================
 //middleware secret key, này sẽ luôn dùng, 1 addition Authentication ngoài JWT
 router.use(authMiddleware.authSecret);
+
+//API captcha
+router.use('/recaptcha', require('./routes/recaptcha.route'));
 
 //các API routes không cần JWT, ko cần kích hoạt email, ko cần internal
 //các API liên quan Authentication: login, logout, verify email

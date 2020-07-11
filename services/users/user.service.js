@@ -550,22 +550,22 @@ class User extends Model {
 		);
 		return null;
 	}
-	static async updateInfo(request,currentUser){
+	static async updateInfo(request, currentUser) {
 		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
-		if(!userId) return null;
+		if (!userId) return null;
 		const updateUser = await user.findOne({
-			where:{
-				userId:userId
+			where: {
+				userId: userId
 			}
-		})
-		if(!updateUser)return null;
+		});
+		if (!updateUser) return null;
 		const resultupdate = await account.update(
 			{
-				lastname=request.lastname,
-				firstName=request.firstname,
-				address=request.address,
-				status=request.status,
-				dateOfBirth=request.dateOfBirth
+				lastname: request.lastname,
+				firstName: request.firstname,
+				address: request.address,
+				status: request.status,
+				dateOfBirth: request.dateOfBirth
 			},
 			{
 				where: { userId: userId }
@@ -576,7 +576,18 @@ class User extends Model {
 				currentUser.id,
 				updateUser.userId,
 				'update info',
-				'update '+ userId+': '+request.lastname+','+request.firstname +',' + request.address+',' + request.dateOfBirth +','+request.status
+				'update ' +
+					userId +
+					': ' +
+					request.lastname +
+					',' +
+					request.firstname +
+					',' +
+					request.address +
+					',' +
+					request.dateOfBirth +
+					',' +
+					request.status
 			);
 		}
 		return resultupdate;

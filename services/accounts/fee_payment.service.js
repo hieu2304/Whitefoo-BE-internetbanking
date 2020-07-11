@@ -1,8 +1,20 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
+const initConstant = require('../../constants/init.constants');
 const Model = Sequelize.Model;
 
-class fee_payment extends Model {}
+class fee_payment extends Model {
+	static async initBaseValueFee_Payment() {
+		//xóa dữ liệu cũ
+		await fee_payment.destroy({
+			where: {},
+			truncate: true
+		});
+
+		//thêm data chuẩn
+		await fee_payment.bulkCreate(initConstant.fee_paymentBaseValue);
+	}
+}
 
 fee_payment.init(
 	{

@@ -13,7 +13,6 @@ const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const db = require('./services/db');
 const errorHandler = require('./helpers/error.helper');
-const request = require("request");
 const port = process.env.PORT || 3000;
 
 app.use(
