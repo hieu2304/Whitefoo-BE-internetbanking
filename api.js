@@ -11,9 +11,9 @@ const updateExchangeThread = require('node-cron');
 //init DB lần đầu khi khởi động server 6s
 setTimeout(initHelper.initBaseValueAllNeededModel, 6000);
 
-//mỗi 6 tiếng cập nhật tỷ giá VND USD 1 lần
-updateExchangeThread.schedule('* */6 * * *', () => {
-	currencyHelper.updateExchange;
+//mỗi 3 tiếng cập nhật tỷ giá VND USD 1 lần
+var temp = updateExchangeThread.schedule('* */3 * * *', () => {
+	currencyHelper.updateExchange();
 });
 
 //################## CÁC API KHÔNG AUTHENTICATION ##################
