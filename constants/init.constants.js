@@ -1,3 +1,14 @@
+//bảng whitelist, danh sách các ngân hàng co-op
+module.exports.whitelistBaseValue = [
+	{
+		id: 1,
+		bankId: 'ARG', //của Nhật
+		bankSecretKey: '12345',
+		clientId: 'temp',
+		secretKey: 'temp2'
+	}
+];
+
 //3.5% = 3.5/100 = 0.035
 //bảng tính tỷ lệ chuyển đổi ngoại tệ và phí khi chuyển đổi
 module.exports.exchange_currencyBaseValue = [
