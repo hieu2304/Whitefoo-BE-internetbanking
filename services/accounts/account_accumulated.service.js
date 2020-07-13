@@ -24,6 +24,85 @@ class account_accumulated extends Model {
 		return result;
 	}
 
+	//hàm update daysPassed và termsPassed
+	static async updateDaysAndTermsPassed(accountId) {
+		const found = await account_accumulated.findOne({
+			where: {
+				accountId: accountId
+			}
+		});
+
+		if (!found) return false;
+
+		var currentDaysPassed = parseInt(found.daysPassed);
+		var currentTermsPassed = parseInt(found.termsPassed);
+
+		//nếu đã qua đúng kỳ hạn 1 ngày mà chưa rút thì update termsPassed
+		if (await account_accumulated.checkIfAccountPassedTerm(found.term, currentDaysPassed)) {
+			const newFound = await account_accumulated.updateTermPassed(accountId, currentTermsPassed);
+			currentDaysPassed = parseInt(newFound.daysPassed); //thường = 0
+			currentTermsPassed = parseInt(newFound.termsPassed); // thường  > 0
+		}
+
+		//update daysPassed
+		await account_accumulated.update(
+			{
+				daysPassed: currentDaysPassed + 1
+			},
+			{
+				where: { accountId: accountId }
+			}
+		);
+
+		return true;
+	}
+
+	static async updateTermPassed(accountId, termsPassed) {
+		await account_accumulated.update(
+			{
+				daysPassed: 0,
+				termsPassed: termsPassed + 1
+			},
+			{
+				where: { accountId: accountId }
+			}
+		);
+
+		const result = await account_accumulated.findOne({
+			where: {
+				accountId: accountId
+			}
+		});
+
+		return result;
+	}
+
+	static checkIfAccountPassedTerm(term, daysPassed) {
+		if (term == 3) {
+			if (daysPassed == 90) return true;
+			return false;
+		} else if (term == 6) {
+			if (daysPassed == 180) return true;
+			return false;
+		} else if (term == 12) {
+			if (daysPassed == 360) return true;
+			return false;
+		} else if (term == 18) {
+			if (daysPassed == 540) return true;
+			return false;
+		} else if (term == 24) {
+			if (daysPassed == 720) return true;
+			return false;
+		} else if (term == 30) {
+			if (daysPassed == 900) return true;
+			return false;
+		} else if (term == 36) {
+			if (daysPassed == 1080) return true;
+			return false;
+		}
+		return false;
+	}
+
 	//các hàm tính lãi
 }
 

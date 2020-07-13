@@ -247,6 +247,22 @@ class account extends Model {
 		}
 		return null;
 	}
+
+	static async updateDaysAndTermsPassedForAccumulated() {
+		//lấy danh sách các tài khoản là tài khoản tiết kiệm
+		//và đang tình trạng ok
+		const list = await account.findAll({
+			where: {
+				accountType: '1', //accumulated
+				status: '1' //OK
+			}
+		});
+
+		//gọi hàm update daysPassed và TermPassed bên accumulated
+		for (var i = 0; i < list.length; i++) {
+			await account_accumulatedService.updateDaysAndTermsPassed(list[i].dataValues.accountId);
+		}
+	}
 }
 
 account.init(
