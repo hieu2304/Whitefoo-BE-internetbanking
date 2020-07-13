@@ -5,12 +5,13 @@ const asyncHandler = require('express-async-handler');
 const updateExchangeThread = require('node-cron');
 const updateDayAndTermThread = require('node-cron');
 
-updateExchange = asyncHandler(async function() {
+updateExchangeRate = asyncHandler(async function() {
 	await currencyService.updateExchangeRateUSDAndVND();
 });
 
-updateDaysAndTermPassedDaily = asyncHandler(async function() {
+updateDaysAndTermPassed = asyncHandler(async function() {
 	await accountService.updateDaysAndTermsPassedForAccumulated();
+	console.log('\nServer updated days&terms for accumulated accounts...\n');
 });
 
 module.exports.WhiteFooScheduleAll = function() {
@@ -19,13 +20,13 @@ module.exports.WhiteFooScheduleAll = function() {
 
 	//mỗi 3 tiếng cập nhật tỷ giá VND USD 1 lần
 	var temp = updateExchangeThread.schedule('* */3 * * *', () => {
-		updateDaysAndTermPassedDaily();
+		updateExchangeRate();
 	});
 
-	//mỗi ngày chạy 1 lần lúc 12AM (0h sáng)
+	//mỗi ngày chạy 1 lần lúc 12:00AM (0h 0phút sáng)
 	//muốn test thì: gán 'phút_sắp_tới giờ_sắp_tới * * *'
 	//  vd: chạy lúc 16h45 hằng ngày -> '45 16 * * *'
 	var temp_2 = updateDayAndTermThread.schedule('0 0 * * *', () => {
-		updateDaysAndTermPassedDaily();
+		updateDaysAndTermPassed();
 	});
 };

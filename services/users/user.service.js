@@ -592,6 +592,17 @@ class User extends Model {
 		// }
 		return null;
 	}
+
+	//Chuyển khoản nội bộ, có 2 bước:
+	// 1 là gửi mã verify qua email cho user nhập
+	// 2 là gọi api kèm mã verify
+	static async transferInternalStepOne(request) {
+		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
+	}
+
+	static async transferInternalStepTwo(request) {
+		//xác thực verifyCode...
+	}
 }
 
 User.init(
