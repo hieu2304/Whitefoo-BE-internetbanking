@@ -10,11 +10,14 @@ const validateHelper = require('../helpers/validate.helper');
 //router.use(authMiddleware.logoutRequired);
 
 //quên mật khẩu
+//B1
 router.get('/forgotpassword', authMiddleware.logoutRequired, controller.getForgotPassword);
-router.get('/verifyforgotcode', authMiddleware.logoutRequired, controller.getVerifyForgotCode);
-router.get('/updatenewpassword', authMiddleware.logoutRequired, controller.getUpdateNewPassword);
 router.post('/forgotpassword', authMiddleware.logoutRequired, controller.postForgotPassword);
+//B2
+router.get('/verifyforgotcode', authMiddleware.logoutRequired, controller.getVerifyForgotCode);
 router.post('/verifyforgotcode', authMiddleware.logoutRequired, controller.postVerifyForgotCode);
+//B3
+router.get('/updatenewpassword', authMiddleware.logoutRequired, controller.getUpdateNewPassword);
 router.post(
 	'/updatenewpassword',
 	authMiddleware.logoutRequired,
