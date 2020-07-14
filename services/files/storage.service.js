@@ -29,6 +29,33 @@ class Storage extends Model {
             }
         });
     }
+
+    static async findOneBlob(container, id) {
+        return Storage.findOne({
+            where: {
+                id,
+                container
+            }
+        });
+    }
+
+    static async findOneBlobByUserId(container, userId) {
+        return Storage.findOne({
+            where: {
+                container,
+                userId
+            }
+        });
+    }
+
+    static async countBlobByUserId(container, userId) {
+        return Storage.count({
+            where: {
+                container,
+                userId
+            }
+        });
+    }
 }
 
 //init here
