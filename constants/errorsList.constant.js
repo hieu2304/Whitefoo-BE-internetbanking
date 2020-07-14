@@ -11,9 +11,15 @@ module.exports.defaultPhoneNumberList = {
 
 module.exports.transferErrorValidate = {
 	NOT_BELONG: {
+		code: 'SELF_DETECT',
+		message: 'You can not transfer to your sending account'
+	},
+
+	NOT_BELONG: {
 		code: 'NOT_BELONG',
 		message: 'This account not belong to the current user'
 	},
+
 	VERIFYCODE_INVALID: {
 		code: 'VERIFYCODE_INVALID',
 		message: 'Invalid or wrong verifyCode'
@@ -34,14 +40,19 @@ module.exports.transferErrorValidate = {
 		message: 'Your account being locked'
 	},
 
-	DESTINATION_LOCKED: {
+	LOCKED: {
 		code: 'DESTINATION_LOCKED',
 		message: 'Destination account being locked'
 	},
 
 	NOT_ENOUGH: {
 		code: 'NOT_ENOUGH',
-		message: 'The transfer value and fee larger than your owned'
+		message: 'The total of transfer value and fee larger than your balance'
+	},
+
+	REQUIRE_MINIMUM: {
+		code: 'REQUIRE_MINIMUM',
+		message: 'Your transfer value not reached the minimum threshold, minimum is 20000VND'
 	},
 
 	REFUND: {

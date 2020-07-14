@@ -60,19 +60,110 @@ module.exports.loadUpSuccessMessage = function(email, lastName, firstName, value
 	return _html;
 };
 
-module.exports.tradeSuccessMessage = function(email, lastName, firstName, value, accountId2, valueLeft) {
-	const _html =
-		'<h2>Xin chào người dùng ' +
-		((firstName + lastName) | email) +
-		' <h2> <br> <h3><b>Bạn chuyển khoản thành công ' +
+//tin này gửi cho bên gửi (bên A)
+module.exports.transferSuccessMessage = function(
+	email,
+	lastName,
+	firstName,
+	value,
+	fee,
+	accountId,
+	accountId2,
+	valueLeft,
+	currency,
+	message
+) {
+	const content =
+		'Bạn vừa chuyển tiền thành công từ STK' +
+		accountId +
+		'tiền gửi :' +
 		value +
-		'vào tài khoản có STK' +
+		currency +
+		' cho STK: ' +
 		accountId2 +
-		' </b> Số dư còn lại: ' +
+		', phí đã trả là: ' +
+		fee +
+		', số dư còn lại: ' +
+		valueLeft;
+
+	const html =
+		'<body>' +
+		'<h2>Xin chào ' +
+		lastName +
+		' ' +
+		firstName +
+		',<br><br>Bạn vừa chuyển tiền thành công, thông tin chi tiết:</h2>' +
+		'<br>STK gửi: ' +
+		accountId +
+		'<br>STK nhận: ' +
+		accountId2 +
+		'<br>Tiền đã gửi: ' +
+		value +
+		currency +
+		'<br>Phí đã trả: ' +
+		fee +
+		currency +
+		'<br>Số dư còn lại: ' +
 		valueLeft +
-		' </h3>' +
-		signatureHTML;
-	return _html;
+		currency +
+		'<br>Tin nhắn kèm theo: ' +
+		message +
+		'<h3><br>' +
+		thankMessage +
+		signatureHTML +
+		'</h3></body>';
+
+	return { content, html };
+};
+
+//tin này gửi cho bên nhận (bên B)
+module.exports.transferSuccessMessageDes = function(
+	email,
+	lastName,
+	firstName,
+	value,
+	accountId,
+	accountId2,
+	valueLeft,
+	currency,
+	message
+) {
+	const content =
+		'Bạn vừa nhận tiền thành công từ STK' +
+		accountId +
+		'tiền nhận :' +
+		value +
+		currency +
+		' cho STK: ' +
+		accountId2 +
+		', số dư còn lại: ' +
+		valueLeft;
+
+	const html =
+		'<body>' +
+		'<h2>Xin chào ' +
+		lastName +
+		' ' +
+		firstName +
+		',<br><br>Bạn vừa nhận tiền thành công, thông tin chi tiết:</h2>' +
+		'<br>STK gửi: ' +
+		accountId +
+		'<br>STK nhận: ' +
+		accountId2 +
+		'<br>Tiền đã nhận: ' +
+		value +
+		currency +
+		'<br>Số dư còn lại: ' +
+		valueLeft +
+		currency +
+		'<br>Tin nhắn kèm theo: ' +
+		message +
+		'<h3><br>' +
+		thankMessage +
+		signatureHTML +
+		'</h3></body>';
+
+	return { content, html };
 };
 
 module.exports.forgotPasswordMessage = function(email, lastName, firstName, forgotCode) {

@@ -12,6 +12,9 @@ const accountService = require('../accounts/account.service');
 const errorListConstant = require('../../constants/errorsList.constant');
 const fee_paymentService = require('../accounts/fee_payment.service');
 const Decimal = require('decimal.js');
+const exchange_currencyService = require('../currency/exchange_currency.service');
+const requestService = require('request');
+const account = require('../accounts/account.service');
 
 class User extends Model {
 	static async findUserByPKNoneExclude(id) {
@@ -617,8 +620,8 @@ class User extends Model {
 	//Chuyển khoản nội bộ, có 2 bước:
 	// 1 là gửi mã verify qua email cho user nhập
 	// 2 là gọi api kèm mã verify
-	//BƯỚC 1
-	static async transferInternalStepOne(request, currentUser) {
+	//BƯỚC 1 (xài chung cho internal và external)
+	static async transferStepOne(request, currentUser) {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
 		const ErrorsList = [];
 		const errorListTransfer = errorListConstant.transferErrorValidate;
@@ -629,10 +632,17 @@ class User extends Model {
 			return ErrorsList;
 		}
 
-		const foundAccount = await accountService.findUserByPKNoneExclude(parseInt(accountId));
+		const foundAccount = await accountService.getAccountNoneExclude(accountId);
 
-		if (!foundAccount) {
+		//nếu không tìm thấy hoặc tài khoản không thuộc loại thanh toán
+		if (!foundAccount || foundAccount.accountType !== '0') {
 			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
+			return ErrorsList;
+		}
+
+		//nếu tài khoản đang bị khóa ('1' là OK, '0' closed, '-1'là locked)
+		if (foundAccount.status !== '1') {
+			ErrorsList.push(errorListTransfer.SELF_LOCKED);
 			return ErrorsList;
 		}
 
@@ -673,21 +683,68 @@ class User extends Model {
 
 		await emailHelper.send(
 			foundUser.email,
-			'Mã xác mình 2 bước',
+			'Mã xác minh 2 bước',
 			newVerifyTransferMessage.content,
 			newVerifyTransferMessage.html
 		);
 
 		return null;
 	}
-	//BƯỚC 2
+	//BƯỚC 2 (hàm này chỉ xài cho internal)
 	static async transferInternalStepTwo(request, currentUser) {
+		var message = request.message;
+		if (!message || message == ' ' || message == '') message = 'Không có tin nhắn kèm theo!';
 		const ErrorsList = [];
 		const errorListTransfer = errorListConstant.transferErrorValidate;
-		const requestAccountId = parseInt(request.requestAccountId); //currentUser's accountId
+		const requestAccountId = request.requestAccountId; //currentUser's accountId
 		const accountId = request.accountId; //Destination accountId
-		var money = new Decimal(request.money);
-		const message = request.message;
+		var money = new Decimal(request.money); //tiền để tính toán ở bên gửi
+		var transferMoney = new Decimal(request.money); //tiền để tính toán ở bên nhận
+		const foundAccount = await accountService.getAccountNoneExclude(requestAccountId);
+
+		//nếu không tìm thấy hoặc tài khoản bên gửi không thuộc loại thanh toán
+		if (!foundAccount || foundAccount.accountType !== '0') {
+			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
+			return ErrorsList;
+		}
+
+		//nếu tài khoản bên gửi đang bị khóa ('1' là OK, '0' closed, '-1'là locked)
+		if (foundAccount.status !== '1') {
+			ErrorsList.push(errorListTransfer.SELF_LOCKED);
+			return ErrorsList;
+		}
+
+		//nếu giá trị muốn gửi quá thấp thì không cho gửi, tối thiểu 20k VND
+		//kiểm tra giới hạn trong ngày, tháng, đợt giao dịch
+		//bên gửi xài đơn vị khác VND thì chuyển về VND TẠM THỜI để kiểm tra
+		if (foundAccount.currencyType !== 'VND') {
+			//đổi toàn bộ tiền gửi dạng USD(money) sang tiền VND(tempMoney)
+			var tempMoney = await exchange_currencyService.exchangeMoney(money, foundAccount.currencyType);
+
+			//nếu mệnh giá < 20k
+			if (parseFloat(tempMoney) < 20000) {
+				ErrorsList.push(errorListTransfer.REQUIRE_MINIMUM);
+				return ErrorsList;
+			}
+			//kiểm tra giới hạn đơn vị giao dịch...
+			//...Code here
+			//kiểm tra giới hạn của ngày
+			//...Code here
+			//kiểm tra giới hạn của tháng
+			//...Code here
+		} else {
+			//nếu bên gửi xài đơn vị VND thì khỏi đổi về TẠM THỜI
+			if (parseFloat(money) < 20000) {
+				ErrorsList.push(errorListTransfer.REQUIRE_MINIMUM);
+				return ErrorsList;
+			}
+			//kiểm tra giới hạn đơn vị giao dịch...
+			//...Code here
+			//kiểm tra giới hạn của ngày
+			//...Code here
+			//kiểm tra giới hạn của tháng
+			//...Code here
+		}
 
 		//xác thực verifyCode...
 		const checkingUser = await User.activeVerifyCode(request.verifyCode);
@@ -697,17 +754,165 @@ class User extends Model {
 			return ErrorsList;
 		}
 
-		//Nếu thằng đang đăng nhập không sở hữu tài khoản chuyển đi thì trả về lỗi
-		if (checkingUser.id !== currentUser.id || requestAccountId !== currentUser.id) {
+		//Nếu thằng đang đăng nhập không sở hữu tài khoản bên gửi thì xóa mã verify rồi cút nó ra
+		if (checkingUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
 			ErrorsList.push(errorListTransfer.NOT_BELONG);
 			return ErrorsList;
 		}
 
-		//kiểm tra tài khoản nhận (Destination account)
+		//kiếm tra tiền muốn gửi + phí bên gửi có đủ không
+		//tính phí với giá tiền muốn gửi hiện tại, '1' là nội bộ, '0' là liên ngân hàng
+		//LƯU Ý: FEE NÀY CHỈ TÍNH CHO MỆNH GIÁ LÀ VNĐ, tính phí phải chuyển sang VND hết rồi chuyển lại sau
+		var newFee = new Decimal(0.0);
+		if (foundAccount.currencyType !== 'VND') {
+			//đổi toàn bộ tiền gửi USD(money) sang tiền VND(tempMoney) để tính chi phí, vì bảng phí ta để theo VND
+			var tempMoney = await exchange_currencyService.exchangeMoney(money, foundAccount.currencyType);
+			//tính chi phí theo VND
+			newFee = await fee_paymentService.getTransferFee(tempMoney, '1');
+		} else {
+			newFee = await fee_paymentService.getTransferFee(money, '1');
+		}
 
-		//kiếm tra tiền muốn gửi + phí có đủ không
-		//tính phí nếu chuyển giá tiền hiện tại, '1' là nội bộ, '0' là liên ngân hàng
-		var newFee = await fee_paymentService.getTransferFee(money, '1');
+		//vì phí tính theo VND, để tính toán +- vào tài khoản xài USD thì phải chuyển về USD
+		if (foundAccount.currencyType !== 'VND') {
+			newFee = await exchange_currencyService.exchangeMoney(newFee, 'VND');
+			console.log(newFee);
+		}
+
+		//tổng tiền tiêu hao bên gửi (sẽ trừ cái này nếu chuyển thành công)
+		//nếu tài khoản bên gửi VND: thì tổng = value(VND)+fee(VND)
+		//nếu tài khoản bên gửi USD: thì tổng = value(USD)+fee(USD)
+		var totalConsumeMoney = new Decimal(newFee).plus(money);
+		if (parseFloat(totalConsumeMoney) > parseFloat(foundAccount.balance)) {
+			ErrorsList.push(errorListTransfer.NOT_ENOUGH);
+			return ErrorsList;
+		}
+
+		//sau khi hoàn tất kiểm tra bên gửi, ta kiểm tra tài khoản bên nhận (Destination account)
+		//kiểm tra có tồn tại tài khoản bên nhận không
+		const foundAccountDes = await accountService.getAccountNoneExclude(accountId);
+
+		//nếu không tìm thấy hoặc tài khoản bên nhận không thuộc loại thanh toán
+		if (!foundAccountDes || foundAccountDes.accountType !== '0') {
+			ErrorsList.push(errorListTransfer.NOT_EXISTS);
+			return ErrorsList;
+		}
+
+		//nếu tài khoản bên nhận đang bị khóa ('1' là OK, '0' closed, '-1'là locked)
+		if (foundAccountDes.status !== '1') {
+			ErrorsList.push(errorListTransfer.LOCKED);
+			return ErrorsList;
+		}
+
+		//sau khi hoàn thành các đợt kiểm tra, tiến hành chuyển khoản Internal
+
+		//B1: kiểm tra đơn vị tiền tệ 2 bên, đổi cho bên nhận nếu cần thiết
+		if (foundAccount.currencyType !== foundAccountDes.currencyType) {
+			//Total = value + fee, chỉ chuyển value sang đơn vị của bên nhận
+			transferMoney = await exchange_currencyService.exchangeMoney(money, foundAccount.currencyType);
+		}
+
+		//B2: tiến hành trừ bên gửi(trừ tiền gửi + Phí) và cộng tiền cho bên Nhận(chỉ cộng tiền gửi)
+		//bên gửi
+		var newBalance = new Decimal(foundAccount.balance).sub(totalConsumeMoney);
+		//bên nhận
+		var newBalanceDes = new Decimal(foundAccountDes.balance).plus(transferMoney);
+
+		//update bên gửi
+		await accountService.update(
+			{
+				balance: newBalance
+			},
+			{
+				where: {
+					accountId: foundAccount.accountId
+				}
+			}
+		);
+		//update bên nhận
+		await accountService.update(
+			{
+				balance: newBalanceDes
+			},
+			{
+				where: {
+					accountId: foundAccountDes.accountId
+				}
+			}
+		);
+
+		//B3: lấy giá trị mới rồi send email thông báo cho cả 2 bên
+		//bên A trước
+		const foundUser = await User.findUserByPKNoneExclude(parseInt(foundAccount.userId));
+		const newSuccessTransferMessageA = makeMessageHelper.transferSuccessMessage(
+			foundUser.email,
+			foundUser.lastName,
+			foundUser.firstName,
+			money,
+			newFee,
+			foundAccount.accountId,
+			foundAccountDes.accountId,
+			newBalance,
+			foundAccount.currencyType,
+			message
+		);
+
+		await emailHelper.send(
+			foundUser.email,
+			'Chuyển tiền thành công',
+			newSuccessTransferMessageA.content,
+			newSuccessTransferMessageA.html
+		);
+
+		//bên B sau
+		const foundUserDes = await User.findUserByPKNoneExclude(parseInt(foundAccountDes.userId));
+		const newSuccessTransferMessageB = makeMessageHelper.transferSuccessMessageDes(
+			foundUserDes.email,
+			foundUserDes.lastName,
+			foundUserDes.firstName,
+			transferMoney,
+			foundAccount.accountId,
+			foundAccountDes.accountId,
+			newBalanceDes,
+			foundAccountDes.currencyType,
+			message
+		);
+
+		await emailHelper.send(
+			foundUserDes.email,
+			'Nhận tiền thành công',
+			newSuccessTransferMessageB.content,
+			newSuccessTransferMessageB.html
+		);
+
+		////for debug only
+		// return [
+		// 	{
+		// 		email: foundUser.email,
+		// 		l: foundUser.lastName,
+		// 		f: foundUser.firstName,
+		// 		send: money,
+		// 		fee: newFee,
+		// 		AID: foundAccount.accountId,
+		// 		BID: foundAccountDes.accountId,
+		// 		left: newBalance,
+		// 		type: foundAccount.currencyType,
+		// 		message: message
+		// 	},
+		// 	{
+		// 		email: foundUserDes.email,
+		// 		l: foundUserDes.lastName,
+		// 		f: foundUserDes.firstName,
+		// 		receive: transferMoney,
+		// 		AID: foundAccount.accountId,
+		// 		BID: foundAccountDes.accountId,
+		// 		left: newBalanceDes,
+		// 		type: foundAccountDes.currencyType,
+		// 		message: message
+		// 	},
+		//{ newSuccessTransferMessageA }, { newSuccessTransferMessageB }
+		// ];
+		return null;
 	}
 }
 
