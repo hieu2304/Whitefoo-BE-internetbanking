@@ -269,7 +269,8 @@ account.init(
 	{
 		accountId: {
 			type: Sequelize.STRING,
-			allowNull: false
+			allowNull: false,
+			unique: true
 		},
 		userId: {
 			type: Sequelize.STRING,

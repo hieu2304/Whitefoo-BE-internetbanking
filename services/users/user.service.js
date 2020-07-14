@@ -10,6 +10,8 @@ const emailHelper = require('../../helpers/email.helper');
 const makeMessageHelper = require('../../helpers/makeMessage.helper');
 const accountService = require('../accounts/account.service');
 const errorListConstant = require('../../constants/errorsList.constant');
+const fee_paymentService = require('../accounts/fee_payment.service');
+const Decimal = require('decimal.js');
 
 class User extends Model {
 	static async findUserByPKNoneExclude(id) {
@@ -197,6 +199,26 @@ class User extends Model {
 		return null;
 	}
 
+	static async activeVerifyCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				verifyCode: _code
+			}
+		});
+		if (isExist) {
+			await User.update(
+				{
+					verifyCode: ''
+				},
+				{
+					where: { verifyCode: _code }
+				}
+			);
+			return isExist;
+		}
+		return null;
+	}
+
 	static async activeEmailCode(_code) {
 		const isExist = await User.findOne({
 			where: {
@@ -376,7 +398,6 @@ class User extends Model {
 				newEmailVerifyMessage.html
 			);
 		}
-		//send email here
 
 		//return result
 		return newForgotCode;
@@ -596,12 +617,97 @@ class User extends Model {
 	//Chuyển khoản nội bộ, có 2 bước:
 	// 1 là gửi mã verify qua email cho user nhập
 	// 2 là gọi api kèm mã verify
-	static async transferInternalStepOne(request) {
+	//BƯỚC 1
+	static async transferInternalStepOne(request, currentUser) {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
-	}
+		const ErrorsList = [];
+		const errorListTransfer = errorListConstant.transferErrorValidate;
+		const accountId = typeof request.id !== 'undefined' ? request.id : request.accountId;
 
-	static async transferInternalStepTwo(request) {
+		if (!accountId) {
+			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
+			return ErrorsList;
+		}
+
+		const foundAccount = await accountService.findUserByPKNoneExclude(parseInt(accountId));
+
+		if (!foundAccount) {
+			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
+			return ErrorsList;
+		}
+
+		//nếu người dùng đăng nhập hiện tại không sở hữu tài khoản mà cố vào thì không cho
+		if (parseInt(foundAccount.userId) !== currentUser.id) {
+			ErrorsList.push(errorListTransfer.NOT_BELONG);
+			return ErrorsList;
+		}
+
+		if (foundAccount.status !== '1') ErrorsList.push(errorListTransfer.SELF_LOCKED);
+		if (foundAccount.balance < 1) ErrorsList.push(errorListTransfer.NOT_ENOUGH);
+
+		if (ErrorsList.length > 0) return ErrorsList;
+
+		const foundUser = await User.findUserByPKNoneExclude(parseInt(foundAccount.userId));
+
+		//nếu vượt qua kiểm tra thì bắt đầu quá trình send mã
+		const newVerifyCode = await User.getUniqueRandomCode();
+
+		//update DB
+		await User.update(
+			{
+				verifyCode: newVerifyCode
+			},
+			{
+				where: { id: foundUser.id }
+			}
+		);
+
+		//send Email
+
+		const newVerifyTransferMessage = makeMessageHelper.transferVerifyMessage(
+			foundUser.email,
+			foundUser.lastName,
+			foundUser.firstName,
+			newVerifyCode
+		);
+
+		await emailHelper.send(
+			foundUser.email,
+			'Mã xác mình 2 bước',
+			newVerifyTransferMessage.content,
+			newVerifyTransferMessage.html
+		);
+
+		return null;
+	}
+	//BƯỚC 2
+	static async transferInternalStepTwo(request, currentUser) {
+		const ErrorsList = [];
+		const errorListTransfer = errorListConstant.transferErrorValidate;
+		const requestAccountId = parseInt(request.requestAccountId); //currentUser's accountId
+		const accountId = request.accountId; //Destination accountId
+		var money = new Decimal(request.money);
+		const message = request.message;
+
 		//xác thực verifyCode...
+		const checkingUser = await User.activeVerifyCode(request.verifyCode);
+
+		if (!checkingUser) {
+			ErrorsList.push(errorListTransfer.VERIFYCODE_INVALID);
+			return ErrorsList;
+		}
+
+		//Nếu thằng đang đăng nhập không sở hữu tài khoản chuyển đi thì trả về lỗi
+		if (checkingUser.id !== currentUser.id || requestAccountId !== currentUser.id) {
+			ErrorsList.push(errorListTransfer.NOT_BELONG);
+			return ErrorsList;
+		}
+
+		//kiểm tra tài khoản nhận (Destination account)
+
+		//kiếm tra tiền muốn gửi + phí có đủ không
+		//tính phí nếu chuyển giá tiền hiện tại, '1' là nội bộ, '0' là liên ngân hàng
+		var newFee = await fee_paymentService.getTransferFee(money, '1');
 	}
 }
 

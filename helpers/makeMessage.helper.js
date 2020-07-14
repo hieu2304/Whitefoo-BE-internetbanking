@@ -96,3 +96,21 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 
 	return { content, html };
 };
+
+module.exports.transferVerifyMessage = function(email, lastName, firstName, verifyCode) {
+	const content = 'Mã xác minh 2 bước chuyển khoản của bạn là: ' + verifyCode;
+	const html =
+		'<body>' +
+		'<h2>Xin chào ' +
+		lastName +
+		' ' +
+		firstName +
+		',<br><br>Mã xác minh 2 bước chuyển khoản của bạn là:</h2><br><b><h1>' +
+		verifyCode +
+		'</h1></b><br><h3>' +
+		thankMessage +
+		signatureHTML +
+		'</h3></body>';
+
+	return { content, html };
+};

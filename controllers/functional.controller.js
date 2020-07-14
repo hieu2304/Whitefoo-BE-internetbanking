@@ -1,4 +1,3 @@
-const accountService = require('../services/accounts/account.service');
 const userService = require('../services/users/user.service');
 const asyncHandler = require('express-async-handler');
 const validateHelper = require('../helpers/validate.helper');
@@ -62,5 +61,32 @@ module.exports.postRequestStaff = asyncHandler(async function(req, res, next) {
 	//nếu có lỗi
 	if (result) return res.status(409).send({ message: result });
 	//nếu ok
+	return res.status(200).send({ message: 'OK' });
+});
+
+//User chuyển khoản, có 2 bước
+//bước 1: là send mã vào email
+module.exports.getSendVerify = asyncHandler(async function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+});
+module.exports.postSendVerify = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.transferInternalStepOne(req.body, currentUser);
+
+	//khác null nghĩa là có lỗi
+	if (result) return res.status(409).json(result);
+
+	//nếu trả về null có nghĩa là ok
+	return res.status(200).send({ message: 'OK' });
+});
+//bước 2: chuyển khoản cùng verifycode
+module.exports.getTransferInternal = asyncHandler(async function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+});
+module.exports.postTransferInternal = asyncHandler(async function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 });
