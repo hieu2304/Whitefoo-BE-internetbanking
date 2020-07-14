@@ -10,7 +10,7 @@ module.exports.defaultPhoneNumberList = {
 };
 
 module.exports.transferErrorValidate = {
-	NOT_BELONG: {
+	SELF_DETECT: {
 		code: 'SELF_DETECT',
 		message: 'You can not transfer to your sending account'
 	},
@@ -47,12 +47,27 @@ module.exports.transferErrorValidate = {
 
 	NOT_ENOUGH: {
 		code: 'NOT_ENOUGH',
-		message: 'The total of transfer value and fee larger than your balance'
+		message: 'The total of transfer value and fee is larger than your balance'
 	},
 
 	REQUIRE_MINIMUM: {
 		code: 'REQUIRE_MINIMUM',
-		message: 'Your transfer value not reached the minimum threshold, minimum is 20000VND'
+		message: 'Your transfer value not reached the minimum threshold, minimum is 20000 VND'
+	},
+
+	LIMIT_TRANSFER: {
+		code: 'LIMIT_TRANSFER',
+		message: 'You reached the maximum threshold of the transfer, maximum is 200mil VND'
+	},
+
+	LIMIT_DAY: {
+		code: 'LIMIT_DAY',
+		message: 'You reached the maximum threshold of the day, maximum is 500mil VND'
+	},
+
+	LIMIT_MONTH: {
+		code: 'LIMIT_MONTH',
+		message: 'You reached the maximum threshold of the month, maximum is 10bil VND'
 	},
 
 	REFUND: {

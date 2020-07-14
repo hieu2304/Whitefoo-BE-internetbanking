@@ -14,7 +14,6 @@ const fee_paymentService = require('../accounts/fee_payment.service');
 const Decimal = require('decimal.js');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 const requestService = require('request');
-const account = require('../accounts/account.service');
 
 class User extends Model {
 	static async findUserByPKNoneExclude(id) {
@@ -625,7 +624,8 @@ class User extends Model {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
 		const ErrorsList = [];
 		const errorListTransfer = errorListConstant.transferErrorValidate;
-		const accountId = typeof request.id !== 'undefined' ? request.id : request.accountId;
+		const accountId =
+			typeof request.requestAccountId !== 'undefined' ? request.requestAccountId : request.accountId;
 
 		if (!accountId) {
 			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
@@ -701,6 +701,12 @@ class User extends Model {
 		var money = new Decimal(request.money); //tiền để tính toán ở bên gửi
 		var transferMoney = new Decimal(request.money); //tiền để tính toán ở bên nhận
 		const foundAccount = await accountService.getAccountNoneExclude(requestAccountId);
+
+		//không cho phép tài khoản gửi và nhận là 1
+		if (requestAccountId === accountId) {
+			ErrorsList.push(errorListTransfer.SELF_DETECT);
+			return ErrorsList;
+		}
 
 		//nếu không tìm thấy hoặc tài khoản bên gửi không thuộc loại thanh toán
 		if (!foundAccount || foundAccount.accountType !== '0') {
