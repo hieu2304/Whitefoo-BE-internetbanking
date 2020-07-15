@@ -19,7 +19,9 @@ module.exports.WhiteFooScheduleAll = function() {
 	setTimeout(initHelper.initBaseValueAllNeededModel, 6000);
 
 	//mỗi 3 tiếng cập nhật tỷ giá VND USD 1 lần
-	var temp = updateExchangeThread.schedule('* */3 * * *', () => {
+	//các khung giờ cập nhật:
+	//1:05, 4:05, 7:05, 10:05, 13:05, 16:05, 19:06, 22:05
+	var temp = updateExchangeThread.schedule('5 1,4,7,10,13,16,19,22 * * *', () => {
 		updateExchangeRate();
 	});
 
