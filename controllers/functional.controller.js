@@ -7,45 +7,9 @@ module.exports.testFunctional = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
 
-module.exports.getChangePasswordAfterLogin = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
-};
-
-//change password after login success
-//currentPassword
-//newPassword
-//confirmPassword
-module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, res, next) {
-	const errors = validateHelper.validateErrorHandle(req);
-	if (errors) {
-		return res.status(409).json(errors);
-	}
-
-	currentUser = jwtHelper.decodeToken(req.headers['token']);
-	if (!currentUser) {
-		return res.status(401).send({ message: 'Invalid Token' });
-	}
-
-	const result = await userService.changePasswordAfterLogin(req.body, currentUser);
-	if (!result) return res.status(403).send({ message: 'Update failed' });
-	return res.status(200).send({ message: 'OK' });
-});
-
 //user get self's information
-module.exports.postGetInfo = asyncHandler(async function(req, res, next) {
-	currentUser = jwtHelper.decodeToken(req.headers['token']);
-	if (!currentUser) {
-		return res.status(401).send({ message: 'Invalid Token' });
-	}
-
-	const result = await userService.getInfo(currentUser);
-
-	return res.status(200).send(result);
-});
-
-module.exports.getGetInfo = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
-};
+//api getinfo đã được chuyển sang guest
+//api change password cũng được chuyển sang guest
 
 //User xin làm nhân viên, thằng nào xin trước thằng đó làm
 //get: trả ra số count nhân viên hiện tại
@@ -86,6 +50,11 @@ module.exports.getTransferInternal = asyncHandler(async function(req, res, next)
 	return res.status(200).send({ message: 'OK' });
 });
 module.exports.postTransferInternal = asyncHandler(async function(req, res, next) {
+	const errors = validateHelper.validateErrorHandle(req);
+	if (errors) {
+		return res.status(409).json(errors);
+	}
+
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });

@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const userService = require('../services/users/user.service');
 const validateHelper = require('../helpers/validate.helper');
+const jwtHelper = require('../helpers/jwt.helper');
 
 //Forgot password
 //step 1 - send request forgot password to generate code and send via email
@@ -78,3 +79,43 @@ module.exports.postRegister = asyncHandler(async function(req, res, next) {
 	//if null, mean no errors returned from model's Service = success
 	return res.status(200).send({ message: 'OK' });
 });
+
+//user get self's information
+module.exports.postGetInfo = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getInfo(currentUser);
+
+	return res.status(200).send(result);
+});
+
+module.exports.getGetInfo = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+
+//change password after login success
+//currentPassword
+//newPassword
+//confirmPassword
+module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, res, next) {
+	const errors = validateHelper.validateErrorHandle(req);
+	if (errors) {
+		return res.status(409).json(errors);
+	}
+
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.changePasswordAfterLogin(req.body, currentUser);
+	if (!result) return res.status(403).send({ message: 'Update failed' });
+	return res.status(200).send({ message: 'OK' });
+});
+
+module.exports.getChangePasswordAfterLogin = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};

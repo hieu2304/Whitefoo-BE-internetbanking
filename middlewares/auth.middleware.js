@@ -60,7 +60,18 @@ module.exports.authSecret = function(req, res, next) {
 };
 
 // yêu cầu có token hợp lệ
-module.exports.authToken = jwtHelper.authToken;
+module.exports.authToken = function(req, res, next) {
+	const token = req.headers['token'];
+	if (!token) return res.status(401).send({ message: 'User not logged in' });
+	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
+	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
+		if (err) {
+			return res.status(401).send({ message: 'Invalid Token' });
+		} else {
+			return next();
+		}
+	});
+};
 
 // hàm này tổng hợp yêu cầu theo thứ tự sau:
 //token -> logged in -> email verify -> citizenIdentificationId verify

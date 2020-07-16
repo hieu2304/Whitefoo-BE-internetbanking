@@ -34,19 +34,6 @@ module.exports.generateToken = function(user) {
 	return (accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' }));
 };
 
-module.exports.authToken = function(req, res, next) {
-	const token = req.headers['token'];
-	if (token == null) return res.status(401).send({ message: 'Invalid Token' });
-	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
-	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
-		if (err) {
-			return res.status(401).send({ message: 'Invalid Token' });
-		} else {
-			return next();
-		}
-	});
-};
-
 module.exports.decodeToken = function decodeToken(token) {
 	//Use promise, to use return result, have to use json decode
 	// return new Promise((resolve, reject) => {

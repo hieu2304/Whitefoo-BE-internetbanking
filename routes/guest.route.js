@@ -34,4 +34,25 @@ router.post(
 	controller.postRegister
 );
 
+//lấy thông tin cá nhân
+//trước kia ở functional
+router.get('/getinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.getGetInfo);
+router.post('/getinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.postGetInfo);
+
+//đổi mật khẩu sau khi login
+//trước kia ở functional
+router.get(
+	'/changepassword',
+	authMiddleware.authToken,
+	authMiddleware.loginRequired,
+	controller.getChangePasswordAfterLogin
+);
+router.post(
+	'/changepassword',
+	authMiddleware.authToken,
+	authMiddleware.loginRequired,
+	validateHelper.validateUpdateNewPassword(),
+	controller.postChangePasswordAfterLogin
+);
+
 module.exports = router;

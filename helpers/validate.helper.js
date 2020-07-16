@@ -3,6 +3,7 @@ const moment = require('moment');
 const regexConstant = require('../constants/regex.constants');
 const asyncHandler = require('express-async-handler');
 const errorConstant = require('../constants/errorsList.constant').registerErrorValidate;
+const errorConstantTransfer = require('../constants/errorsList.constant').transferErrorValidate;
 const Sequelize = require('sequelize');
 
 module.exports.validateErrorHandle = function(req) {
@@ -96,6 +97,15 @@ module.exports.validateUpdateNewPassword = function() {
 			if (password === internalConfirmPassword) return true;
 			return false;
 		})
+	];
+};
+
+module.exports.validateTransfer = function() {
+	return [
+		check('verifyCode', errorConstantTransfer.VERIFYCODE_EMPTY).isLength({ min: 1 }),
+		check('accountId', errorConstantTransfer.ACCOUNTID_EMPTY).isLength({ min: 1 }),
+		check('requestAccountId', errorConstantTransfer.REQUESTACCOUNTID_EMPTY).isLength({ min: 1 }),
+		check('money', errorConstantTransfer.MONEY_EMPTY).isLength({ min: 1 })
 	];
 };
 

@@ -10,6 +10,26 @@ module.exports.defaultPhoneNumberList = {
 };
 
 module.exports.transferErrorValidate = {
+	VERIFYCODE_EMPTY: {
+		code: 'VERIFYCODE_EMPTY',
+		message: 'verifyCode must not empty'
+	},
+
+	ACCOUNTID_EMPTY: {
+		code: 'ACCOUNTID_EMPTY',
+		message: 'accountId must not empty'
+	},
+
+	REQUESTACCOUNTID_EMPTY: {
+		code: 'REQUESTACCOUNTID_EMPTY',
+		message: 'requestAccountId must not empty'
+	},
+
+	MONEY_EMPTY: {
+		code: 'MONEY_EMPTY',
+		message: 'money must not empty'
+	},
+
 	SELF_DETECT: {
 		code: 'SELF_DETECT',
 		message: 'You can not transfer to your sending account'

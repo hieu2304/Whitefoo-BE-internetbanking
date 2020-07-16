@@ -152,7 +152,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 /api/changepassword
 (người dùng sau khi login tự đổi mật khẩu chính mình)
     method: POST và GET
-    điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
+    điều kiện: đã login, CHƯA xác nhận email, CHƯA kích hoạt CMND
     params:
         currentPassword:khongcopassdau
         newPassword:khongcopass123466

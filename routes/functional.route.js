@@ -7,12 +7,14 @@ const validateHelper = require('../helpers/validate.helper');
 router.get('/testfunctional', controller.testFunctional);
 
 //Tính năng người dùng tự đổi mật khẩu
-router.get('/changepassword', controller.getChangePasswordAfterLogin);
-router.post('/changepassword', validateHelper.validateUpdateNewPassword(), controller.postChangePasswordAfterLogin);
+//đã chuyển qua guest vì ko cần yêu cầu đã xác nhận CMND, email
+// router.get('/changepassword', controller.getChangePasswordAfterLogin);
+// router.post('/changepassword', validateHelper.validateUpdateNewPassword(), controller.postChangePasswordAfterLogin);
 
 //User lấy thông tin cá nhân của mình : các thông tin cơ bản + thông tin các STK
-router.get('/getinfo', controller.getGetInfo);
-router.post('/getinfo', controller.postGetInfo);
+// đã chuyển qua guest
+// router.get('/getinfo', controller.getGetInfo);
+// router.post('/getinfo', controller.postGetInfo);
 
 //User xin làm nhân viên, thằng nào xin trước thằng đó làm
 router.get('/requeststaff', controller.getRequestStaff);
@@ -24,6 +26,6 @@ router.get('/sendverify', controller.getSendVerify);
 router.post('/sendverify', controller.postSendVerify);
 //B2 verify the Code then transfer
 router.get('/transferinternal', controller.getTransferInternal);
-router.post('/transferinternal', controller.postTransferInternal);
+router.post('/transferinternal', validateHelper.validateTransfer(), controller.postTransferInternal);
 
 module.exports = router;

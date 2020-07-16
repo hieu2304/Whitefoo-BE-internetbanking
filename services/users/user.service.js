@@ -528,8 +528,24 @@ class User extends Model {
 	//hàm user xem thông tin bản thân dựa vào id
 	static async getInfo(request) {
 		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id.toString());
-		const user = await User.findUserByPKUsingExclude(request.id);
+		var user = await User.findUserByPKUsingExclude(request.id);
+		const checkUser = await User.findUserByPKNoneExclude(request.id);
 
+		//keep the dateOfBirth that formatted by Getters
+		const dateOfBirth = user.dateOfBirth;
+		user = user.dataValues;
+		user.dateOfBirth = dateOfBirth;
+
+		if (checkUser.activeCode !== '') {
+			user.emailVerified = false;
+			console.log(user.emailVerified);
+		}
+		if (checkUser.citizenIdentificationId == null || checkUser.citizenIdentificationId === '') {
+			user.citizenIdentificationIdVerified = false;
+			console.log(user.citizenIdentificationIdVerified);
+		}
+
+		//console.log(user);
 		return { user, accountList };
 	}
 
@@ -683,18 +699,20 @@ class User extends Model {
 
 		//send Email
 
-		const newVerifyTransferMessage = makeMessageHelper.transferVerifyMessage(
+		makeMessageHelper.transferVerifyMessage(
 			foundUser.email,
 			foundUser.lastName,
 			foundUser.firstName,
-			newVerifyCode
-		);
-
-		await emailHelper.send(
-			foundUser.email,
-			'Mã xác minh 2 bước',
-			newVerifyTransferMessage.content,
-			newVerifyTransferMessage.html
+			newVerifyCode,
+			function(response) {
+				emailHelper.send(
+					foundUser.email,
+					'Xác minh 2 bước',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
 		);
 
 		return null;
@@ -901,7 +919,8 @@ class User extends Model {
 		//B3: lấy giá trị mới rồi send email thông báo cho cả 2 bên
 		//bên A trước
 		const foundUser = await User.findUserByPKNoneExclude(parseInt(foundAccount.userId));
-		const newSuccessTransferMessageA = makeMessageHelper.transferSuccessMessage(
+
+		makeMessageHelper.transferSuccessMessage(
 			foundUser.email,
 			foundUser.lastName,
 			foundUser.firstName,
@@ -911,19 +930,22 @@ class User extends Model {
 			foundAccountDes.accountId,
 			newBalance,
 			foundAccount.currencyType,
-			message
-		);
-
-		await emailHelper.send(
-			foundUser.email,
-			'Chuyển tiền thành công',
-			newSuccessTransferMessageA.content,
-			newSuccessTransferMessageA.html
+			message,
+			function(response) {
+				emailHelper.send(
+					foundUser.email,
+					'Chuyển tiền thành công',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
 		);
 
 		//bên B sau
 		const foundUserDes = await User.findUserByPKNoneExclude(parseInt(foundAccountDes.userId));
-		const newSuccessTransferMessageB = makeMessageHelper.transferSuccessMessageDes(
+
+		makeMessageHelper.transferSuccessMessageDes(
 			foundUserDes.email,
 			foundUserDes.lastName,
 			foundUserDes.firstName,
@@ -932,14 +954,16 @@ class User extends Model {
 			foundAccountDes.accountId,
 			newBalanceDes,
 			foundAccountDes.currencyType,
-			message
-		);
-
-		await emailHelper.send(
-			foundUserDes.email,
-			'Nhận tiền thành công',
-			newSuccessTransferMessageB.content,
-			newSuccessTransferMessageB.html
+			message,
+			function(response) {
+				emailHelper.send(
+					foundUserDes.email,
+					'Nhận tiền thành công',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
 		);
 
 		////for debug only
@@ -970,6 +994,37 @@ class User extends Model {
 		//{ newSuccessTransferMessageA }, { newSuccessTransferMessageB }
 		// ];
 		return null;
+	}
+
+	static async loadUpBalance(request, currentUser) {
+		const result = await accountService.addBalanceForAccount(request, currentUser);
+		if (!result) return null;
+
+		const loadForAccount = await accountService.getAccountNoneExclude(request.accountId);
+		const loadForUser = await User.findUserByPKNoneExclude(parseInt(loadForAccount.userId));
+
+		//gửi email
+		makeMessageHelper.loadUpSuccessMessage(
+			loadForUser.email,
+			request.accountId,
+			loadForUser.lastName,
+			loadForUser.firstName,
+			request.balance,
+			request.currency,
+			loadForAccount.currencyType,
+			result.newBalance,
+			function(response) {
+				emailHelper.send(
+					loadForUser.email,
+					'Nạp tiền thành công',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
+		);
+
+		return result;
 	}
 }
 

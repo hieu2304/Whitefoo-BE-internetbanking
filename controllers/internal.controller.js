@@ -75,7 +75,7 @@ module.exports.postAddBalance = asyncHandler(async function(req, res, next) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 
-	const result = await accountService.addBalanceForAccount(req.body, currentUser);
+	const result = await userService.loadUpBalance(req.body, currentUser);
 
 	if (!result) return res.status(409).send({ message: 'failed' });
 	return res.status(200).send({ message: 'OK' });

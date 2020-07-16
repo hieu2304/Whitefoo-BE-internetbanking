@@ -1,7 +1,6 @@
 const getHTMLService = require('../constants/getHTML.constant');
 const getAttachments = require('../constants/attachments.constant');
 var fs = require('fs');
-const { response } = require('express');
 
 const registerThankMessage =
 	'Cảm ơn bạn đã tin tưởng và đăng ký whitefooBank của chúng tôi, chúng tôi hy vọng sẽ mang lại cho bạn trải nghiệm tốt nhất!';
@@ -16,7 +15,7 @@ module.exports.verifyEmailMessage = function(email, lastName, firstName, activeC
 
 	const content = 'link kích hoạt tài khoản: ' + linkDirect;
 
-	getHTMLService.getHTMLPattern('button', function(response) {
+	getHTMLService.getHTMLPattern(1, function(response) {
 		var html = response;
 		html = html.replace('{Re_Image}', 'email');
 		html = html.replace('{Re_Title}', 'Kích hoạt tài khoản');
@@ -64,17 +63,64 @@ module.exports.resendVerifyEmailMessage = function(email, lastName, firstName, a
 	return { content, html };
 };
 
-module.exports.loadUpSuccessMessage = function(email, lastName, firstName, value, valueLeft) {
-	const _html =
-		'<h2>Xin chào người dùng ' +
-		((firstName + lastName) | email) +
-		' <h2> <br> <h3><b>Bạn vừa nạp thành công ' +
+module.exports.loadUpSuccessMessage = function(
+	email,
+	accountId,
+	lastName,
+	firstName,
+	value,
+	currencyIn,
+	currencyIn2,
+	valueLeft,
+	callback
+) {
+	const currency = ' ' + currencyIn;
+	const currency2 = ' ' + currencyIn2;
+	const content =
+		'Bạn vừa nạp tiền thành công cho STK ' +
+		accountId +
+		'\nTiền nhận :' +
 		value +
-		'vào tài khoản của mình</b> Số dư hiện tại: ' +
-		valueLeft +
-		' </h3>' +
-		signatureHTML;
-	return _html;
+		currency +
+		'\nSố dư còn lại: ' +
+		valueLeft;
+
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
+
+		html = html.replace('{Re_Image}', 'loadup');
+		html = html.replace('{Re_Title}', 'Nạp tiền thành công');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa nạp tiền thành công, chi tiết:'
+		);
+
+		html = html.replace(
+			'{Re_Content_2}',
+			'<br>STK được nạp: ' +
+				accountId +
+				'<br>Tiền đã nạp: ' +
+				value +
+				currency +
+				'<br>Số dư hiện tại: ' +
+				valueLeft +
+				currency2 +
+				'<br>'
+		);
+
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.loadUpAttachments;
+
+		return callback({ content, html, attachments });
+	});
 };
 
 //tin này gửi cho bên gửi (bên A)
@@ -87,9 +133,11 @@ module.exports.transferSuccessMessage = function(
 	accountId,
 	accountId2,
 	valueLeft,
-	currency,
-	message
+	currencyIn,
+	message,
+	callback
 ) {
+	const currency = ' ' + currencyIn;
 	const content =
 		'Bạn vừa chuyển tiền thành công từ STK' +
 		accountId +
@@ -105,34 +153,49 @@ module.exports.transferSuccessMessage = function(
 		'\nTin nhắn: ' +
 		message;
 
-	const html =
-		'<body>' +
-		'<h2>Xin chào ' +
-		lastName +
-		' ' +
-		firstName +
-		',<br><br>Bạn vừa chuyển tiền thành công, thông tin chi tiết:</h2>' +
-		'<br>STK gửi: ' +
-		accountId +
-		'<br>STK nhận: ' +
-		accountId2 +
-		'<br>Tiền đã gửi: ' +
-		value +
-		currency +
-		'<br>Phí đã trả: ' +
-		fee +
-		currency +
-		'<br>Số dư còn lại: ' +
-		valueLeft +
-		currency +
-		'<br>Tin nhắn kèm theo: ' +
-		message +
-		'<h3><br>' +
-		thankMessage +
-		signatureHTML +
-		'</h3></body>';
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
 
-	return { content, html };
+		html = html.replace('{Re_Image}', 'a');
+		html = html.replace('{Re_Title}', 'Chuyển tiền thành công');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa thực hiện chuyển tiền thành công, chi tiết:'
+		);
+
+		html = html.replace(
+			'{Re_Content_2}',
+			'<br>STK gửi: ' +
+				accountId +
+				'STK nhận: ' +
+				accountId2 +
+				'<br>Tiền đã gửi: ' +
+				value +
+				currency +
+				'<br>Phí đã trả: ' +
+				fee +
+				currency +
+				'<br>Số dư hiện tại: ' +
+				valueLeft +
+				currency +
+				'<br>Tin đã gửi kèm: ' +
+				message +
+				'<br>'
+		);
+
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.sendAttachments;
+
+		return callback({ content, html, attachments });
+	});
 };
 
 //tin này gửi cho bên nhận (bên B)
@@ -144,9 +207,11 @@ module.exports.transferSuccessMessageDes = function(
 	accountId,
 	accountId2,
 	valueLeft,
-	currency,
-	message
+	currencyIn,
+	message,
+	callback
 ) {
+	const currency = ' ' + currencyIn;
 	const content =
 		'Bạn vừa nhận tiền thành công từ STK' +
 		accountId +
@@ -160,31 +225,46 @@ module.exports.transferSuccessMessageDes = function(
 		'\nTin nhắn: ' +
 		message;
 
-	const html =
-		'<body>' +
-		'<h2>Xin chào ' +
-		lastName +
-		' ' +
-		firstName +
-		',<br><br>Bạn vừa nhận tiền thành công, thông tin chi tiết:</h2>' +
-		'<br>STK gửi: ' +
-		accountId +
-		'<br>STK nhận: ' +
-		accountId2 +
-		'<br>Tiền đã nhận: ' +
-		value +
-		currency +
-		'<br>Số dư còn lại: ' +
-		valueLeft +
-		currency +
-		'<br>Tin nhắn kèm theo: ' +
-		message +
-		'<h3><br>' +
-		thankMessage +
-		signatureHTML +
-		'</h3></body>';
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
 
-	return { content, html };
+		html = html.replace('{Re_Image}', 'b');
+		html = html.replace('{Re_Title}', 'Nhận tiền thành công');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa nhận tiền thành công, chi tiết:'
+		);
+
+		html = html.replace(
+			'{Re_Content_2}',
+			'<br>STK gửi: ' +
+				accountId +
+				'<br>STK nhận: ' +
+				accountId2 +
+				'<br>Tiền đã nhận: ' +
+				value +
+				currency +
+				'<br>Số dư hiện tại: ' +
+				valueLeft +
+				currency +
+				'<br>Tin nhắn kèm theo: ' +
+				message +
+				'<br>'
+		);
+
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.receiveAttachments;
+
+		return callback({ content, html, attachments });
+	});
 };
 
 module.exports.forgotPasswordMessage = function(email, lastName, firstName, forgotCode, callback) {
@@ -194,7 +274,7 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 
 	const content = 'link lấy lại mật khẩu của bạn: ' + linkDirect;
 
-	getHTMLService.getHTMLPattern('button', function(response) {
+	getHTMLService.getHTMLPattern(1, function(response) {
 		var html = response;
 
 		html = html.replace('{Re_Image}', 'verify');
@@ -222,20 +302,30 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 	});
 };
 
-module.exports.transferVerifyMessage = function(email, lastName, firstName, verifyCode) {
+module.exports.transferVerifyMessage = function(email, lastName, firstName, verifyCode, callback) {
 	const content = 'Mã xác minh 2 bước chuyển khoản của bạn là: ' + verifyCode;
-	const html =
-		'<body>' +
-		'<h2>Xin chào ' +
-		lastName +
-		' ' +
-		firstName +
-		',<br><br>Mã xác minh 2 bước chuyển khoản của bạn là:</h2><br><b><h1>' +
-		verifyCode +
-		'</h1></b><br><h3>' +
-		thankMessage +
-		signatureHTML +
-		'</h3></body>';
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
 
-	return { content, html };
+		html = html.replace('{Re_Image}', 'verify');
+		html = html.replace('{Re_Title}', 'Xác minh 2 bước');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa yêu cầu lấy mã xác minh 2 bước để thực hiện giao dịch, mã của bạn là:'
+		);
+
+		html = html.replace('{Re_Content_2}', verifyCode);
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.verifyAttachments;
+
+		return callback({ content, html, attachments });
+	});
 };

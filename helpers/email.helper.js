@@ -10,7 +10,8 @@ async function send(toEmail, emailSubject, emailContent, yourCustomHTML, attach)
 		}
 	});
 
-	if (attach.length > 0 && typeof attach !== 'undefined')
+	//nếu gọi hàm có gọi kèm file attachments thì kèm vào, không thì bỏ qua
+	if (typeof attach !== 'undefined')
 		return transporter.sendMail({
 			from: process.env.EMAIL_FROM,
 			to: toEmail,

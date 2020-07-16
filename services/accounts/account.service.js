@@ -218,16 +218,10 @@ class account extends Model {
 			const newAddBalance = await exchange_currencyService.exchangeMoney(addBalance, request.currency);
 			addBalance = new Decimal(newAddBalance);
 		}
-
-		console.log('\n\n');
 		console.log(newBalance);
-		console.log('+');
 		console.log(addBalance);
-		console.log('------------------------------');
 		newBalance = newBalance.plus(addBalance);
 		console.log(newBalance);
-		console.log('\n\n');
-
 		const result = await account.update(
 			{
 				balance: newBalance
@@ -243,7 +237,7 @@ class account extends Model {
 				'add balance',
 				'id: ' + accountId + ', add:' + request.balance + theChosenAccount.currencyType
 			);
-			return result;
+			return { result, newBalance };
 		}
 		return null;
 	}

@@ -12,9 +12,10 @@ function readModuleFile(path, callback) {
 module.exports.getHTMLPattern = function(patternType, callback) {
 	var path = '';
 
-	if (patternType === 'button') {
+	// = 1 nghĩa là lấy pattern HTML có nút, 0 là không có nút
+	if (patternType == 1) {
 		path = './pattern/pattern_button.html';
-	} else if (patternType === 'default') {
+	} else if (patternType == 0) {
 		path = './pattern/pattern.html';
 	}
 
