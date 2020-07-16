@@ -604,41 +604,41 @@ class User extends Model {
 
 	//update thông tin người dùng
 	static async updateUserInfo(request, currentUser) {
+		const isUserConflict = await User.checkConflictUser(request);
+		if (isUserConflict) return isUserConflict;
+
 		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
 		if (!userId) return null;
 
 		const user = await User.findUserByPKUsingExclude(userId);		
 		if (!user) return null;
 
-		const isUserConflict = await User.checkConflictUser(request);
-		if (isUserConflict) return isUserConflict;
-		
 		var newLastName = request.lastname;
 		if(!newLastName) newLastName = user.lastName;
 
 		var newFirstName = request.firstname;
-		if(!newFirstName) newFirstName = request.firstname;
+		if(!newFirstName) newFirstName = user.firstname;
 
 		var newAddress = request.address;
-		if(!newAddress) newAddress = request.address;
+		if(!newAddress) newAddress = user.address;
 
 		var newStatus = request.status;
-		if(!newStatus) newStatus = request.status;
+		if(!newStatus) newStatus = user.status;
 
 		var newDateOfBirth = request.dateOfBirth;
-		if(!newDateOfBirth) newDateOfBirth = request.dateOfBirth;
+		if(!newDateOfBirth) newDateOfBirth = user.dateOfBirth;
 
-		var newEmail = request.email;
-		if(!newEmail) newEmail = request.email;
+		var newEmail = user.email;
+		if(!newEmail) newEmail = user.email;
 
-		var newUsername = request.username;
-		if(!newUsername) newUsername = request.username;
+		var newUsername = user.username;
+		if(!newUsername) newUsername = user.username;
 
-		var newPhoneNumber = request.phoneNumber;
-		if(!newPhoneNumber) newPhoneNumber = request.phoneNumber;
+		var newPhoneNumber = user.phoneNumber;
+		if(!newPhoneNumber) newPhoneNumber = user.phoneNumber;
 		
-		var newCitizenIdentificationId = request.citizenIdentificationId;
-		if(!newCitizenIdentificationId) newCitizenIdentificationId = request.citizenIdentificationId;
+		var newCitizenIdentificationId = user.citizenIdentificationId;
+		if(!newCitizenIdentificationId) newCitizenIdentificationId = user.citizenIdentificationId;
 
 		const resultupdate = await user.update(
 		{
