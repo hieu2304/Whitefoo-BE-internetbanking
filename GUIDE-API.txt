@@ -285,3 +285,18 @@ chuyển khoản nội bộ:
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
         
+/api/updateinfo
+    method: POST
+    params:
+        userId:2 (1 user phải tồn tại trong DB)
+        lastname:hieu
+        firstname:dang
+        status:0
+        phoneNumber:0129391232
+        email:dangtrunghieu2304@gmail.com
+        username:hieudang
+        citizenIdentificationId:123012039128
+        dateOfBirth:19/02/2012
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+        

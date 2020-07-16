@@ -602,42 +602,91 @@ class User extends Model {
 		return null;
 	}
 
+	//update thông tin người dùng
 	static async updateUserInfo(request, currentUser) {
-		// const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
-		// if (!userId) return null;
-		// const updateUser = await User.findUserByPKNoneExclude(userId);
-		// if (!updateUser) return null;
-		// const resultupdate = await account.update(
-		// 	{
-		// 		lastname: request.lastname,
-		// 		firstName: request.firstname,
-		// 		address: request.address,
-		// 		status: request.status,
-		// 		dateOfBirth: request.dateOfBirth
-		// 	},
-		// 	{
-		// 		where: { userId: userId }
-		// 	}
-		// );
-		// if (resultupdate) {
-		// 	await audit_log.pushAuditLog(
-		// 		currentUser.id,
-		// 		updateUser.userId,
-		// 		'update info',
-		// 		'update ' +
-		// 			userId +
-		// 			': ' +
-		// 			request.lastname +
-		// 			',' +
-		// 			request.firstname +
-		// 			',' +
-		// 			request.address +
-		// 			',' +
-		// 			request.dateOfBirth +
-		// 			',' +
-		// 			request.status
-		// 	);
-		// }
+		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
+		if (!userId) return null;
+
+		const user = await User.findUserByPKUsingExclude(userId);		
+		if (!user) return null;
+
+		const isUserConflict = await User.checkConflictUser(request);
+		if (isUserConflict) return isUserConflict;
+		
+		var newLastName = request.lastname;
+		if(!newLastName) newLastName = user.lastName;
+
+		var newFirstName = request.firstname;
+		if(!newFirstName) newFirstName = request.firstname;
+
+		var newAddress = request.address;
+		if(!newAddress) newAddress = request.address;
+
+		var newStatus = request.status;
+		if(!newStatus) newStatus = request.status;
+
+		var newDateOfBirth = request.dateOfBirth;
+		if(!newDateOfBirth) newDateOfBirth = request.dateOfBirth;
+
+		var newEmail = request.email;
+		if(!newEmail) newEmail = request.email;
+
+		var newUsername = request.username;
+		if(!newUsername) newUsername = request.username;
+
+		var newPhoneNumber = request.phoneNumber;
+		if(!newPhoneNumber) newPhoneNumber = request.phoneNumber;
+		
+		var newCitizenIdentificationId = request.citizenIdentificationId;
+		if(!newCitizenIdentificationId) newCitizenIdentificationId = request.citizenIdentificationId;
+
+		const resultupdate = await user.update(
+		{
+		 		lastName: newLastName,
+		 		firstName: newFirstName,
+		 		address: newAddress,
+		 		status: newStatus,
+				dateOfBirth:newDateOfBirth,
+				email:newEmail,
+				phoneNumber:newPhoneNumber,
+				username:newUsername,
+				citizenIdentificationId:newCitizenIdentificationId
+
+		},
+		{
+		 		where: { userId: userId }
+		});
+
+		const result = await User.findUserByPKNoneExclude(userId);		
+		if (resultupdate) {
+			await audit_log.pushAuditLog(
+		 	 	currentUser.id,
+		 		userId,
+		 	 	'update info',
+		 	 	'update ' +
+		 	 		userId +
+		 	 		': ' +
+					newLastName +
+		 	 		',' +
+		 	 		newFirstName +
+		 	 		',' +
+		 	 		newAddress +
+		 	 		',' +
+		 	 		newDateOfBirth +
+		 	 		',' +
+					newStatus +
+					','+
+					newCitizenIdentificationId+
+					','+
+					newPhoneNumber+
+					','+
+					newUsername+
+					','+
+					newEmail
+			  );
+			 const result = await User.findUserByPKUsingExclude(request.id);		
+			 return result;
+		 }
 		return null;
 	}
 
