@@ -167,8 +167,8 @@ module.exports.transferSuccessMessageDes = function(
 };
 
 module.exports.forgotPasswordMessage = function(email, lastName, firstName, forgotCode) {
-	//${HOST_URL}/forgotpassword?token=fapfapfap
-	const linkDirect = process.env.HOST_URL + '/forgotpassword?token=' + forgotCode;
+	//${HOST_URL}/passwordrecovery?token=fapfapfap
+	const linkDirect = process.env.HOST_URL + '/passwordrecovery?token=' + forgotCode;
 	const content = 'link lấy lại mật khẩu của bạn: ' + linkDirect;
 	const html =
 		'<body>' +
