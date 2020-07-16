@@ -326,19 +326,23 @@ class User extends Model {
 
 		//send email here
 		if (newUser) {
-			const newEmailVerifyMessage = makeMessageHelper.verifyEmailMessage(
+			makeMessageHelper.verifyEmailMessage(
 				newUser.email,
 				newUser.lastName,
 				newUser.firstName,
-				newActiveCode
-			);
-			await emailHelper.send(
-				newUser.email,
-				'Kích hoạt tài khoản',
-				newEmailVerifyMessage.content,
-				newEmailVerifyMessage.html
+				newActiveCode,
+				function(response) {
+					emailHelper.send(
+						newUser.email,
+						'Kích hoạt tài khoản',
+						response.content,
+						response.html,
+						response.attachments
+					);
+				}
 			);
 		}
+
 		//return null to controller know action was success
 		return null;
 	}
@@ -364,6 +368,8 @@ class User extends Model {
 
 	//quên mật khẩu bước 1: tạo forgotCode và gửi email cho user quên mât khẩu
 	static async ForgotPasswordStepOne(request) {
+		if (typeof request.email === 'undefined' || request.email === '' || request.email === ' ') return null;
+
 		//tìm user
 		//user phải kích hoạt email rồi mới quên mật khẩu lấy lại qua email được
 		const forgotPasswordUser = await User.findOne({
@@ -387,17 +393,20 @@ class User extends Model {
 		);
 		//send email here
 		if (forgotPasswordUser) {
-			const newEmailVerifyMessage = makeMessageHelper.forgotPasswordMessage(
+			makeMessageHelper.forgotPasswordMessage(
 				forgotPasswordUser.email,
 				forgotPasswordUser.lastName,
 				forgotPasswordUser.firstName,
-				newForgotCode
-			);
-			await emailHelper.send(
-				forgotPasswordUser.email,
-				'Lấy lại mật khẩu',
-				newEmailVerifyMessage.content,
-				newEmailVerifyMessage.html
+				newForgotCode,
+				function(response) {
+					emailHelper.send(
+						forgotPasswordUser.email,
+						'Khôi phục mật khẩu',
+						response.content,
+						response.html,
+						response.attachments
+					);
+				}
 			);
 		}
 

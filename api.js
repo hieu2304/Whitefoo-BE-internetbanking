@@ -6,7 +6,7 @@ const scheduleHelper = require('./helpers/schedule.helper');
 
 //################## SCHEDULE HERE ##################
 
-scheduleHelper.WhiteFooScheduleAll();
+//scheduleHelper.WhiteFooScheduleAll();
 
 //################## CÁC API KHÔNG AUTHENTICATION ##################
 

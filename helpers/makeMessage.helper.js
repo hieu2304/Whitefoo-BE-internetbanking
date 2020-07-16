@@ -1,29 +1,46 @@
+const getHTMLService = require('../constants/getHTML.constant');
+const getAttachments = require('../constants/attachments.constant');
+var fs = require('fs');
+const { response } = require('express');
+
 const registerThankMessage =
 	'Cảm ơn bạn đã tin tưởng và đăng ký whitefooBank của chúng tôi, chúng tôi hy vọng sẽ mang lại cho bạn trải nghiệm tốt nhất!';
-const thankMessage = 'Cảm ơn bạn đã tin tưởng và sử dụng whitefooBank của chúng tôi!';
+const thankMessage = 'Cảm ơn bạn đã tin tưởng và sử dụng WhiteFoo Bank của chúng tôi!';
 const signature = 'whitefooBank © 2020';
 const signatureHTML = '<br><p>Trân trọng, ' + signature + '</p>';
 
-module.exports.verifyEmailMessage = function(email, lastName, firstName, activeCode) {
+module.exports.verifyEmailMessage = function(email, lastName, firstName, activeCode, callback) {
 	//${HOST_URL}/activate?token=qwerty
-	const linkDirect = process.env.HOST_URL + '/activate?token=' + activeCode;
-	const content = 'link kích hoạt tài khoản: ' + linkDirect;
-	const html =
-		'<body>' +
-		'<h2>Xin chào ' +
-		lastName +
-		' ' +
-		firstName +
-		',<br><br>Đường dẫn kích hoạt tài khoản của bạn là:<br><b>' +
-		'<a href="' +
-		linkDirect +
-		'">Bấm vào đây</a>' +
-		'</b></h2><br><h3>' +
-		registerThankMessage +
-		signatureHTML +
-		'</h3></body>';
 
-	return { content, html };
+	const linkDirect = process.env.HOST_URL + '/activate?token=' + activeCode;
+
+	const content = 'link kích hoạt tài khoản: ' + linkDirect;
+
+	getHTMLService.getHTMLPattern('button', function(response) {
+		var html = response;
+		html = html.replace('{Re_Image}', 'email');
+		html = html.replace('{Re_Title}', 'Kích hoạt tài khoản');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa đăng ký tài khoản thành công, hãy bấm nút bên dưới để kích hoạt tài khoản!'
+		);
+
+		html = html.replace('{Re_Content_2}', '');
+		html = html.replace('{Re_Thanks_Message}', registerThankMessage);
+		html = html.replace('{Re_Button}', 'Kích hoạt');
+		html = html.replace('{Re_Button_URl}', linkDirect);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.emailAttachments;
+
+		return callback({ content, html, attachments });
+	});
 };
 
 module.exports.resendVerifyEmailMessage = function(email, lastName, firstName, activeCode) {
@@ -170,26 +187,39 @@ module.exports.transferSuccessMessageDes = function(
 	return { content, html };
 };
 
-module.exports.forgotPasswordMessage = function(email, lastName, firstName, forgotCode) {
+module.exports.forgotPasswordMessage = function(email, lastName, firstName, forgotCode, callback) {
 	//${HOST_URL}/passwordrecovery?token=fapfapfap
-	const linkDirect = process.env.HOST_URL + '/passwordrecovery?token=' + forgotCode;
-	const content = 'link lấy lại mật khẩu của bạn: ' + linkDirect;
-	const html =
-		'<body>' +
-		'<h2>Xin chào ' +
-		lastName +
-		' ' +
-		firstName +
-		',<br><br>Đường dẫn lấy lại mật khẩu của bạn là:<br><b>' +
-		'<a href="' +
-		linkDirect +
-		'">Bấm vào đây</a>' +
-		'</b></h2><br><h3>' +
-		thankMessage +
-		signatureHTML +
-		'</h3></body>';
 
-	return { content, html };
+	const linkDirect = process.env.HOST_URL + '/passwordrecovery?token=' + forgotCode;
+
+	const content = 'link lấy lại mật khẩu của bạn: ' + linkDirect;
+
+	getHTMLService.getHTMLPattern('button', function(response) {
+		var html = response;
+
+		html = html.replace('{Re_Image}', 'verify');
+		html = html.replace('{Re_Title}', 'Khôi phục mật khẩu');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa yêu cầu khôi phục mật khẩu, hãy bấm nút bên dưới để tiến hành quy trình khôi phục mật khẩu!'
+		);
+
+		html = html.replace('{Re_Content_2}', '');
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_Button}', 'Khôi phục');
+		html = html.replace('{Re_Button_URl}', linkDirect);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.verifyAttachments;
+
+		return callback({ content, html, attachments });
+	});
 };
 
 module.exports.transferVerifyMessage = function(email, lastName, firstName, verifyCode) {
