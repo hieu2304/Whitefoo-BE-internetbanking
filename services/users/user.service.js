@@ -14,7 +14,6 @@ const fee_paymentService = require('../accounts/fee_payment.service');
 const Decimal = require('decimal.js');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 const requestService = require('request');
-const account = require('../accounts/account.service');
 
 class User extends Model {
 	static async findUserByPKNoneExclude(id) {
@@ -625,7 +624,8 @@ class User extends Model {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
 		const ErrorsList = [];
 		const errorListTransfer = errorListConstant.transferErrorValidate;
-		const accountId = typeof request.id !== 'undefined' ? request.id : request.accountId;
+		const accountId =
+			typeof request.requestAccountId !== 'undefined' ? request.requestAccountId : request.accountId;
 
 		if (!accountId) {
 			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
@@ -691,6 +691,47 @@ class User extends Model {
 		return null;
 	}
 	//BƯỚC 2 (hàm này chỉ xài cho internal)
+	/*
+	có 4 TH xảy ra:
+	TH1: bên gửi USD, bên nhận VND
+		kiểm tra MIN và MAX: 
+			chuyển USD value sang VND rồi kiểm tra vì bảng quy định theo VND
+		tính phí: 
+			chuyển USD value sang VND vì bảng phí theo VND->tính xog chuyển ngược về USD
+		chuyển khoản:
+			+ trừ A (phí đã chuyển về USD+value)
+			+ cộng B: chuyển USD value sang VND vì bên B xài VND
+
+
+	TH2: bên gửi USD, bên nhận USD
+		kiểm tra MIN và MAX: 
+			chuyển USD value sang VND rồi kiểm tra vì bảng quy định theo VND
+		tính phí:
+			chuyển USD value sang VND vì bảng phí theo VND->tính xog chuyển ngược về USD
+		chuyển khoản:
+			+ trừ A (phí đã chuyển về USD+value)
+			+ cộng B: USD value
+
+
+	TH3: bên gửi VND, bên nhận USD
+		kiểm tra MIN và MAX: 
+			kiểm tra VND value
+		tính phí: 
+			tính phí dựa vào VND value
+		chuyển khoản:
+			+ trừ A (phí+value VND)
+			+ cộng B: chuyển VND value sang USD vì bên B xài USD
+
+
+	TH4: bên gửi VND, bên nhận VND
+		kiểm tra MIN và MAX: 
+			kiểm tra VND value
+		tính phí: 
+			tính phí dựa vào VND value
+		chuyển khoản:
+			+ trừ A (phí+value VND)
+			+ cộng B: VND value
+	*/
 	static async transferInternalStepTwo(request, currentUser) {
 		var message = request.message;
 		if (!message || message == ' ' || message == '') message = 'Không có tin nhắn kèm theo!';
@@ -701,6 +742,12 @@ class User extends Model {
 		var money = new Decimal(request.money); //tiền để tính toán ở bên gửi
 		var transferMoney = new Decimal(request.money); //tiền để tính toán ở bên nhận
 		const foundAccount = await accountService.getAccountNoneExclude(requestAccountId);
+
+		//không cho phép tài khoản gửi và nhận là 1
+		if (requestAccountId === accountId) {
+			ErrorsList.push(errorListTransfer.SELF_DETECT);
+			return ErrorsList;
+		}
 
 		//nếu không tìm thấy hoặc tài khoản bên gửi không thuộc loại thanh toán
 		if (!foundAccount || foundAccount.accountType !== '0') {
@@ -716,7 +763,7 @@ class User extends Model {
 
 		//nếu giá trị muốn gửi quá thấp thì không cho gửi, tối thiểu 20k VND
 		//kiểm tra giới hạn trong ngày, tháng, đợt giao dịch
-		//bên gửi xài đơn vị khác VND thì chuyển về VND TẠM THỜI để kiểm tra
+		//bên gửi xài đơn vị khác VND thì chuyển về VND TẠM THỜI để kiểm tra(TH1 và TH2)
 		if (foundAccount.currencyType !== 'VND') {
 			//đổi toàn bộ tiền gửi dạng USD(money) sang tiền VND(tempMoney)
 			var tempMoney = await exchange_currencyService.exchangeMoney(money, foundAccount.currencyType);
@@ -762,7 +809,7 @@ class User extends Model {
 
 		//kiếm tra tiền muốn gửi + phí bên gửi có đủ không
 		//tính phí với giá tiền muốn gửi hiện tại, '1' là nội bộ, '0' là liên ngân hàng
-		//LƯU Ý: FEE NÀY CHỈ TÍNH CHO MỆNH GIÁ LÀ VNĐ, tính phí phải chuyển sang VND hết rồi chuyển lại sau
+		//LƯU Ý: FEE NÀY CHỈ TÍNH CHO MỆNH GIÁ LÀ VNĐ, tính phí phải chuyển sang VND hết rồi chuyển lại sau (TH1 và TH2)
 		var newFee = new Decimal(0.0);
 		if (foundAccount.currencyType !== 'VND') {
 			//đổi toàn bộ tiền gửi USD(money) sang tiền VND(tempMoney) để tính chi phí, vì bảng phí ta để theo VND
@@ -773,7 +820,7 @@ class User extends Model {
 			newFee = await fee_paymentService.getTransferFee(money, '1');
 		}
 
-		//vì phí tính theo VND, để tính toán +- vào tài khoản xài USD thì phải chuyển về USD
+		//vì phí tính theo VND, để tính toán +- vào tài khoản xài USD thì phải chuyển về USD (TH1 và TH2)
 		if (foundAccount.currencyType !== 'VND') {
 			newFee = await exchange_currencyService.exchangeMoney(newFee, 'VND');
 			console.log(newFee);
@@ -807,6 +854,7 @@ class User extends Model {
 		//sau khi hoàn thành các đợt kiểm tra, tiến hành chuyển khoản Internal
 
 		//B1: kiểm tra đơn vị tiền tệ 2 bên, đổi cho bên nhận nếu cần thiết
+		//(TH1 và TH3)
 		if (foundAccount.currencyType !== foundAccountDes.currencyType) {
 			//Total = value + fee, chỉ chuyển value sang đơn vị của bên nhận
 			transferMoney = await exchange_currencyService.exchangeMoney(money, foundAccount.currencyType);

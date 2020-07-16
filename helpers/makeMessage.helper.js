@@ -76,15 +76,17 @@ module.exports.transferSuccessMessage = function(
 	const content =
 		'Bạn vừa chuyển tiền thành công từ STK' +
 		accountId +
-		'tiền gửi :' +
+		'\ntiền gửi :' +
 		value +
 		currency +
-		' cho STK: ' +
+		'\ncho STK: ' +
 		accountId2 +
-		', phí đã trả là: ' +
+		'\nPhí đã trả: ' +
 		fee +
-		', số dư còn lại: ' +
-		valueLeft;
+		'\nSố dư còn lại: ' +
+		valueLeft +
+		'\nTin nhắn: ' +
+		message;
 
 	const html =
 		'<body>' +
@@ -131,13 +133,15 @@ module.exports.transferSuccessMessageDes = function(
 	const content =
 		'Bạn vừa nhận tiền thành công từ STK' +
 		accountId +
-		'tiền nhận :' +
+		'\nTiền nhận :' +
 		value +
 		currency +
-		' cho STK: ' +
+		'\nSTK nhận: ' +
 		accountId2 +
-		', số dư còn lại: ' +
-		valueLeft;
+		'\nSố dư còn lại: ' +
+		valueLeft +
+		'\nTin nhắn: ' +
+		message;
 
 	const html =
 		'<body>' +

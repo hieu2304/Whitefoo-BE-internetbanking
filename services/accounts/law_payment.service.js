@@ -4,6 +4,10 @@ const initConstant = require('../../constants/init.constants');
 const Model = Sequelize.Model;
 
 class law_payment extends Model {
+	static async getLawPayment() {
+		const list = await law_payment.findAll({ order: [ [ 'id', 'ASC' ] ] });
+		return list;
+	}
 	static async initBaseValueLaw_Payment() {
 		//xóa dữ liệu cũ
 		await law_payment.destroy({
