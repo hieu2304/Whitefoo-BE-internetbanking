@@ -1,24 +1,24 @@
 CÁC THÔNG TIN NÊN NHỚ:
 
 - Bảng User:
-    + isApproved: 1 là đã kích hoạt CMND, 0 là chưa kích hoạt CMND
-    + userType: '1' là khách hàng và '0' là nhân viên
-    + status:   '1' = OK, '0' = Locked
-    + verifyCode, activeCode, forgotCode: '' nghĩa là đã kích hoạt, không trống nghĩa là chưa 
+    + isApproved: 1 là đã kích hoạt CMND, 0 là chưa kích hoạt CMND  (INTERGER)
+    + userType: '1' là khách hàng và '0' là nhân viên (STRING)
+    + status:   '1' = OK, '0' = Locked  (STRING)
+    + verifyCode, activeCode, forgotCode: '' nghĩa là đã kích hoạt, còn lại nghĩa là chưa  (STRING)
 
 - Bảng account:
-    + accountType: '1' là accumulated (tiết kiệm), '0' là payment (thanh toán)
-    + status: '1' là OK, '0' closed, '-1'là locked
+    + accountType: '1' là accumulated (tiết kiệm), '0' là payment (thanh toán)  (STRING)
+    + status: '1' là OK, '0' closed, '-1'là locked  (STRING)
 
 - Bảng fee_payment:
-    + transferType: '1' chuyển nội bộ, '0' is chuyển liên ngân hàng
+    + transferType: '1' chuyển nội bộ, '0' is chuyển liên ngân hàng (STRING)
 
 - Bảng history_payment:
-    + transferType: '1' chuyển nội bộ, '0' is chuyển liên ngân hàng
-    + status:   '1' = OK, '0' = failed
+    + transferType: '1' chuyển nội bộ, '0' is chuyển liên ngân hàng (STRING)
+    + status:   '1' = OK, '0' = failed  (STRING)
 
 - bảng history_accumulated:
-    + status:   '1' = OK, '0' = failed
+    + status:   '1' = OK, '0' = failed  (STRING)
 
 
 #########################
@@ -140,16 +140,6 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
 
 
-/api/post
-    method: GET
-    note: api này tạm để test , xóa sau
-    điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
-    params:
-        token: token còn đang hiệu lực
-        clientId:515hwrFpeLvGeVo2SvSe
-        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
-
-
 /api/changepassword
 (người dùng sau khi login tự đổi mật khẩu chính mình)
     method: POST và GET
@@ -203,7 +193,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 /api/requeststaff
 (Người dùng muốn lên nhân viên ngân hàng, chỉ thằng đầu tiên sẽ dc)
     method: POST
-    điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
+    điều kiện: đã login, đã xác nhận email, chưa kích hoạt CMND
         params:
             id:1 hoặc ko cần id
             clientId:515hwrFpeLvGeVo2SvSe
@@ -212,7 +202,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 /api/requeststaff
 (đếm số nhân viên hiện tại)
     method: GET
-    điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
+    điều kiện: đã login, đã xác nhận email, chưa kích hoạt CMND
     params: không
 
 

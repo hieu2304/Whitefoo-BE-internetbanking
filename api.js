@@ -39,8 +39,6 @@ router.use('/', require('./routes/token.route'));
 router.use(authMiddleware.authAll);
 
 //các api người dùng sử dụng sau khi login, verify hết các kiểu
-//API test
-router.use('/post', require('./routes/post.route'));
 
 //các API tính năng người dùng sau khi login thành công: đổi mật khẩu, chuyển khoản...
 router.use('/', require('./routes/functional.route'));
