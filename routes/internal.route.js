@@ -27,4 +27,8 @@ router.post('/addbalance', controller.postAddBalance);
 
 //nhân viên cập nhật thông tin người dùng nào đó
 router.post('/updateinfo', controller.postUpdateInfo);
+
+//nhân viên cập nhật tài khoản 
+router.post("/updateaccount",controller.postUpdateAccount);
+
 module.exports = router;

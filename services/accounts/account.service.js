@@ -242,6 +242,54 @@ class account extends Model {
 		return null;
 	}
 
+	static async updateAccount(request, currentUser){
+		//lấy accountId ra
+		const accountId = typeof request.accountId !== 'undefined' ? request.accountId : request.id;
+		if (!accountId) return null
+
+		//tìm kiếm accountId trong DB
+		const theChosenAccount = await account.findOne({
+			where: {
+				accountId: accountId
+			}
+		});
+		if (!theChosenAccount) return null;
+
+		var newStatus = request.status;
+		if(!newStatus) newStatus = theChosenAccount.status;
+
+		var newCurrencyType=request.currency;
+		if(!newCurrencyType) newCurrencyType = theChosenAccount.currencyType;
+
+		var  newAddBalance = new Decimal(theChosenAccount.balance);
+		//exchange_currencyService
+		if (theChosenAccount.currencyType !== request.currency) {
+			 newAddBalance = await exchange_currencyService.exchangeMoney(newAddBalance, request.currency);
+		}
+
+		//update thông tin accountId
+		const result = await account.update(
+			{
+				status: newStatus,
+				currencyType:newCurrencyType,
+				addBalance:newAddBalance
+			},
+			{
+				where: { accountId: accountId }
+			}
+		);
+		// push xuống log
+		if (result) {
+			await audit_log.pushAuditLog(
+				currentUser.id,
+				theChosenAccount.userId,
+				'update account',
+				'id: ' + accountId + ', update:' 
+			);
+			return { result, newStatus };
+		}
+		return null;
+	}
 	static async updateDaysAndTermsPassedForAccumulated() {
 		//lấy danh sách các tài khoản là tài khoản tiết kiệm
 		//và đang tình trạng ok

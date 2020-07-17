@@ -13,6 +13,7 @@ const errorListConstant = require('../../constants/errorsList.constant');
 const fee_paymentService = require('../accounts/fee_payment.service');
 const Decimal = require('decimal.js');
 const exchange_currencyService = require('../currency/exchange_currency.service');
+const audit_logService = require('../users/audit_log.service');
 const requestService = require('request');
 
 class User extends Model {
@@ -602,42 +603,155 @@ class User extends Model {
 		return null;
 	}
 
+	//update thông tin người dùng
 	static async updateUserInfo(request, currentUser) {
-		// const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
-		// if (!userId) return null;
-		// const updateUser = await User.findUserByPKNoneExclude(userId);
-		// if (!updateUser) return null;
-		// const resultupdate = await account.update(
-		// 	{
-		// 		lastname: request.lastname,
-		// 		firstName: request.firstname,
-		// 		address: request.address,
-		// 		status: request.status,
-		// 		dateOfBirth: request.dateOfBirth
-		// 	},
-		// 	{
-		// 		where: { userId: userId }
-		// 	}
-		// );
-		// if (resultupdate) {
-		// 	await audit_log.pushAuditLog(
-		// 		currentUser.id,
-		// 		updateUser.userId,
-		// 		'update info',
-		// 		'update ' +
-		// 			userId +
-		// 			': ' +
-		// 			request.lastname +
-		// 			',' +
-		// 			request.firstname +
-		// 			',' +
-		// 			request.address +
-		// 			',' +
-		// 			request.dateOfBirth +
-		// 			',' +
-		// 			request.status
-		// 	);
-		// }
+		const errorList = [];
+
+		//dùng các constant lỗi tương đối giống register nên dùng chung error của register
+		const registerErrors = errorListConstant.registerErrorValidate;
+
+		//nếu không truyền userId hoặc id để tìm được user
+		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
+		if (!userId) {
+			errorList.push(registerErrors.USER_NOT_FOUND);
+			return errorList;
+		}
+
+		//nếu id user không tồn tại
+		const user = await User.findUserByPKUsingExclude(userId);
+		if (!user) {
+			errorList.push(registerErrors.USER_NOT_FOUND);
+			return errorList;
+		}
+		//mô tả logic
+		//vì muốn DB chỉ update 1 lần gọi
+		//nên nếu người dùng có nhập thì kiểm tra trùng và tính hợp lệ
+		//nếu người dùng ko nhập thì set giá trị cũ
+
+		var newLastName = request.lastname;
+		if (!newLastName) newLastName = user.lastName;
+
+		var newFirstName = request.firstname;
+		if (!newFirstName) newFirstName = user.firstname;
+
+		var newAddress = request.address;
+		if (!newAddress) newAddress = user.address;
+
+		//'1' = OK, '0' = Locked, chỉ nhận 2 dạng tình trạng tài khoản
+		var newStatus = request.status;
+		if (!newStatus) newStatus = user.status;
+		else if (newStatus !== '1' || newStatus !== '0') newStatus = user.status;
+
+		//userType: '1' là khách hàng và '0' là nhân viên, chỉ nhận 2 dạng này
+		var newUserType = request.userType;
+		if (!newUserType) newUserType = user.userType;
+		else if (newUserType !== '1' || newUserType !== '0') newStatus = user.status;
+
+		//chỉnh định dạng date theo yêu cầu của postgre
+		var newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+		if (!newDateOfBirth) newDateOfBirth = user.dataValues.dateOfBirth; //bỏ qua getter
+
+		var newEmail = request.email;
+		//nếu ng dùng có nhập email và khác email cũ
+		if (newEmail && newEmail != user.email) {
+			//Kiểm tra trùng với ng khác
+			var isConflict = await User.checkConflictEmail(newEmail);
+			if (isConflict) {
+				errorList.push(registerErrors.EMAIL_CONFLICT);
+				newEmail = user.email;
+			}
+			//Regular Expresion...type: Email
+		} else {
+			//nếu ng dùng ko nhập email và các TH còn lại
+			newEmail = user.email;
+		}
+
+		var newUsername = request.username;
+		if (newUsername && newUsername != user.username) {
+			//Kiểm tra trùng với ai khác
+			var isConflict = await User.checkConflictUserName(newUsername);
+			if (isConflict) {
+				errorList.push(registerErrors.USERNAME_CONFLICT);
+				newUsername = user.username;
+			}
+		} else {
+			newUsername = user.username;
+		}
+
+		var newPhoneNumber = request.phoneNumber;
+		if (newPhoneNumber && newPhoneNumber != user.phoneNumber) {
+			//Kiểm tra SDT trùng
+			var isConflict = await User.checkConflictPhoneNumber(newPhoneNumber);
+			if (isConflict) {
+				errorList.push(registerErrors.PHONENUMBER_CONFLICT);
+				newPhoneNumber = user.phoneNumber;
+			}
+		} else {
+			newPhoneNumber = user.phoneNumber;
+		}
+
+		var newCitizenIdentificationId = request.citizenIdentificationId;
+		if (newCitizenIdentificationId && newCitizenIdentificationId != user.citizenIdentificationId) {
+			//Kiểm tra CMND trùng
+			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
+			if (isConflict) {
+				errorList.push(registerErrors.CITIZENIDENTIFICATIONID_CONFLICT);
+				newCitizenIdentificationId = user.newCitizenIdentificationId;
+			}
+			newCitizenIdentificationId = user.newCitizenIdentificationId;
+		} else {
+		}
+
+		if (errorList.length > 0) return errorList;
+
+		//update thông tin user
+		const resultupdate = await user.update(
+			{
+				lastName: newLastName,
+				firstName: newFirstName,
+				address: newAddress,
+				status: newStatus, // chỉ nhận '0' và '1'
+				dateOfBirth: newDateOfBirth,
+				userType: newUserType, // chỉ nhận '0' và '1'
+				email: newEmail,
+				phoneNumber: newPhoneNumber,
+				username: newUsername,
+				citizenIdentificationId: newCitizenIdentificationId
+			},
+			{
+				where: { userId: userId }
+			}
+		);
+
+		//push xuống log
+		const result = await User.findUserByPKNoneExclude(userId);
+		if (resultupdate) {
+			await audit_logService.pushAuditLog(
+				currentUser.id,
+				userId,
+				'update info',
+				'update ' +
+					userId +
+					': ' +
+					newLastName +
+					',' +
+					newFirstName +
+					',' +
+					newAddress +
+					',' +
+					newDateOfBirth +
+					',' +
+					newStatus +
+					',' +
+					newCitizenIdentificationId +
+					',' +
+					newPhoneNumber +
+					',' +
+					newUsername +
+					',' +
+					newEmail
+			);
+		}
 		return null;
 	}
 

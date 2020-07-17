@@ -132,7 +132,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 ####################[ các api User - user có quyền hạn mức độ người dùng ]##################
 
 /api/auth/logout
-    method: GET
+    method: GET (không sử dụng POST)
     điều kiện: đã login
     params:
         clientId:515hwrFpeLvGeVo2SvSe
@@ -282,6 +282,23 @@ chuyển khoản nội bộ:
         accountId:993425809660893 (1 account phải tồn tại trong DB)
         balance:69.915156324776543577463978956340462871944791856968 (giá trị muốn thêm)
         currency:VND (chỉ nhận duy nhất VND hoặc USD)
+        clientId:515hwrFpeLvGeVo2SvSe
+        secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+        
+/api/updateinfo
+    mô tả thêm: sẽ không lỗi nếu để trống hoặc nhập giá trị cũ
+    method: POST
+    params:
+        userId:2 (1 user phải tồn tại trong DB, có thể dùng tên key là id hoặc userId tùy thích)
+        userType:0 (chỉ nhận 0 hoặc 1, String)
+        lastname:hieu
+        firstname:dang
+        status:0    (chỉ nhận 0 hoặc 1, String)
+        phoneNumber:0129391232
+        email:dangtrunghieu2304@gmail.com
+        username:hieudang
+        citizenIdentificationId:123012039128
+        dateOfBirth:19/02/2012
         clientId:515hwrFpeLvGeVo2SvSe
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
         
