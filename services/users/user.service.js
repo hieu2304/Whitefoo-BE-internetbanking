@@ -529,7 +529,11 @@ class User extends Model {
 	//hàm user xem thông tin bản thân dựa vào id
 	static async getInfo(request) {
 		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id.toString());
+
+		//dùng để trả về
 		var user = await User.findUserByPKUsingExclude(request.id);
+
+		//dùng để xử lý logic
 		const checkUser = await User.findUserByPKNoneExclude(request.id);
 
 		//keep the dateOfBirth that formatted by Getters
@@ -537,17 +541,17 @@ class User extends Model {
 		user = user.dataValues;
 		user.dateOfBirth = dateOfBirth;
 
+		user.emailVerified = true;
 		if (checkUser.activeCode !== '') {
 			user.emailVerified = false;
-			console.log(user.emailVerified);
-		}
-		if (checkUser.citizenIdentificationId == null || checkUser.citizenIdentificationId === '') {
-			user.citizenIdentificationIdVerified = false;
-			console.log(user.citizenIdentificationIdVerified);
 		}
 
-		//console.log(user);
-		return { user, accountList };
+		user.citizenIdentificationIdVerified = true;
+		if (checkUser.citizenIdentificationId == null || checkUser.citizenIdentificationId === '') {
+			user.citizenIdentificationIdVerified = false;
+		}
+
+		return user;
 	}
 
 	//hàm nhân viên xem thông tin ai đó hoặc bản thân, ko ẩn bất kỳ fields nào
@@ -603,7 +607,7 @@ class User extends Model {
 		return null;
 	}
 
-	//update thông tin người dùng
+	//update thông tin người dùng gọi từ nhân viên
 	static async updateUserInfo(request, currentUser) {
 		const errorList = [];
 
@@ -640,16 +644,21 @@ class User extends Model {
 		//'1' = OK, '0' = Locked, chỉ nhận 2 dạng tình trạng tài khoản
 		var newStatus = request.status;
 		if (!newStatus) newStatus = user.status;
-		else if (newStatus !== '1' || newStatus !== '0') newStatus = user.status;
+		else if (newStatus !== '1' && newStatus !== '0') newStatus = user.status;
 
 		//userType: '1' là khách hàng và '0' là nhân viên, chỉ nhận 2 dạng này
 		var newUserType = request.userType;
 		if (!newUserType) newUserType = user.userType;
-		else if (newUserType !== '1' || newUserType !== '0') newStatus = user.status;
+		else if (newUserType !== '1' && newUserType !== '0') newStatus = user.status;
 
-		//chỉnh định dạng date theo yêu cầu của postgre
-		var newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
-		if (!newDateOfBirth) newDateOfBirth = user.dataValues.dateOfBirth; //bỏ qua getter
+		//chỉnh định dạng date theo yêu cầu của postgre là YYYY-MM-DD
+		var newDateOfBirth = request.dateOfBirth;
+		if (!newDateOfBirth) {
+			newDateOfBirth = user.dataValues.dateOfBirth; //bỏ qua getter
+		} else {
+			//chỉ format khi và chỉ khi khác data cũ, hạn chế xài format tránh lỗi
+			newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+		}
 
 		var newEmail = request.email;
 		//nếu ng dùng có nhập email và khác email cũ
@@ -658,7 +667,6 @@ class User extends Model {
 			var isConflict = await User.checkConflictEmail(newEmail);
 			if (isConflict) {
 				errorList.push(registerErrors.EMAIL_CONFLICT);
-				newEmail = user.email;
 			}
 			//Regular Expresion...type: Email
 		} else {
@@ -672,7 +680,6 @@ class User extends Model {
 			var isConflict = await User.checkConflictUserName(newUsername);
 			if (isConflict) {
 				errorList.push(registerErrors.USERNAME_CONFLICT);
-				newUsername = user.username;
 			}
 		} else {
 			newUsername = user.username;
@@ -684,7 +691,6 @@ class User extends Model {
 			var isConflict = await User.checkConflictPhoneNumber(newPhoneNumber);
 			if (isConflict) {
 				errorList.push(registerErrors.PHONENUMBER_CONFLICT);
-				newPhoneNumber = user.phoneNumber;
 			}
 		} else {
 			newPhoneNumber = user.phoneNumber;
@@ -696,10 +702,9 @@ class User extends Model {
 			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
 			if (isConflict) {
 				errorList.push(registerErrors.CITIZENIDENTIFICATIONID_CONFLICT);
-				newCitizenIdentificationId = user.newCitizenIdentificationId;
 			}
-			newCitizenIdentificationId = user.newCitizenIdentificationId;
 		} else {
+			newCitizenIdentificationId = user.newCitizenIdentificationId;
 		}
 
 		if (errorList.length > 0) return errorList;
@@ -752,6 +757,8 @@ class User extends Model {
 					newEmail
 			);
 		}
+
+		//send email ở đây
 		return null;
 	}
 
@@ -1220,6 +1227,12 @@ User.init(
 			allowNull: true,
 			defaultValue: ''
 		}
+		// //thứ để kiểm tra CMND này được kích hoạt chưa
+		// isApproved: {
+		// 	type: Sequelize.INTEGER, // 0 là chưa kích hoạt, 1 là kích hoạt rồi
+		// 	allowNull: false,
+		// 	defaultValue: 0
+		// }
 	},
 	{
 		sequelize: db,

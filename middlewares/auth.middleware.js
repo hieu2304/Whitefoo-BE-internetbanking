@@ -6,25 +6,34 @@ const jwtHelper = require('../helpers/jwt.helper');
 
 //yêu cầu tài khoản phải xác nhận Chứng minh nhân dân/Căn cước công dân
 module.exports.verifyCitizenIdentificationIdRequired = function(req, res, next) {
-	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	const currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
 
-	const result = currentUser.user.citizenIdentificationId;
+	const result = currentUser.citizenIdentificationId;
 	if (result && result.length > 0) return next();
 	return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
 };
 
 // yêu cầu tài khoản phải xác nhận email
 module.exports.verifyEmailRequired = asyncHandler(async function(req, res, next) {
-	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	const currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
 
-	const result = await userService.checkUserActiveEmailCodeYet(currentUser.user);
+	const result = await userService.checkUserActiveEmailCodeYet(currentUser);
 	if (result) return next();
 	return res.status(401).send({ message: 'User not verified email yet' });
 });
 
 // yêu cầu phải là nhân viên của ngân hàng
 module.exports.internalUserRequired = asyncHandler(async function(req, res, next) {
-	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	const currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
 
 	const result = await userService.checkInternalUser(currentUser);
 	if (result) return next();
@@ -96,7 +105,7 @@ module.exports.authAll = asyncHandler(async function(req, res, next) {
 	if (errTemp) return res.status(401).send({ message: 'Invalid Token' });
 
 	//nếu token hợp lệ thì decode ra lấy thông tin
-	currentUser = jwtHelper.decodeToken(token);
+	const currentUser = jwtHelper.decodeToken(token);
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}

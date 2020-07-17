@@ -119,3 +119,27 @@ module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, r
 module.exports.getChangePasswordAfterLogin = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
+
+//User xin làm nhân viên, thằng nào xin trước thằng đó làm
+//get: trả ra số count nhân viên hiện tại
+//post: xin làm nhân viên, cần gửi kèm id
+module.exports.getRequestStaff = asyncHandler(async function(req, res, next) {
+	const count = await userService.countStaff();
+	return res.status(200).send({ count });
+});
+
+module.exports.postRequestStaff = asyncHandler(async function(req, res, next) {
+	var currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	var id = req.body.id;
+	if (id) currentUser = req.body;
+	const result = await userService.requestStaff(currentUser);
+
+	//nếu có lỗi
+	if (result) return res.status(409).send({ message: result });
+	//nếu ok
+	return res.status(200).send({ message: 'OK' });
+});

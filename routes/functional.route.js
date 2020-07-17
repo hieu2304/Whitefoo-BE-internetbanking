@@ -17,8 +17,9 @@ router.get('/testfunctional', controller.testFunctional);
 // router.post('/getinfo', controller.postGetInfo);
 
 //User xin làm nhân viên, thằng nào xin trước thằng đó làm
-router.get('/requeststaff', controller.getRequestStaff);
-router.post('/requeststaff', controller.postRequestStaff);
+// đã chuyển qua guest
+// router.get('/requeststaff', controller.getRequestStaff);
+// router.post('/requeststaff', controller.postRequestStaff);
 
 //User chuyển khoản (chỉ chuyển và nhận bằng tài khoản thanh toán)
 //B1: send verifyCode

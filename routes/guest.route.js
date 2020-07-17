@@ -55,4 +55,21 @@ router.post(
 	controller.postChangePasswordAfterLogin
 );
 
+//User xin làm nhân viên, thằng nào xin trước thằng đó làm
+//yêu đã xác nhận email, ko cần đã xác nhận cmnd
+router.get(
+	'/requeststaff',
+	authMiddleware.authToken,
+	authMiddleware.loginRequired,
+	authMiddleware.verifyEmailRequired,
+	controller.getRequestStaff
+);
+router.post(
+	'/requeststaff',
+	authMiddleware.authToken,
+	authMiddleware.loginRequired,
+	authMiddleware.verifyEmailRequired,
+	controller.postRequestStaff
+);
+
 module.exports = router;

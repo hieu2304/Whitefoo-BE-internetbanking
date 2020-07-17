@@ -1,6 +1,7 @@
 CÁC THÔNG TIN NÊN NHỚ:
 
 - Bảng User:
+    + isApproved: 1 là đã kích hoạt CMND, 0 là chưa kích hoạt CMND
     + userType: '1' là khách hàng và '0' là nhân viên
     + status:   '1' = OK, '0' = Locked
     + verifyCode, activeCode, forgotCode: '' nghĩa là đã kích hoạt, không trống nghĩa là chưa 
@@ -204,7 +205,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
     method: POST
     điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
         params:
-            id:1
+            id:1 hoặc ko cần id
             clientId:515hwrFpeLvGeVo2SvSe
             secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
@@ -286,7 +287,7 @@ chuyển khoản nội bộ:
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
         
 /api/updateinfo
-    mô tả thêm: sẽ không lỗi nếu để trống hoặc nhập giá trị cũ
+    mô tả thêm:các field truyền vào bỏ trống hoặc gửi giá trị cũ thì server sẽ hiểu là không update field đó
     method: POST
     params:
         userId:2 (1 user phải tồn tại trong DB, có thể dùng tên key là id hoặc userId tùy thích)

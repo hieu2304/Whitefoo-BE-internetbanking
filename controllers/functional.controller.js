@@ -12,21 +12,7 @@ module.exports.testFunctional = function(req, res, next) {
 //api change password cũng được chuyển sang guest
 
 //User xin làm nhân viên, thằng nào xin trước thằng đó làm
-//get: trả ra số count nhân viên hiện tại
-//post: xin làm nhân viên, cần gửi kèm id
-module.exports.getRequestStaff = asyncHandler(async function(req, res, next) {
-	const count = await userService.countStaff();
-	return res.status(200).send({ count });
-});
-
-module.exports.postRequestStaff = asyncHandler(async function(req, res, next) {
-	const result = await userService.requestStaff(req.body);
-
-	//nếu có lỗi
-	if (result) return res.status(409).send({ message: result });
-	//nếu ok
-	return res.status(200).send({ message: 'OK' });
-});
+//đã chuyển sang guest
 
 //User chuyển khoản nội bộ, có 2 bước
 //bước 1: là send mã vào email (bước này dùng chung cho cả nội và liên ngân hàng)
