@@ -81,12 +81,8 @@ module.exports.postAddBalance = asyncHandler(async function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 });
 
-
 //nhân viên cập nhật thông tin cá nhân cho 1 người dùng nhất định
 module.exports.postUpdateInfo = asyncHandler(async function(req, res, next) {
-	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
-	if (!userId) return res.status(409).send({ message: 'not exist userId ' + userdId });
-
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
@@ -94,12 +90,13 @@ module.exports.postUpdateInfo = asyncHandler(async function(req, res, next) {
 
 	const result = await userService.updateUserInfo(req.body, currentUser);
 
-	if (!result) return res.status(409).send({ message: 'failed' });
+	//trả về null tức là ok
+	if (result) return res.status(409).send(result);
 	return res.status(200).send({ message: 'OK' });
 });
 
 //nhân viên cập nhật thông tin cho tài khoản nhất định
-module.exports.postUpdateAccount= asyncHandler(async function(req, res, next) {
+module.exports.postUpdateAccount = asyncHandler(async function(req, res, next) {
 	const accountId = typeof req.body.accountId !== 'undefined' ? req.body.accountId : req.body.id;
 	if (!accountId) return res.status(409).send({ message: 'not exist accountId ' + accountId });
 
@@ -107,7 +104,7 @@ module.exports.postUpdateAccount= asyncHandler(async function(req, res, next) {
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
-	
+
 	const result = await accountService.updateAccount(req.body, currentUser);
 
 	if (!result) return res.status(409).send({ message: 'failed' });

@@ -154,6 +154,11 @@ module.exports.registerErrorValidate = {
 		message: 'phoneNumber only can be number or number with 1 plus at start'
 	},
 
+	CITIZENIDENTIFICATIONID_CONFLICT: {
+		code: 'CITIZENIDENTIFICATIONID_CONFLICT',
+		message: 'citizenIdentificationId already used by other people'
+	},
+
 	DATEOFBIRTH_INVALID: {
 		code: 'DATEOFBIRTH_INVALID',
 		message: 'invalid dateOfBirth, can only DD/MM/YYYY'
@@ -167,5 +172,10 @@ module.exports.registerErrorValidate = {
 	FORGOTCODE_INVALID: {
 		code: 'FORGOTCODE_INVALID',
 		message: 'Invalid forgotCode'
+	},
+
+	USER_NOT_FOUND: {
+		code: 'USER_NOT_FOUND',
+		message: 'User not exists'
 	}
 };

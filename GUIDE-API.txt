@@ -286,12 +286,14 @@ chuyển khoản nội bộ:
         secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
         
 /api/updateinfo
+    mô tả thêm: sẽ không lỗi nếu để trống hoặc nhập giá trị cũ
     method: POST
     params:
-        userId:2 (1 user phải tồn tại trong DB)
+        userId:2 (1 user phải tồn tại trong DB, có thể dùng tên key là id hoặc userId tùy thích)
+        userType:0 (chỉ nhận 0 hoặc 1, String)
         lastname:hieu
         firstname:dang
-        status:0
+        status:0    (chỉ nhận 0 hoặc 1, String)
         phoneNumber:0129391232
         email:dangtrunghieu2304@gmail.com
         username:hieudang
