@@ -132,7 +132,7 @@ secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFX
 ####################[ các api User - user có quyền hạn mức độ người dùng ]##################
 
 /api/auth/logout
-    method: GET
+    method: GET (không sử dụng POST)
     điều kiện: đã login
     params:
         clientId:515hwrFpeLvGeVo2SvSe

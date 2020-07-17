@@ -9,8 +9,14 @@ module.exports.getAuth = function(req, res, next) {
 module.exports.getAuthLogin = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
+//khi logout
 module.exports.getAuthLogout = function(req, res, next) {
-	blackListToken.push(currentToken);
+	
+	const token = req.headers['token'];
+
+	//nếu chưa có trong blacklist thì push vào
+	if (!blackListToken.includes(token))blackListToken.push(token);
+	
 	return res.status(200).send({ message: 'OK' });
 };
 

@@ -625,7 +625,8 @@ class User extends Model {
 		var newStatus = request.status;
 		if(!newStatus) newStatus = user.status;
 
-		var newDateOfBirth = request.dateOfBirth;
+		//chỉnh định dạng date theo yêu cầu
+		var newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
 		if(!newDateOfBirth) newDateOfBirth = user.dateOfBirth;
 
 		var newEmail = user.email;
@@ -640,52 +641,54 @@ class User extends Model {
 		var newCitizenIdentificationId = user.citizenIdentificationId;
 		if(!newCitizenIdentificationId) newCitizenIdentificationId = user.citizenIdentificationId;
 
+		//update thông tin user
 		const resultupdate = await user.update(
 		{
 		 		lastName: newLastName,
 		 		firstName: newFirstName,
 		 		address: newAddress,
 		 		status: newStatus,
-				dateOfBirth:newDateOfBirth,
-				email:newEmail,
-				phoneNumber:newPhoneNumber,
-				username:newUsername,
-				citizenIdentificationId:newCitizenIdentificationId
+				dateOfBirth:newDateOfBirth
+				//email:newEmail,
+				//phoneNumber:newPhoneNumber,
+				//username:newUsername,
+				//citizenIdentificationId:newCitizenIdentificationId
 
 		},
 		{
 		 		where: { userId: userId }
 		});
 
+		//push xuống log
 		const result = await User.findUserByPKNoneExclude(userId);		
 		if (resultupdate) {
-			await audit_log.pushAuditLog(
-		 	 	currentUser.id,
-		 		userId,
-		 	 	'update info',
-		 	 	'update ' +
-		 	 		userId +
-		 	 		': ' +
-					newLastName +
-		 	 		',' +
-		 	 		newFirstName +
-		 	 		',' +
-		 	 		newAddress +
-		 	 		',' +
-		 	 		newDateOfBirth +
-		 	 		',' +
-					newStatus +
-					','+
-					newCitizenIdentificationId+
-					','+
-					newPhoneNumber+
-					','+
-					newUsername+
-					','+
-					newEmail
-			  );
-			 const result = await User.findUserByPKUsingExclude(request.id);		
-			 return result;
+			 await audit_log.pushAuditLog(
+		 	  	currentUser.id,
+		 	 	userId,
+		 	  	'update info',
+		 	  	'update ' +
+		 	  		userId +
+		 	  		': ' +
+			 		newLastName +
+		 	  		',' +
+		 	  		newFirstName +
+		 	  		',' +
+		 	  		newAddress +
+		 	  		',' +
+		 	  		newDateOfBirth +
+		 	  		',' +
+			 		newStatus 
+			// 		','+
+			// 		newCitizenIdentificationId+
+			// 		','+
+			// 		newPhoneNumber+
+			// 		','+
+			// 		newUsername+
+			// 		','+
+			// 		newEmail
+			);
+			const result = await User.findUserByPKUsingExclude(request.id);		
+			return result;
 		 }
 		return null;
 	}
