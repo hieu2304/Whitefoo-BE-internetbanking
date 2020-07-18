@@ -100,6 +100,10 @@ module.exports.validateUpdateNewPassword = function() {
 	];
 };
 
+module.exports.validateUpdateIdCard = function() {
+	return [ check('citizenIdentificationId', errorConstant.CITIZENIDENTIFICATIONID_TOO_SHORT).isLength({ min: 5 }) ];
+};
+
 module.exports.validateTransfer = function() {
 	return [
 		check('verifyCode', errorConstantTransfer.VERIFYCODE_EMPTY).isLength({ min: 1 }),

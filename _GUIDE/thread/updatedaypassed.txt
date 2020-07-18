@@ -1,0 +1,6 @@
+tại /helpers/schedule.helper.js
+
+hàm updateDaysAndTermPassed:
+khi gọi hàm này, lập tức toàn bộ tài khoản tiết kiệm không bị khóa và số kỳ hạn đã qua ==0 sẽ được update "số ngày đã qua"
+
+vì mỗi ngày chỉ update 1 lần lúc 0h sáng nên sử dụng schedule là '0 0 * * *', chỉ gọi hàm updateDaysAndTermPassed mỗi ngày 1 lần

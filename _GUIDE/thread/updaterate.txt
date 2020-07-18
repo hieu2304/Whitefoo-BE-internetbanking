@@ -1,0 +1,9 @@
+tại /helpers/schedule.helper.js
+
+hàm updateExchangeRate:
+khi gọi hàm này, bảng exchange_currency lập tức được update
+
+tránh server bên thứ 3 chặn ip vì request quá nhiều, chỉ gọi 3 tiếng 1 lần
+nhưng để tráng update ngay lúc server đang update tài khoản tiết kiệm lúc 0h sáng,
+hàm này sẽ được gọi lúc  các giờ:
+1:05, 4:05, 7:05, 10:05, 13:05, 16:05, 19:05, 22:05

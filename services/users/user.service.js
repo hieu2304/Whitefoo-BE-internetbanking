@@ -528,7 +528,7 @@ class User extends Model {
 				userType: 1
 			},
 			attributes: {
-				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
+				exclude: [ 'password', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
 			}
 		});
 
@@ -538,9 +538,63 @@ class User extends Model {
 			//vì .dataValues là lấy dữ liệu gốc chưa qua getter fotmat
 			//muốn lấy dạng format DD/MM/YYYY phải xài dữ liệu trả từ getter
 			result[i].dateOfBirth = listNumberOne[i].dateOfBirth;
+			result[i].emailVerified = 1;
+			const checkUser = await User.findUserByPKNoneExclude(result[i].id);
+			if (checkUser.activeCode !== '') {
+				result[i].emailVerified = 0;
+			}
 		}
 
 		return result;
+	}
+
+	//hàm nhân viên lấy danh sách các tài khoản chưa duyệt cmnd
+	static async getNotVerify() {
+		const list = await User.findAll({
+			where: {
+				[Op.or]: [ { approveStatus: 0 }, { approveStatus: 2 } ]
+			}
+		});
+
+		const result = [];
+		for (var i = 0; i < list.length; i++) {
+			result.push(list[i].dataValues);
+			result[i].dateOfBirth = list[i].dateOfBirth;
+			result[i].emailVerified = 1;
+			if (result[i].activeCode !== '') result[i].emailVerified = 0;
+			delete result[i].password;
+			delete result[i].verifyCode;
+			delete result[i].forgotCode;
+			delete result[i].activeCode;
+			delete result[i].createdAt;
+			delete result[i].updatedAt;
+		}
+
+		return result;
+	}
+
+	//hàm nhân viên duyệt cmnd user (update approveStatus)
+	static async verifyIdCard(request, currentUser) {
+		// 0 là từ chối, 1 là duyệt, 2 là chờ
+		var newApprove = request.approveStatus;
+		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
+		if (newApprove && userId) {
+			newApprove = parseInt(newApprove);
+
+			//update
+			await User.update(
+				{
+					approveStatus: newApprove
+				},
+				{
+					where: {
+						id: userId
+					}
+				}
+			);
+			//push audit log
+			await audit_logService.pushAuditLog(currentUser.id, userId, 'approve', 'approveStatus: ' + newApprove);
+		}
 	}
 
 	//hàm user xem thông tin bản thân dựa vào id
@@ -574,9 +628,17 @@ class User extends Model {
 	static async getUserInfo(request) {
 		const user = await User.findUserByPKNoneExclude(request.id);
 		if (!user) return null;
+
+		return user;
+	}
+
+	//hàm nhân viên xem thông tin các tài khoản của user nào đó
+	static async getUserAccount(request) {
+		const user = await User.findUserByPKNoneExclude(request.id);
+		if (!user) return null;
 		const accountList = await accountService.getAllAccountReferenceByIdNoneExclude(request.id);
 
-		return { user, accountList };
+		return accountList;
 	}
 
 	//hàm đếm số lượng nhân viên hiện có
@@ -795,6 +857,40 @@ class User extends Model {
 		return null;
 	}
 
+	//hàm user tự update CMND và chờ duyệt
+	static async updateIdCard(request, currentUser) {
+		const ErrorsList = [];
+		const errorListTransfer = errorListConstant.registerErrorValidate;
+		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
+		if (!foundUser) {
+			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
+			return errorList;
+		}
+
+		var newCitizenIdentificationId = request.citizenIdentificationId;
+		if (newCitizenIdentificationId && newCitizenIdentificationId != foundUser.citizenIdentificationId) {
+			//Kiểm tra CMND trùng
+			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
+			if (isConflict) {
+				errorList.push(registerErrors.CITIZENIDENTIFICATIONID_CONFLICT);
+				return errorList;
+			}
+
+			await User.update(
+				{
+					citizenIdentificationId: newCitizenIdentificationId,
+					approveStatus: 2
+				},
+				{
+					where: {
+						id: foundUser.id
+					}
+				}
+			);
+		}
+		return null;
+	}
+
 	//Chuyển khoản nội bộ, có 2 bước:
 	// 1 là gửi mã verify qua email cho user nhập
 	// 2 là gọi api kèm mã verify
@@ -803,11 +899,8 @@ class User extends Model {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
 		const ErrorsList = [];
 		const errorListTransfer = errorListConstant.registerErrorValidate;
-		const foundUser = await User.findOne({
-			where: {
-				id: currentUser.id
-			}
-		});
+		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
+
 		if (!foundUser) {
 			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
 			return errorList;
@@ -979,7 +1072,6 @@ class User extends Model {
 		//vì phí tính theo VND, để tính toán +- vào tài khoản xài USD thì phải chuyển về USD (TH1 và TH2)
 		if (foundAccount.currencyType !== 'VND') {
 			newFee = await exchange_currencyService.exchangeMoney(newFee, 'VND');
-			console.log(newFee);
 		}
 
 		//tổng tiền tiêu hao bên gửi (sẽ trừ cái này nếu chuyển thành công)

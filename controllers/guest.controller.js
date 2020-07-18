@@ -118,7 +118,6 @@ module.exports.postGetAccount = asyncHandler(async function(req, res, next) {
 
 	return res.status(200).send(result);
 });
-
 module.exports.getGetAccount = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
@@ -142,7 +141,6 @@ module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, r
 	if (!result) return res.status(403).send({ message: 'Update failed' });
 	return res.status(200).send({ message: 'OK' });
 });
-
 module.exports.getChangePasswordAfterLogin = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
@@ -154,7 +152,6 @@ module.exports.getRequestStaff = asyncHandler(async function(req, res, next) {
 	const count = await userService.countStaff();
 	return res.status(200).send({ count });
 });
-
 module.exports.postRequestStaff = asyncHandler(async function(req, res, next) {
 	var currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
@@ -169,4 +166,25 @@ module.exports.postRequestStaff = asyncHandler(async function(req, res, next) {
 	if (result) return res.status(409).send({ message: result });
 	//nếu ok
 	return res.status(200).send({ message: 'OK' });
+});
+
+//user tự update cmnd chờ nhân viên duyệt
+module.exports.getUpdateIdCard = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+module.exports.postUpdateIdCard = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const errors = validateHelper.validateErrorHandle(req);
+	if (errors) {
+		return res.status(409).json(errors);
+	}
+
+	const result = await userService.updateIdCard(req.body, currentUser);
+
+	if (!result) return res.status(200).send({ message: 'OK' });
+	return res.status(409).send(result);
 });

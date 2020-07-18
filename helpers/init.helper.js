@@ -23,7 +23,7 @@ module.exports.initBaseValueAllNeededModel = asyncHandler(async function() {
 	await whitelistService.initBaseValueWhitelist();
 
 	// uncomment the line below when release to a real-server
-	await exchange_CurrencyService.updateExchangeRateUSDAndVND();
+	//await exchange_CurrencyService.updateExchangeRateUSDAndVND();
 
 	console.log('\nSERVER JUST INITIALIZED BASIC DATABASE VALUES FOR TABLES: LAW, FEE, ETC...\n');
 });

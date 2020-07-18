@@ -158,6 +158,10 @@ module.exports.registerErrorValidate = {
 		code: 'CITIZENIDENTIFICATIONID_CONFLICT',
 		message: 'citizenIdentificationId already used by other people'
 	},
+	CITIZENIDENTIFICATIONID_TOO_SHORT: {
+		code: 'CITIZENIDENTIFICATIONID_TOO_SHORT',
+		message: 'citizenIdentificationId to short, min is 5'
+	},
 
 	DATEOFBIRTH_INVALID: {
 		code: 'DATEOFBIRTH_INVALID',

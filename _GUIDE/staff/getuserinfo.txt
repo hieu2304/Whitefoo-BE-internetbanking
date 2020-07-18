@@ -3,6 +3,7 @@ mô tả: nhân viên ngân hàng, xem mọi thông tin của user, còn user th
 
 /api/getuserinfo
 method: POST
+
 params:
 id: 1  (id của user cần xem thông tin, bản thân id nhân viên cũng dc)
 clientId:515hwrFpeLvGeVo2SvSe

@@ -51,6 +51,20 @@ module.exports.postGetUserInfo = asyncHandler(async function(req, res, next) {
 	return res.status(200).send(result);
 });
 
+//getuseraccount
+//nhân viên lấy danh sách STK của 1 user
+module.exports.getGetUserAccount = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+module.exports.postGetUserAccount = asyncHandler(async function(req, res, next) {
+	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
+	if (!userId) return res.status(409).send({ message: 'id not exist' });
+
+	const result = await userService.getUserAccount(req.body);
+	if (!result) return res.status(409).send({ message: 'User not found' });
+	return res.status(200).send(result);
+});
+
 //getaccountinfo
 //nhân viên lấy toàn bộ thông tin STK của 1 người nào đó dựa vào accountId
 module.exports.getGetAccountInfo = function(req, res, next) {
@@ -115,4 +129,28 @@ module.exports.postUpdateAccount = asyncHandler(async function(req, res, next) {
 
 	if (!result) return res.status(409).send({ message: 'failed' });
 	return res.status(200).send({ message: 'OK' });
+});
+
+//nhân viên duyệt hoặc từ chối 1 người dùng nhất định
+module.exports.getVerifyIdCard = function(req, res) {
+	return res.status(200).send({ message: 'OK' });
+};
+module.exports.postVerifyIdCard = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+	await userService.verifyIdCard(req.body, currentUser);
+
+	return res.status(200).send({ message: 'OK' });
+});
+
+//nhân viên lấy danh sách các user chưa duyệt cmnd
+module.exports.getGetNotVerify = function(req, res) {
+	return res.status(200).send({ message: 'OK' });
+};
+module.exports.postGetNotVerify = asyncHandler(async function(req, res, next) {
+	const result = await userService.getNotVerify();
+
+	return res.status(200).send(result);
 });

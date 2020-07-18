@@ -1,0 +1,44 @@
+mô tả: nhân viên lấy danh sách user chưa được duyệt CMND
+
+/api/getnotverify
+
+method:POST
+
+params:
+không có
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response: danh sách các user chưa duyệt cmnd (!=1 là chưa duyệt: đang chờ hoặc bị từ chối quy chung là chưa duyệt)
+[
+    {
+        "id": 2,
+        "citizenIdentificationId": "024",
+        "email": "timchideyeu1998@gmail.com",
+        "phoneNumber": "0909637841",
+        "username": "ngoc",
+        "lastName": "nguyen",
+        "firstName": "ngoc",
+        "dateOfBirth": "12/07/1998",
+        "address": "sdasdasdasd",
+        "userType": 1,
+        "status": 1,
+        "approveStatus": 0,
+        "emailVerified": 1
+    },
+    {
+        "id": 3,
+        "citizenIdentificationId": "1111",
+        "email": "thengoc4a6@gmail.com",
+        "phoneNumber": "12121222",
+        "username": "ngoc2",
+        "lastName": "nguyen",
+        "firstName": "ngoc",
+        "dateOfBirth": "11/11/1970",
+        "address": "sdasdas23434",
+        "userType": 1,
+        "status": 1,
+        "approveStatus": 2,
+        "emailVerified": 1
+    }
+]

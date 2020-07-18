@@ -1,0 +1,30 @@
+mô tả: nhân viên cần tìm danh sách người dùng (chỉ trả về danh sách userType) theo keyword (tìm tương đối)
+
+/api/searchkeyword
+
+method:POST
+
+params:
+
+keyword:1
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+[
+    {
+        "id": 2,
+        "citizenIdentificationId": "024",
+        "email": "timchideyeu1998@gmail.com",
+        "phoneNumber": "0909637841",
+        "username": "ngoc",
+        "lastName": "nguyen",
+        "firstName": "ngoc",
+        "dateOfBirth": "12/07/1998",
+        "address": "sdasdasdasd",
+        "userType": 1,
+        "status": 1,
+        "approveStatus": 1,
+        "emailVerified": 1
+    }
+]

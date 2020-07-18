@@ -13,9 +13,13 @@ router.post('/createaccount', controller.postCreateAccount);
 router.get('/searchkeyword', controller.getSearchKeyword);
 router.post('/searchkeyword', controller.postSearchKeyword);
 
-//nhân viên lấy thông tin cá nhân của ai đó + các STK của người đó
+//nhân viên lấy thông tin cá nhân của ai đó
 router.get('/getuserinfo', controller.getGetUserInfo);
 router.post('/getuserinfo', controller.postGetUserInfo);
+
+//hàm nhân viên lấy danh sách tài khoản của 1 user
+router.get('/getuseraccount', controller.getGetUserAccount);
+router.post('/getuseraccount', controller.postGetUserAccount);
 
 //getaccountinfo
 //nhân viên lấy toàn bộ thông tin các STK của 1 người nào đó
@@ -32,5 +36,13 @@ router.get('/updateuserinfo', controller.getUpdateUserInfo);
 
 //nhân viên cập nhật tài khoản
 router.post('/updateaccount', controller.postUpdateAccount);
+
+//nhân viên duyệt hoặc từ chối 1 người dùng nhất định
+router.get('/verifyidcard', controller.getVerifyIdCard);
+router.post('/verifyidcard', controller.postVerifyIdCard);
+
+//nhân viên lấy danh sách các user chưa duyệt cmnd
+router.get('/getnotverify', controller.getGetNotVerify);
+router.post('/getnotverify', controller.postGetNotVerify);
 
 module.exports = router;
