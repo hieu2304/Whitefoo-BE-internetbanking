@@ -9,6 +9,10 @@ const validateHelper = require('../helpers/validate.helper');
 //chưa login sẽ chèn middleware RequireLogout thủ công tránh lỗi sau khi đã login vẫn dùng middleware này
 //router.use(authMiddleware.logoutRequired);
 
+//api xem tỷ lệ USD VND cho FE
+router.get('/rate', controller.getRate);
+router.post('/rate', controller.postRate);
+
 //quên mật khẩu
 //B1
 router.get('/forgotpassword', authMiddleware.logoutRequired, controller.getForgotPassword);
@@ -38,6 +42,10 @@ router.post(
 //trước kia ở functional
 router.get('/getinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.getGetInfo);
 router.post('/getinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.postGetInfo);
+
+//lấy thông tin tài khoản chính mình
+router.get('/getaccount', authMiddleware.authToken, authMiddleware.loginRequired, controller.getGetAccount);
+router.post('/getaccount', authMiddleware.authToken, authMiddleware.loginRequired, controller.postGetAccount);
 
 //đổi mật khẩu sau khi login
 //trước kia ở functional

@@ -1,0 +1,57 @@
+mô tả: nhân viên tạo tài khoản cho người dùng đã có trong hệ thống
+
+có 2 cách dùng api:
+
+-cách 1: tạo tài khoản thành toán (accountType là 0)
+
+/api/createaccount
+method: POST
+params: 
+
+accountType:0       HOẶC    type:0
+userId:1            HOẶC    id:1
+currencyType:VND    HOẶC    currency:VND
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response nếu thành công: (accountId sẽ được tạo random unique)
+{
+    "accountId": "741699937737173",
+    "userId": "1",
+    "status": 0,
+    "balance": "0",
+    "currencyType": "VND",
+    "accountType": 0,
+    "openedDate": "18/07/2020"
+}
+
+
+
+
+
+
+-cách 2: tạo tài khoản tiết kiệm (accountType là 1 và có thêm thuộc tính term, term là số tháng khi đăng ký kỳ hạn, vd:6 là kỳ hạn 6 tháng)
+
+/api/createaccount
+method: POST
+params: 
+
+accountType:1       HOẶC    type:1
+userId:1            HOẶC    id:1
+currencyType:VND    HOẶC    currency:VND
+term:6
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+{
+    "accountId": "687044290037263",
+    "userId": "1",
+    "status": 0,
+    "balance": "0",
+    "currencyType": "VND",
+    "accountType": 1,
+    "openedDate": "18/07/2020",
+    "term": 6,
+    "startTermDate": "18/07/2020"
+}

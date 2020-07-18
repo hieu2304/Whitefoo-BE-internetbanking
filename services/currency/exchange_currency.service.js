@@ -19,6 +19,15 @@ SPECIAL THANKS TO FREEFOREXAPI
 */
 
 class exchange_currency extends Model {
+	//hàm trả ra rate cho FE xài
+	static async getRate() {
+		const found = await exchange_currency.findAll();
+		var result = {};
+		result.usdvnd = found[0].rate;
+		result.vndusd = found[1].rate;
+		return result;
+	}
+
 	//hàm quy đổi tiền tệ
 	//nếu currentCurrency = VND -> quy ra USD và ngược lại
 	static async exchangeMoney(value, currentCurrency) {

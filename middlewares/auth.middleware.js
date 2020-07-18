@@ -5,16 +5,16 @@ const userService = require('../services/users/user.service');
 const jwtHelper = require('../helpers/jwt.helper');
 
 //yêu cầu tài khoản phải xác nhận Chứng minh nhân dân/Căn cước công dân
-module.exports.verifyCitizenIdentificationIdRequired = function(req, res, next) {
+module.exports.verifyCitizenIdentificationIdRequired = asyncHandler(async function(req, res, next) {
 	const currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 
-	const result = currentUser.citizenIdentificationId;
-	if (result && result.length > 0) return next();
+	const result = await userService.checkUserApprovedYet(currentUser);
+	if (result) return next();
 	return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
-};
+});
 
 // yêu cầu tài khoản phải xác nhận email
 module.exports.verifyEmailRequired = asyncHandler(async function(req, res, next) {
@@ -115,9 +115,8 @@ module.exports.authAll = asyncHandler(async function(req, res, next) {
 	if (!checkEmailVerify) return res.status(401).send({ message: 'User not verified email yet' });
 
 	//citizenIdentificationId verified check
-	const checkCitizenIdentificationIdVerify = currentUser.citizenIdentificationId;
-	if (!checkCitizenIdentificationIdVerify || !checkCitizenIdentificationIdVerify.length > 0)
-		return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
+	const checkApprove = await userService.checkUserApprovedYet(currentUser);
+	if (!checkApprove) return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
 
 	//if user passed all verify actions -> success
 	return next();

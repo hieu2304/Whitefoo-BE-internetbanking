@@ -1,4 +1,9 @@
-const { BlobServiceClient, ContainerSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } = require('@azure/storage-blob');
+const {
+	BlobServiceClient,
+	ContainerSASPermissions,
+	generateBlobSASQueryParameters,
+	StorageSharedKeyCredential
+} = require('@azure/storage-blob');
 const uuid = require('uuid');
 const intoStream = require('into-stream');
 const sharp = require('sharp');
@@ -21,8 +26,10 @@ async function getBlobList(req, res) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 	const user = await User.findByPk(currentUser.id);
-	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
+	if (user.userType !== 0) {
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
 	}
 	const containerName = req.body.container;
 	const userId = req.body.userId;
@@ -40,8 +47,10 @@ async function deleteBlobList(req, res) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 	const user = await User.findByPk(currentUser.id);
-	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
+	if (user.userType !== 0) {
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
 	}
 	const containerName = req.body.container;
 	const userId = req.body.userId;
@@ -59,8 +68,10 @@ async function getIdCard(req, res) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 	const user = await User.findByPk(currentUser.id);
-	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
+	if (user.userType !== 0) {
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
 	}
 	const blob = await Storage.findOneBlob(idCardContainer, req.body.id);
 	if (!blob) {
@@ -77,8 +88,10 @@ async function getIdCards(req, res) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 	const user = await User.findByPk(currentUser.id);
-	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
+	if (user.userType !== 0) {
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
 	}
 	const userId = req.body.userId;
 	const blobs = await Storage.findAllBlobsByUserId(idCardContainer, userId);
@@ -106,16 +119,52 @@ async function postIdCard(req, res) {
 	// File name
 	const fileName = req.file.originalname;
 	// Upload the original version
-	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
+	const upload = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		req.file.buffer,
+		req.file.buffer.length,
+		req.file.mimetype,
+		originalQuality,
+		userId
+	);
 	// Upload the resized version at normal level
 	let resizedFile = await imageResize(req.file.buffer, 960, 540);
-	const uploadNormal = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, normalQuality, userId);
+	const uploadNormal = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		normalQuality,
+		userId
+	);
 	// Upload the resized version at thumbnail level
 	resizedFile = await imageResize(req.file.buffer, 426, 240);
-	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
+	const uploadThumbnail = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		thumbnailQuality,
+		userId
+	);
 	// Upload the resized version at small level
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
-	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
+	const uploadSmall = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		smallQuality,
+		userId
+	);
 	// Return success message
 	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
 }
@@ -126,8 +175,10 @@ async function deleteIdCard(req, res) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 	const user = await User.findByPk(currentUser.id);
-	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete this file.' });
+	if (user.userType !== 0) {
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete this file.' });
 	}
 	const blob = await Storage.findByPk(req.body.id);
 	if (!blob) {
@@ -145,8 +196,10 @@ async function deleteIdCards(req, res) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 	const user = await User.findByPk(currentUser.id);
-	if (user.userType !== '0') {
-		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
+	if (user.userType !== 0) {
+		return res
+			.status(403)
+			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
 	}
 	const userId = req.body.userId;
 	const blobs = await Storage.findAllBlobsByUserId(idCardContainer, userId);
@@ -187,13 +240,49 @@ async function postAvatar(req, res) {
 	const blobUuid = uuid.v1();
 	const userId = currentUser.id;
 	const fileName = req.file.originalname;
-	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
+	const upload = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		req.file.buffer,
+		req.file.buffer.length,
+		req.file.mimetype,
+		originalQuality,
+		userId
+	);
 	let resizedFile = await imageResize(req.file.buffer, 960, 540);
-	const uploadNormal = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, normalQuality, userId);
+	const uploadNormal = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		normalQuality,
+		userId
+	);
 	resizedFile = await imageResize(req.file.buffer, 426, 240);
-	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
+	const uploadThumbnail = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		thumbnailQuality,
+		userId
+	);
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
-	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
+	const uploadSmall = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		smallQuality,
+		userId
+	);
 	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
 }
 
@@ -215,13 +304,49 @@ async function putAvatar(req, res) {
 	const blobUuid = uuid.v1();
 	const userId = currentUser.id;
 	const fileName = req.file.originalname;
-	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
+	const upload = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		req.file.buffer,
+		req.file.buffer.length,
+		req.file.mimetype,
+		originalQuality,
+		userId
+	);
 	let resizedFile = await imageResize(req.file.buffer, 960, 540);
-	const uploadNormal = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, normalQuality, userId);
+	const uploadNormal = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		normalQuality,
+		userId
+	);
 	resizedFile = await imageResize(req.file.buffer, 426, 240);
-	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
+	const uploadThumbnail = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		thumbnailQuality,
+		userId
+	);
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
-	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
+	const uploadSmall = await blobUploadAsync(
+		containerName,
+		blobUuid,
+		fileName,
+		resizedFile,
+		resizedFile.length,
+		req.file.mimetype,
+		smallQuality,
+		userId
+	);
 	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
 }
 
@@ -276,7 +401,9 @@ async function blobUploadAsync(containerName, blobUuid, fileName, fileBuffer, fi
 async function imageResize(fileBuffer, width, height) {
 	// Preserving aspect ratio, resize the image to be as large as possible while ensuring its dimensions are less than or equal to both those specified
 	// Do not enlarge if the width or height are already less than the specified dimensions
-	const transformer = await sharp(fileBuffer).resize(width, height, { fit: 'inside', withoutEnlargement: true }).toBuffer();
+	const transformer = await sharp(fileBuffer)
+		.resize(width, height, { fit: 'inside', withoutEnlargement: true })
+		.toBuffer();
 	return transformer;
 }
 
@@ -305,7 +432,10 @@ function blobUriGenerator(containerName, blobName) {
 	// "a" (Add), "r" (Read), "w" (Write), "d" (Delete), "l" (List)
 	// Concatenate multiple permissions, such as "rwa" = Read, Write, Add
 	// Create the StorageSharedKeyCredential object which will be used to get the sas token
-	const sharedKeyCredential = new StorageSharedKeyCredential(process.env.AZURE_STORAGE_ACCOUNT_NAME, process.env.AZURE_STORAGE_ACCOUNT_KEY);
+	const sharedKeyCredential = new StorageSharedKeyCredential(
+		process.env.AZURE_STORAGE_ACCOUNT_NAME,
+		process.env.AZURE_STORAGE_ACCOUNT_KEY
+	);
 	// Create a SAS token that expires in one day
 	// Set start time to five minutes ago to avoid clock skew.
 	const startDate = new Date();

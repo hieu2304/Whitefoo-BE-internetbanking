@@ -1,0 +1,25 @@
+/api/upload/idcard
+    method: POST
+    request:
+        clientId,
+        secretKey,
+        idcard
+    response:
+        container
+        blobName
+        blobSize
+        mimeType
+    method: GET
+    request:
+        clientId,
+        secretKey,
+        id
+    response:
+        uri
+    method: DELETE (userType === 0)
+    request:
+        clientId,
+        secretKey,
+        id
+    response:
+        message

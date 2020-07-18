@@ -1,0 +1,90 @@
+mô tả: api dùng để đăng ký tài khoản người dùng
+
+/api/register
+
+method: GET
+điều kiện: đã logout (ko gửi kèm token trong header)
+params: không
+respone: status 200
+
+
+/api/register
+
+method: POST
+điều kiện: đã logout (ko gửi kèm token trong header)
+params:
+
+email:admin123@admin.com
+lastName:tester
+firstName:bug bug
+dateOfBirth:12/12/2012
+phoneNumber:0909090909
+password:a1234567890
+confirmPassword:a1234567890
+username:testerbugbughihi
+address:192 hàm tử, HCM, Việt Nam
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+respone: status 200 và gửi email
+
+nếu có lỗi sẽ có trả code lỗi và không tạo, vd:
+[
+    {
+        "code": "EMAIL_INVALID",
+        "message": "Invalid email type"
+    },
+    {
+        "code": "EMAIL_TOO_SHORT",
+        "message": "Email to short, min is 5"
+    },
+    {
+        "code": "USERNAME_TOO_SHORT",
+        "message": "userName to short, min is 3"
+    },
+    {
+        "code": "USERNAME_INVALID",
+        "message": "userName only can be alphabetic and number, start with alphabetic"
+    },
+    {
+        "code": "PASSWORD_TOO_SHORT",
+        "message": "password to short, min is 8"
+    },
+    {
+        "code": "PASSWORD_INVALID",
+        "message": "password must start with alphabetic"
+    },
+    {
+        "code": "LASTNAME_TOO_SHORT",
+        "message": "lastName to short, min is 3"
+    },
+    {
+        "code": "LASTNAME_INVALID",
+        "message": "lastName only can be alphabetic utf8, number and dot"
+    },
+    {
+        "code": "FIRSTNAME_TOO_SHORT",
+        "message": "firstName to short, min is 3"
+    },
+    {
+        "code": "FIRSTNAME_INVALID",
+        "message": "firstName only can be alphabetic utf8, number and dot"
+    },
+    {
+        "code": "ADDRESS_TOO_SHORT",
+        "message": "address to short, min is 6"
+    },
+    {
+        "code": "PHONENUMBER_TOO_SHORT",
+        "message": "phoneNumber to short, min is 3"
+    },
+    {
+        "code": "PHONENUMBER_INVALID",
+        "message": "phoneNumber only can be number or number with 1 plus at start"
+    },
+    {
+        "code": "DATEOFBIRTH_INVALID",
+        "message": "invalid dateOfBirth"
+    }
+]
+

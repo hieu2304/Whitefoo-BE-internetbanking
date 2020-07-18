@@ -1,0 +1,12 @@
+mô tả: api dùng chung cho bước 1 của các tính năng: đổi email, chuyển khoản nội bộ, chuyển khoản liên ngân hàng, rút tiền
+
+
+/api/sendverify
+method: POST
+
+điều kiện: đã login, đã xác nhận email, đã được duyệt CMND
+
+params: không
+
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi

@@ -1,0 +1,17 @@
+mô tả: xin cấp token mới khi token cũ sắp hết hạn (hạn là 1h)
+
+/api/renew-token
+
+method: POST
+điều kiện: không có yêu cầu gì cả, có token hợp lệ là ok
+
+params:
+token: token còn đang hiệu lực
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
+response: token mới, vd:
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiIxNzYwMTIwQHN0dWRlbnQuaGNtdXMuZWR1LnZuIiwiY2l0aXplbklkZW50aWZpY2F0aW9uSWQiOiIxMjM0NSIsImxhc3ROYW1lIjoidGVzdGVyIiwiZmlyc3ROYW1lIjoiYnVnIGJ1ZyIsInBob25lTnVtYmVyIjoiMDkwOTA5MDkwOSIsImlhdCI6MTU5NTA1OTg4MywiZXhwIjoxNTk1MDYzNDgzfQ.3DJ1hjAV10-ZXMNhYGL6MOFdlb8nHVcaKnkOCmka0PI"
+}

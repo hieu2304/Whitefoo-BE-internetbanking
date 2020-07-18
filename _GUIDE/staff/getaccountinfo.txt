@@ -1,0 +1,25 @@
+mô tả: nhân viên biết STK của 1 user và muốn bấm vào xem thông tin cụ thể
+
+
+/api/getaccountinfo
+method: POST
+
+params:
+accountId:741699937737173 (xem accountId ở bảng account, lúc request có thể ghi tắt là id, nhưng bản chất là accountId)
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+{
+    "id": 1,
+    "accountId": "741699937737173",
+    "userId": "1",
+    "status": 0,
+    "balance": "0",
+    "currencyType": "VND",
+    "accountType": 0,
+    "openedDate": "18/07/2020",
+    "closedDate": "Invalid date",
+    "createdAt": "2020-07-18T08:28:33.050Z",
+    "updatedAt": "2020-07-18T08:28:33.050Z"
+}

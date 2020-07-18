@@ -1,0 +1,26 @@
+mô tả: người dùng tự lấy các thông tin cá nhân cơ bản
+
+/api/getinfo
+
+method: POST
+điều kiện: đã login, CHƯA xác nhận email, CHƯA kích hoạt CMND
+
+params: không có gì thêm
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+{
+    "id": 1,
+    "citizenIdentificationId": "12345",
+    "email": "abc@123.com",
+    "phoneNumber": "0909090909",
+    "username": "1760120",
+    "lastName": "tester",
+    "firstName": "bug bug",
+    "dateOfBirth": "12/12/2012",
+    "address": "192 hàm tử, HCM, Việt Nam",
+    "userType": 0,
+    "approveStatus": 1,
+    "emailVerified": 1
+}

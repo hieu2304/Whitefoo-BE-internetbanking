@@ -80,9 +80,12 @@ module.exports.postAddBalance = asyncHandler(async function(req, res, next) {
 	if (!result) return res.status(409).send({ message: 'failed' });
 	return res.status(200).send({ message: 'OK' });
 });
+module.exports.getAddBalance = function(req, res) {
+	return res.status(200).send({ message: 'OK' });
+};
 
 //nhân viên cập nhật thông tin cá nhân cho 1 người dùng nhất định
-module.exports.postUpdateInfo = asyncHandler(async function(req, res, next) {
+module.exports.postUpdateUserInfo = asyncHandler(async function(req, res, next) {
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
@@ -94,6 +97,9 @@ module.exports.postUpdateInfo = asyncHandler(async function(req, res, next) {
 	if (result) return res.status(409).send(result);
 	return res.status(200).send({ message: 'OK' });
 });
+module.exports.getUpdateUserInfo = function(req, res) {
+	return res.status(200).send({ message: 'OK' });
+};
 
 //nhân viên cập nhật thông tin cho tài khoản nhất định
 module.exports.postUpdateAccount = asyncHandler(async function(req, res, next) {

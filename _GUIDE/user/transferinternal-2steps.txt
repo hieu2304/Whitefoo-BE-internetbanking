@@ -1,0 +1,26 @@
+mô tả: api bước 2 của chuyển khoản nội bộ
+bước 1 là api/sendverify (đọc sendverify.txt)
+
+
+/api/transferinternal
+
+method: POST
+
+điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
+
+params:
+
+verifyCode:12345
+accountId:1234554321 (bên nhận)
+requestAccountId:533453627980276 (bên gửi)
+money:10000
+message: có thể có hoặc không
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+{
+    message: "OK"
+}
+
+thành công thì sẽ có email cả 2 bên nhận và gửi

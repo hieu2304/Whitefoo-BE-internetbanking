@@ -22,7 +22,7 @@ class account extends Model {
 		const result = foundAccount.dataValues;
 		// 0: payment, 1: accumulated
 		//nếu đây là TK TK, thì thêm fields của TK TK
-		if (foundAccount.accountType == '1') {
+		if (foundAccount.accountType == 1) {
 			const moreFields = await account_accumulatedService.getAccountAccumulatedById(result.accountId);
 
 			result.term = moreFields.term;
@@ -49,7 +49,7 @@ class account extends Model {
 		const result = foundAccount.dataValues;
 		// 0: payment, 1: accumulated
 		//nếu đây là TK TK, thì thêm fields của TK TK
-		if (foundAccount.accountType == '1') {
+		if (foundAccount.accountType == 1) {
 			const moreFields = await account_accumulatedService.getAccountAccumulatedById(result.accountId);
 
 			result.term = moreFields.dataValues.term;
@@ -93,7 +93,7 @@ class account extends Model {
 			result.push(list[i].dataValues);
 			result[i].openedDate = list[i].openedDate;
 			// 0: payment, 1: accumulated
-			if (result[i].accountType == '1') {
+			if (result[i].accountType == 1) {
 				//lấy thêm trường term và startTermDate
 				const moreFields = await account_accumulatedService.getAccountAccumulatedById(list[i].accountId);
 				//set thêm term và startTermDate
@@ -118,7 +118,7 @@ class account extends Model {
 			result.push(list[i].dataValues);
 			result[i].openedDate = list[i].openedDate;
 			// 0: payment, 1: accumulated
-			if (result[i].accountType == '1') {
+			if (result[i].accountType == 1) {
 				//lấy thêm trường term và startTermDate
 				const moreFields = await account_accumulatedService.getAccountAccumulatedById(list[i].accountId);
 				//set thêm term và startTermDate
@@ -162,7 +162,7 @@ class account extends Model {
 		const newAccount = await account.create({
 			accountId: newAccountId,
 			userId: userId,
-			status: '0',
+			status: 0,
 			balance: 0,
 			currencyType: currencyType,
 			accountType: accountType,
@@ -170,7 +170,7 @@ class account extends Model {
 		});
 
 		// 0: payment, 1: accumulated
-		if (accountType == '1') {
+		if (accountType == 1) {
 			//nếu tài khoản tiết kiệm, phải gọi và thêm vào account_accumulated
 			const result_accumulated = await account_accumulatedService.createNewAccumulatedAccount(
 				request,
@@ -242,10 +242,10 @@ class account extends Model {
 		return null;
 	}
 
-	static async updateAccount(request, currentUser){
+	static async updateAccount(request, currentUser) {
 		//lấy accountId ra
 		const accountId = typeof request.accountId !== 'undefined' ? request.accountId : request.id;
-		if (!accountId) return null
+		if (!accountId) return null;
 
 		//tìm kiếm accountId trong DB
 		const theChosenAccount = await account.findOne({
@@ -258,35 +258,33 @@ class account extends Model {
 		//kiểm tra tình trạng status chỉ nhận 2 dạng tình trạng tài khoản
 		var newStatus = request.status;
 		if (!newStatus) newStatus = theChosenAccount.status;
-		else if (newStatus !== '1' && newStatus !== '0') newStatus = theChosenAccount.status;
+		else if (newStatus !== 1 && newStatus !== 0) newStatus = theChosenAccount.status;
 
 		//kiểm tra tình trạng status update Openeday hoặc ClosedDay kiểm tra 2 tình trạng 1:Ok , 0:Closed
 		var newCloseDay = theChosenAccount.dataValues.closedDate;
 		var newOpenDay = theChosenAccount.dataValues.openedDate;
-		if(newStatus !== '1' && newStatus !== '-1')
-		{
+		if (newStatus !== 1 && newStatus !== 0) {
 			newCloseDay = moment();
-		}
-		else{
-			newOpenDay=moment();
+		} else {
+			newOpenDay = moment();
 		}
 		//kiểm tra currencytype
-		var newCurrencyType=request.currency;
-		if(!newCurrencyType) newCurrencyType = theChosenAccount.currencyType;
-		var  newAddBalance = new Decimal(theChosenAccount.balance);
+		var newCurrencyType = request.currency;
+		if (!newCurrencyType) newCurrencyType = theChosenAccount.currencyType;
+		var newAddBalance = new Decimal(theChosenAccount.balance);
 		//exchange_currencyService
 		if (theChosenAccount.currencyType !== request.currency) {
-			  newAddBalance = await exchange_currencyService.exchangeMoney(newAddBalance,theChosenAccount.currencyType);
+			newAddBalance = await exchange_currencyService.exchangeMoney(newAddBalance, theChosenAccount.currencyType);
 		}
 
 		//update thông tin accountId
 		const result = await account.update(
 			{
 				status: newStatus,
-				currencyType:newCurrencyType,
-				addBalance:newAddBalance,
-				closedDate:newCloseDay,
-				openedDate:newOpenDay
+				currencyType: newCurrencyType,
+				addBalance: newAddBalance,
+				closedDate: newCloseDay,
+				openedDate: newOpenDay
 			},
 			{
 				where: { accountId: accountId }
@@ -298,7 +296,7 @@ class account extends Model {
 				currentUser.id,
 				theChosenAccount.userId,
 				'update account',
-				'id: ' + accountId + ', update:' 
+				'id: ' + accountId + ', update:'
 			);
 			return { result, newStatus };
 		}
@@ -309,8 +307,8 @@ class account extends Model {
 		//và đang tình trạng ok
 		const list = await account.findAll({
 			where: {
-				accountType: '1', //accumulated
-				status: '1' //OK
+				accountType: 1, //accumulated
+				status: 1 //OK,
 			}
 		});
 
@@ -333,9 +331,9 @@ account.init(
 			allowNull: false
 		},
 		status: {
-			type: Sequelize.STRING, //1: OK, 0: closed, -1: locked
+			type: Sequelize.INTEGER, //1: OK, 0: closed, 2: locked
 			allowNull: false,
-			defaultValue: '1'
+			defaultValue: 1
 		},
 		balance: {
 			type: Sequelize.DECIMAL, //a large number, use Long int or double
@@ -347,7 +345,7 @@ account.init(
 			defaultValue: 'VND'
 		},
 		accountType: {
-			type: Sequelize.STRING, // 0: payment, 1: accumulated
+			type: Sequelize.INTEGER, // 0: payment, 1: accumulated
 			allowNull: false
 		},
 		openedDate: {

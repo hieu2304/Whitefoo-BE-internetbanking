@@ -1,0 +1,14 @@
+mô tả: api dùng để lấy tỷ giá VND với USD
+
+/api/rate
+
+method: nhận cả POST và GET
+điều kiện: không có
+request params: không có gì thêm ngoài clientId và secretKey
+response: usdvnd và vndusd
+
+response:
+{
+    "usdvnd": "23192",
+    "vndusd": "0.000043118316660917556"
+}

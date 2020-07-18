@@ -1,0 +1,34 @@
+mô tả: người dùng tự lấy các thông tin cơ bản của các tài khoản ngân hàng của mình
+
+/api/getaccount 
+
+method: POST
+điều kiện: đã login, CHƯA xác nhận email, CHƯA kích hoạt CMND
+
+params:không có gì thêm
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+[
+    {
+        "accountId": "741699937737173",
+        "userId": "1",
+        "status": 0,
+        "balance": "0",
+        "currencyType": "VND",
+        "accountType": 0,
+        "openedDate": "18/07/2020"
+    },
+    {
+        "accountId": "687044290037263",
+        "userId": "1",
+        "status": 0,
+        "balance": "0",
+        "currencyType": "VND",
+        "accountType": 1,
+        "openedDate": "18/07/2020",
+        "term": 6,
+        "startTermDate": "18/07/2020"
+    }
+]

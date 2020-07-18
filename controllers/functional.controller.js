@@ -25,7 +25,7 @@ module.exports.postSendVerify = asyncHandler(async function(req, res, next) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 
-	const result = await userService.transferStepOne(req.body, currentUser);
+	const result = await userService.sendVerify(currentUser);
 	//khác null nghĩa là có lỗi
 	if (result) return res.status(409).json(result);
 	//nếu trả về null có nghĩa là ok

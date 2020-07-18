@@ -1,0 +1,51 @@
+CÁC THÔNG TIN NÊN NHỚ:
+1 là bình thường, khác 1 là bất thường, cụ thể:
+
+- Bảng User:
+    + approveStatus : 1 là đã kích hoạt CMND, 0 là bị từ chối, 2 là đang chò7 duyệt (INTERGER)
+    + userType: 1 là khách hàng và 0 là nhân viên (INTERGER)
+    + status:   1 = OK, 0 = Locked  (INTERGER)
+    + verifyCode, activeCode, forgotCode: '' nghĩa là đã kích hoạt, còn lại nghĩa là chưa  (STRING)
+    + enable2fa: 1 là có, 2 là không có quá trình đăng nhập 2 bước
+
+- Bảng account:
+    + accountType: 1 là accumulated (tiết kiệm), 0 là payment (thanh toán)  (INTERGER)
+    + status: 1 là OK, 0 closed, 2 là locked  (INTERGER)
+
+- Bảng fee_payment:
+    + transferType: 1 chuyển nội bộ, 0 is chuyển liên ngân hàng (INTERGER)
+
+- Bảng history_payment:
+    + transferType: 1 chuyển nội bộ, 0 is chuyển liên ngân hàng (INTERGER)
+    + status:   1 = OK, 0 = failed  (INTERGER)
+
+- bảng history_accumulated:
+    + status:   1 = OK, 0 = failed  (INTERGER)
+
+
+#########################
+
+password mẫu:
+khongcopass
+$10$3ycq9sloOYTrhNeJWlXKMO.tQ.5ACxXuxdAD/fQ2fzd269EviDLme
+
+##########################################################################################
+##########################################################################################
+
+
+LƯU Ý: khi gọi API luôn phải có clientID và secretKey mới gọi api được
+(thiết lập trong .env nhé, đây là mẫu ví dụ)
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
+
+
+
+- thư mục guest: các api dành cho những người chưa đăng nhập, khách vãng lai
+
+- thư mục user: các api dành cho người dùng đã đăng nhập, mức độ khách hàng/người dùng
+
+- thư mục staff: các api dành cho nhân viên nội bộ của ngân hàng
+
+- thư mục thread: mô tả các thread lên lịch tự động chạy của server Backend

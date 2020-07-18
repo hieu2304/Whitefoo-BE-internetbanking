@@ -1,0 +1,23 @@
+mô tả: nhân viên nạp tiền cho 1 tài khoản có trong hệ thống
+người dùng sở hữu sẽ nhận được email thông báo
+khi nạp loại tiền khác loại lúc tài khoản đăng ký thì hệ thống sẽ tự chuyển đổi rồi mới cộng
+
+
+/api/addbalance
+
+method: POST
+
+params:
+accountId:741699937737173 (1 account phải tồn tại trong DB)
+balance:500000 (giá trị muốn thêm)
+currency:VND (chỉ nhận duy nhất VND hoặc USD)
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+
+{
+    "message": "OK"
+}
+
+và gửi email cho người sở hữu

@@ -2,6 +2,17 @@ const asyncHandler = require('express-async-handler');
 const userService = require('../services/users/user.service');
 const validateHelper = require('../helpers/validate.helper');
 const jwtHelper = require('../helpers/jwt.helper');
+const exchange_currencyService = require('../services/currency/exchange_currency.service');
+
+//api xem tỷ lệ USD VND cho FE
+module.exports.getRate = asyncHandler(async function(req, res, next) {
+	const result = await exchange_currencyService.getRate();
+	return res.status(200).send(result);
+});
+module.exports.postRate = asyncHandler(async function(req, res, next) {
+	const result = await exchange_currencyService.getRate();
+	return res.status(200).send(result);
+});
 
 //Forgot password
 //step 1 - send request forgot password to generate code and send via email
@@ -93,6 +104,22 @@ module.exports.postGetInfo = asyncHandler(async function(req, res, next) {
 });
 
 module.exports.getGetInfo = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+
+//user get self's accounts information
+module.exports.postGetAccount = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getAccount(currentUser);
+
+	return res.status(200).send(result);
+});
+
+module.exports.getGetAccount = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
 

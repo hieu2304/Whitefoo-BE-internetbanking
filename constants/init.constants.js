@@ -29,67 +29,67 @@ module.exports.exchange_currencyBaseValue = [
 ];
 
 //bảng phí khi thanh toán/chuyển tiền bằng tài khoản thanh toán
-// transferType: '1' chuyển nội bộ, '0' is chuyển liên ngân hàng
+// transferType: 1 chuyển nội bộ, 0 is chuyển liên ngân hàng
 module.exports.fee_paymentBaseValue = [
 	{
 		id: 1,
 		fee: 0,
 		value: 500000, //x < 500k
-		transferType: '1'
+		transferType: 1
 	},
 	{
 		id: 2,
 		fee: 7000,
 		value: 500000, //x < 500k
-		transferType: '0'
+		transferType: 0
 	},
 	{
 		id: 3,
 		fee: 5000,
 		value: 10000000, //x < 10tr
-		transferType: '1'
+		transferType: 1
 	},
 	{
 		id: 4,
 		fee: 10000,
 		value: 10000000, //x < 10tr
-		transferType: '0'
+		transferType: 0
 	},
 	{
 		id: 5,
 		fee: 0.0005, //0.05%
 		value: 50000000, //x < 50tr
-		transferType: '1'
+		transferType: 1
 	},
 	{
 		id: 6,
 		fee: 0.002, //0.2%
 		value: 50000000, //x < 50tr
-		transferType: '0'
+		transferType: 0
 	},
 	{
 		id: 7,
 		fee: 0.0007, //0.07%
 		value: 150000000, //x < 150tr
-		transferType: '1'
+		transferType: 1
 	},
 	{
 		id: 8,
 		fee: 0.003, //0.3%
 		value: 150000000, //x < 150tr
-		transferType: '0'
+		transferType: 0
 	},
 	{
 		id: 9,
 		fee: 0.001, //0.1%
 		value: 150000001, //x >= 150tr
-		transferType: '1'
+		transferType: 1
 	},
 	{
 		id: 10,
 		fee: 0.004, //0.4%
 		value: 150000001, //x >= 150tr
-		transferType: '0'
+		transferType: 0
 	}
 ];
 

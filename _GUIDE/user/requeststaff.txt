@@ -1,0 +1,35 @@
+mô tả: 2 chức năng, 1 là đếm số staff hiện tại, 2 là yêu cầu làm staff, khi yêu cầu thành công thì mặc định giá trị đã kích hoạt CMND sẽ được tự động bật
+
+
+/api/requeststaff
+
+method: GET
+điều kiện: đã login, đã xác nhận email, chưa kích hoạt CMND
+params: không
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+{
+    "count": 1
+}
+
+
+
+/api/requeststaff
+
+method: POST
+điều kiện: đã login, đã xác nhận email, chưa kích hoạt CMND
+params: không
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+{
+    "message": "fail"
+}
+
+hoặc thành công:
+{
+    "message": "OK"
+}

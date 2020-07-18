@@ -26,7 +26,7 @@ history_accumulated.init(
 			allowNull: false
 		},
 		status: {
-			type: Sequelize.STRING, // 1 is OK, 0 is failed
+			type: Sequelize.INTEGER, // 1 is OK, 0 is failed
 			allowNull: false
 		}
 	},

@@ -1,0 +1,16 @@
+
+mô tả:
+-nhân viên update thông tin 1 tài khoản nào đó trong hệ thống
+-các field truyền vào bỏ trống hoặc gửi giá trị cũ thì server sẽ hiểu là không update field đó
+-khi update currency, hệ thống tự quy đổi balance qua lại
+
+/api/updateaccount
+
+method: POST
+
+params:
+accountId:1 (1 account phải tồn tại trong DB, có thể dùng tên key là id hoặc accountID tùy thích)
+status:0 (chỉ nhận 0 hoặc 1, String)
+currency:(chỉ nhận VND hoặc USD)
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi

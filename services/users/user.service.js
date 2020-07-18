@@ -242,6 +242,7 @@ class User extends Model {
 		return null;
 	}
 
+	//hàm kiểm tra user active email chưa
 	static async checkUserActiveEmailCodeYet(currentUser) {
 		const isExist = await User.findOne({
 			where: {
@@ -249,6 +250,22 @@ class User extends Model {
 				activeCode: ''
 			}
 		});
+
+		//nếu đã active email, return true (AKA not null)
+		if (isExist) return isExist;
+		return null;
+	}
+
+	//hàm kiểm tra user active CMND chưa
+	static async checkUserApprovedYet(currentUser) {
+		const isExist = await User.findOne({
+			where: {
+				email: currentUser.email,
+				approveStatus: 1 //chỉ 1 là ok, 0 và 2 là chưa duyệt
+			}
+		});
+
+		//nếu đã approve, return true (AKA not null)
 		if (isExist) return isExist;
 		return null;
 	}
@@ -352,7 +369,7 @@ class User extends Model {
 		const isExist = await User.findOne({
 			where: {
 				email: currentUser.email,
-				userType: '0'
+				userType: 0
 			}
 		});
 		if (isExist) return isExist;
@@ -508,7 +525,7 @@ class User extends Model {
 						}
 					)
 				],
-				userType: '1'
+				userType: 1
 			},
 			attributes: {
 				exclude: [ 'password', 'userType', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
@@ -528,8 +545,6 @@ class User extends Model {
 
 	//hàm user xem thông tin bản thân dựa vào id
 	static async getInfo(request) {
-		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id.toString());
-
 		//dùng để trả về
 		var user = await User.findUserByPKUsingExclude(request.id);
 
@@ -541,17 +556,18 @@ class User extends Model {
 		user = user.dataValues;
 		user.dateOfBirth = dateOfBirth;
 
-		user.emailVerified = true;
+		user.emailVerified = 1;
 		if (checkUser.activeCode !== '') {
-			user.emailVerified = false;
-		}
-
-		user.citizenIdentificationIdVerified = true;
-		if (checkUser.citizenIdentificationId == null || checkUser.citizenIdentificationId === '') {
-			user.citizenIdentificationIdVerified = false;
+			user.emailVerified = 0;
 		}
 
 		return user;
+	}
+
+	//hàm user xem các tài khoản của mình dựa vào id
+	static async getAccount(request) {
+		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id.toString());
+		return accountList;
 	}
 
 	//hàm nhân viên xem thông tin ai đó hoặc bản thân, ko ẩn bất kỳ fields nào
@@ -567,7 +583,7 @@ class User extends Model {
 	static async countStaff() {
 		const countList = await User.findAndCountAll({
 			where: {
-				userType: '0'
+				userType: 0
 			}
 		});
 
@@ -584,7 +600,7 @@ class User extends Model {
 
 		const countList = await User.findAndCountAll({
 			where: {
-				userType: '0'
+				userType: 0
 			}
 		});
 
@@ -596,7 +612,8 @@ class User extends Model {
 		//nếu chưa có thì thằng này lên làm nhân viên
 		const result = await User.update(
 			{
-				userType: '0'
+				userType: 0,
+				approveStatus: 1
 			},
 			{
 				where: {
@@ -604,6 +621,7 @@ class User extends Model {
 				}
 			}
 		);
+
 		return null;
 	}
 
@@ -632,24 +650,38 @@ class User extends Model {
 		//nên nếu người dùng có nhập thì kiểm tra trùng và tính hợp lệ
 		//nếu người dùng ko nhập thì set giá trị cũ
 
-		var newLastName = request.lastname;
+		var newLastName = request.lastName;
 		if (!newLastName) newLastName = user.lastName;
 
-		var newFirstName = request.firstname;
-		if (!newFirstName) newFirstName = user.firstname;
+		var newFirstName = request.firstName;
+		if (!newFirstName) newFirstName = user.firstName;
 
 		var newAddress = request.address;
 		if (!newAddress) newAddress = user.address;
 
-		//'1' = OK, '0' = Locked, chỉ nhận 2 dạng tình trạng tài khoản
+		//1 = OK, 0 = Locked, chỉ nhận 2 dạng tình trạng tài khoản
 		var newStatus = request.status;
 		if (!newStatus) newStatus = user.status;
-		else if (newStatus !== '1' && newStatus !== '0') newStatus = user.status;
+		else {
+			newStatus = parseInt(request.status);
+			if (newStatus !== 1 && newStatus !== 0) newStatus = user.status;
+		}
 
-		//userType: '1' là khách hàng và '0' là nhân viên, chỉ nhận 2 dạng này
+		//userType: 1 là khách hàng và 0 là nhân viên, chỉ nhận 2 dạng này
 		var newUserType = request.userType;
 		if (!newUserType) newUserType = user.userType;
-		else if (newUserType !== '1' && newUserType !== '0') newStatus = user.status;
+		else {
+			newUserType = parseInt(request.userType);
+			if (newUserType !== 1 && newUserType !== 0) newStatus = user.status;
+		}
+
+		//approveStatus: 1 là đã duyệt cmnd, 0 là từ chối, 2 là đang chờ duyệt
+		var newApprove = request.approveStatus;
+		if (!newApprove) newApprove = user.approveStatus;
+		else {
+			newApprove = parseInt(request.approveStatus);
+			if (newApprove !== 1 && newApprove !== 0 && newApprove !== 2) newApprove = user.approveStatus;
+		}
 
 		//chỉnh định dạng date theo yêu cầu của postgre là YYYY-MM-DD
 		var newDateOfBirth = request.dateOfBirth;
@@ -715,13 +747,14 @@ class User extends Model {
 				lastName: newLastName,
 				firstName: newFirstName,
 				address: newAddress,
-				status: newStatus, // chỉ nhận '0' và '1'
+				status: newStatus, // chỉ nhận 0 và 1
 				dateOfBirth: newDateOfBirth,
-				userType: newUserType, // chỉ nhận '0' và '1'
+				userType: newUserType, // chỉ nhận 0 và 1
 				email: newEmail,
 				phoneNumber: newPhoneNumber,
 				username: newUsername,
-				citizenIdentificationId: newCitizenIdentificationId
+				citizenIdentificationId: newCitizenIdentificationId,
+				approveStatus: newApprove
 			},
 			{
 				where: { userId: userId }
@@ -765,45 +798,20 @@ class User extends Model {
 	//Chuyển khoản nội bộ, có 2 bước:
 	// 1 là gửi mã verify qua email cho user nhập
 	// 2 là gọi api kèm mã verify
-	//BƯỚC 1 (xài chung cho internal và external)
-	static async transferStepOne(request, currentUser) {
+	//BƯỚC 1 (xài chung cho internal và external, rút tiền các thứ)
+	static async sendVerify(currentUser) {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
 		const ErrorsList = [];
-		const errorListTransfer = errorListConstant.transferErrorValidate;
-		const accountId =
-			typeof request.requestAccountId !== 'undefined' ? request.requestAccountId : request.accountId;
-
-		if (!accountId) {
-			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
-			return ErrorsList;
+		const errorListTransfer = errorListConstant.registerErrorValidate;
+		const foundUser = await User.findOne({
+			where: {
+				id: currentUser.id
+			}
+		});
+		if (!foundUser) {
+			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
+			return errorList;
 		}
-
-		const foundAccount = await accountService.getAccountNoneExclude(accountId);
-
-		//nếu không tìm thấy hoặc tài khoản không thuộc loại thanh toán
-		if (!foundAccount || foundAccount.accountType !== '0') {
-			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
-			return ErrorsList;
-		}
-
-		//nếu tài khoản đang bị khóa ('1' là OK, '0' closed, '-1'là locked)
-		if (foundAccount.status !== '1') {
-			ErrorsList.push(errorListTransfer.SELF_LOCKED);
-			return ErrorsList;
-		}
-
-		//nếu người dùng đăng nhập hiện tại không sở hữu tài khoản mà cố vào thì không cho
-		if (parseInt(foundAccount.userId) !== currentUser.id) {
-			ErrorsList.push(errorListTransfer.NOT_BELONG);
-			return ErrorsList;
-		}
-
-		if (foundAccount.status !== '1') ErrorsList.push(errorListTransfer.SELF_LOCKED);
-		if (foundAccount.balance < 1) ErrorsList.push(errorListTransfer.NOT_ENOUGH);
-
-		if (ErrorsList.length > 0) return ErrorsList;
-
-		const foundUser = await User.findUserByPKNoneExclude(parseInt(foundAccount.userId));
 
 		//nếu vượt qua kiểm tra thì bắt đầu quá trình send mã
 		const newVerifyCode = await User.getUniqueRandomCode();
@@ -814,7 +822,7 @@ class User extends Model {
 				verifyCode: newVerifyCode
 			},
 			{
-				where: { id: foundUser.id }
+				where: { id: currentUser.id }
 			}
 		);
 
@@ -898,13 +906,13 @@ class User extends Model {
 		}
 
 		//nếu không tìm thấy hoặc tài khoản bên gửi không thuộc loại thanh toán
-		if (!foundAccount || foundAccount.accountType !== '0') {
+		if (!foundAccount || foundAccount.accountType !== 0) {
 			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
 			return ErrorsList;
 		}
 
-		//nếu tài khoản bên gửi đang bị khóa ('1' là OK, '0' closed, '-1'là locked)
-		if (foundAccount.status !== '1') {
+		//nếu tài khoản bên gửi đang bị khóa (1 là OK, 0 closed, 2là locked)
+		if (foundAccount.status !== 1) {
 			ErrorsList.push(errorListTransfer.SELF_LOCKED);
 			return ErrorsList;
 		}
@@ -956,16 +964,16 @@ class User extends Model {
 		}
 
 		//kiếm tra tiền muốn gửi + phí bên gửi có đủ không
-		//tính phí với giá tiền muốn gửi hiện tại, '1' là nội bộ, '0' là liên ngân hàng
+		//tính phí với giá tiền muốn gửi hiện tại, 1 là nội bộ, 0 là liên ngân hàng
 		//LƯU Ý: FEE NÀY CHỈ TÍNH CHO MỆNH GIÁ LÀ VNĐ, tính phí phải chuyển sang VND hết rồi chuyển lại sau (TH1 và TH2)
 		var newFee = new Decimal(0.0);
 		if (foundAccount.currencyType !== 'VND') {
 			//đổi toàn bộ tiền gửi USD(money) sang tiền VND(tempMoney) để tính chi phí, vì bảng phí ta để theo VND
 			var tempMoney = await exchange_currencyService.exchangeMoney(money, foundAccount.currencyType);
 			//tính chi phí theo VND
-			newFee = await fee_paymentService.getTransferFee(tempMoney, '1');
+			newFee = await fee_paymentService.getTransferFee(tempMoney, 1);
 		} else {
-			newFee = await fee_paymentService.getTransferFee(money, '1');
+			newFee = await fee_paymentService.getTransferFee(money, 1);
 		}
 
 		//vì phí tính theo VND, để tính toán +- vào tài khoản xài USD thì phải chuyển về USD (TH1 và TH2)
@@ -988,13 +996,13 @@ class User extends Model {
 		const foundAccountDes = await accountService.getAccountNoneExclude(accountId);
 
 		//nếu không tìm thấy hoặc tài khoản bên nhận không thuộc loại thanh toán
-		if (!foundAccountDes || foundAccountDes.accountType !== '0') {
+		if (!foundAccountDes || foundAccountDes.accountType !== 0) {
 			ErrorsList.push(errorListTransfer.NOT_EXISTS);
 			return ErrorsList;
 		}
 
-		//nếu tài khoản bên nhận đang bị khóa ('1' là OK, '0' closed, '-1'là locked)
-		if (foundAccountDes.status !== '1') {
+		//nếu tài khoản bên nhận đang bị khóa (1 là OK, 0 closed, 2 là locked)
+		if (foundAccountDes.status !== 1) {
 			ErrorsList.push(errorListTransfer.LOCKED);
 			return ErrorsList;
 		}
@@ -1196,15 +1204,23 @@ User.init(
 			defaultValue: 'Việt Nam'
 		},
 		userType: {
-			type: Sequelize.STRING,
+			type: Sequelize.INTEGER,
 			allowNull: false,
-			defaultValue: '1' // 1 = member, 0 = internal user
+			defaultValue: 1 // 1 = member, 0 = internal user
 		},
 		status: {
-			type: Sequelize.STRING,
+			type: Sequelize.INTEGER,
 			allowNull: false,
-			defaultValue: '1' // 1 = OK, 0 = Locked
+			defaultValue: 1 // 1 = OK, 0 = Locked
 		},
+
+		//approveStatus: 1 là đã duyệt cmnd, 0 là từ chối, 2 là đang chờ duyệt
+		approveStatus: {
+			type: Sequelize.INTEGER,
+			allowNull: false,
+			defaultValue: 0
+		},
+
 		password: {
 			type: Sequelize.STRING,
 			allowNull: false
@@ -1227,12 +1243,6 @@ User.init(
 			allowNull: true,
 			defaultValue: ''
 		}
-		// //thứ để kiểm tra CMND này được kích hoạt chưa
-		// isApproved: {
-		// 	type: Sequelize.INTEGER, // 0 là chưa kích hoạt, 1 là kích hoạt rồi
-		// 	allowNull: false,
-		// 	defaultValue: 0
-		// }
 	},
 	{
 		sequelize: db,

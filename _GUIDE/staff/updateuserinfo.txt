@@ -1,0 +1,29 @@
+mô tả:
+- nhân viên update thông tin cho user
+- nếu field nào nhân viên không điền hoặc gửi giá trị cũ, hệ thống sẽ hiểu là không update field đó
+
+
+/api/updateuserinfo
+
+method: POST
+
+params:
+userId:2 (1 user phải tồn tại trong DB, có thể dùng tên key là id hoặc userId tùy thích)
+userType:0 (chỉ nhận 0 hoặc 1, INT)
+lastName:hieu
+firstName:dang
+status:0    (chỉ nhận 0 hoặc 1, INT)
+phoneNumber:0129391232
+email:dangtrunghieu2304@gmail.com
+username:hieudang
+citizenIdentificationId:123012039128
+dateOfBirth:19/02/2012
+approveStatus:1
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+
+{
+    "message": "OK"
+}

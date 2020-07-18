@@ -33,6 +33,7 @@ class account_accumulated extends Model {
 		});
 
 		if (!found) return false;
+		if (parseInt(found.termsPassed) > 0) return false;
 
 		var currentDaysPassed = parseInt(found.daysPassed);
 		var currentTermsPassed = parseInt(found.termsPassed);

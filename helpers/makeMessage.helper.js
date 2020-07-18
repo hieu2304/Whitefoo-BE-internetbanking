@@ -303,7 +303,7 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 };
 
 module.exports.transferVerifyMessage = function(email, lastName, firstName, verifyCode, callback) {
-	const content = 'Mã xác minh 2 bước chuyển khoản của bạn là: ' + verifyCode;
+	const content = 'Mã xác minh 2 bước của bạn là: ' + verifyCode;
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
@@ -312,7 +312,7 @@ module.exports.transferVerifyMessage = function(email, lastName, firstName, veri
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa yêu cầu lấy mã xác minh 2 bước để thực hiện giao dịch, mã của bạn là:'
+			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa yêu cầu lấy mã xác minh 2 bước, mã của bạn là:'
 		);
 
 		html = html.replace('{Re_Content_2}', verifyCode);
