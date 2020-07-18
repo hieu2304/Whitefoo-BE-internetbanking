@@ -168,7 +168,7 @@ module.exports.transferSuccessMessage = function(
 			'{Re_Content_2}',
 			'<br>STK gửi: ' +
 				accountId +
-				'STK nhận: ' +
+				'<br>STK nhận: ' +
 				accountId2 +
 				'<br>Tiền đã gửi: ' +
 				value +
