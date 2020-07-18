@@ -255,16 +255,28 @@ class account extends Model {
 		});
 		if (!theChosenAccount) return null;
 
+		//kiểm tra tình trạng status chỉ nhận 2 dạng tình trạng tài khoản
 		var newStatus = request.status;
-		if(!newStatus) newStatus = theChosenAccount.status;
+		if (!newStatus) newStatus = theChosenAccount.status;
+		else if (newStatus !== '1' && newStatus !== '0') newStatus = theChosenAccount.status;
 
+		//kiểm tra tình trạng status update Openeday hoặc ClosedDay kiểm tra 2 tình trạng 1:Ok , 0:Closed
+		var newCloseDay = theChosenAccount.dataValues.closedDate;
+		var newOpenDay = theChosenAccount.dataValues.openedDate;
+		if(newStatus !== '1' && newStatus !== '-1')
+		{
+			newCloseDay = moment();
+		}
+		else{
+			newOpenDay=moment();
+		}
+		//kiểm tra currencytype
 		var newCurrencyType=request.currency;
 		if(!newCurrencyType) newCurrencyType = theChosenAccount.currencyType;
-
 		var  newAddBalance = new Decimal(theChosenAccount.balance);
 		//exchange_currencyService
 		if (theChosenAccount.currencyType !== request.currency) {
-			 newAddBalance = await exchange_currencyService.exchangeMoney(newAddBalance, request.currency);
+			  newAddBalance = await exchange_currencyService.exchangeMoney(newAddBalance,theChosenAccount.currencyType);
 		}
 
 		//update thông tin accountId
@@ -272,7 +284,9 @@ class account extends Model {
 			{
 				status: newStatus,
 				currencyType:newCurrencyType,
-				addBalance:newAddBalance
+				addBalance:newAddBalance,
+				closedDate:newCloseDay,
+				openedDate:newOpenDay
 			},
 			{
 				where: { accountId: accountId }
