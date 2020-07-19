@@ -39,14 +39,19 @@ module.exports.postSearchKeyword = asyncHandler(async function(req, res, next) {
 
 // getuserinfo
 //nhân viên lấy thông tin cá nhân của ai đó + các STK của người đó
-module.exports.getGetUserInfo = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
-};
+module.exports.getGetUserInfo = asyncHandler(async function(req, res, next) {
+	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
+	if (!userId) return res.status(409).send({ message: 'User not found' });
+
+	const result = await userService.findUserByPKNoneExclude(userId);
+	if (!result) return res.status(409).send({ message: 'User not found' });
+	return res.status(200).send(result);
+});
 module.exports.postGetUserInfo = asyncHandler(async function(req, res, next) {
 	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
-	if (!userId) return res.status(409).send({ message: 'id not exist' });
+	if (!userId) return res.status(409).send({ message: 'User not exist' });
 
-	const result = await userService.getUserInfo(req.body);
+	const result = await userService.findUserByPKNoneExclude(userId);
 	if (!result) return res.status(409).send({ message: 'User not found' });
 	return res.status(200).send(result);
 });

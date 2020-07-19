@@ -1,42 +1,92 @@
 mô tả: api đăng nhập người dùng
 
-bước 1
+có 2 trường hợp
+
+trường hợp 1: không sử dụng xác minh 2 bước (enable2fa:0)
+
 /api/auth/login
 
 method: POST
 điều kiện: đã logout, email/cmnd/sdt/username sẽ là username và username phải có trong DB
 params:
 
-username:admin@admin.com
-password:123456789
+username:ngoc
+password:khongcopass
 clientId:515hwrFpeLvGeVo2SvSe
 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
-response:
-{
-    "enable2fa":"1"
-}
 
-bước 2
-api/auth/verify2fa
-method: POST
-điều kiện: đã logout, verifyCode phải có trong DB
-params:
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
-verifyCode:gVotnymtKHhk8Wc
 response:
 {
     "id": 1,
-    "citizenIdentificationId": "12345",
-    "email": "admin@admin.com",
-    "phoneNumber": "0909090909",
-    "username": "1760120",
-    "lastName": "tester",
-    "firstName": "bug bug",
-    "dateOfBirth": "12/12/2012",
-    "address": "192 hàm tử, HCM, Việt Nam",
+    "citizenIdentificationId": "123",
+    "email": "timchideyeu1998@gmail.com",
+    "phoneNumber": "0123456",
+    "username": "ngoc",
+    "lastName": "ngoc",
+    "firstName": "nguyen",
+    "dateOfBirth": "12/07/1998",
+    "address": "sdsadsadassd",
     "userType": 0,
+    "status": 1,
     "approveStatus": 1,
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2l0aXplbklkZW50aWZpY2F0aW9uSWQiOiIxMjM0NSIsImVtYWlsIjoiMTc2MDEyMEBzdHVkZW50LmhjbXVzLmVkdS52biIsInBob25lTnVtYmVyIjoiMDkwOTA5MDkwOSIsInVzZXJuYW1lIjoiMTc2MDEyMCIsImxhc3ROYW1lIjoidGVzdGVyIiwiZmlyc3ROYW1lIjoiYnVnIGJ1ZyIsImRhdGVPZkJpcnRoIjoiMjAxMi0xMi0xMiIsImFkZHJlc3MiOiIxOTIgaMOgbSB04butLCBIQ00sIFZp4buHdCBOYW0iLCJ1c2VyVHlwZSI6MCwiYXBwcm92ZVN0YXR1cyI6MSwiaWF0IjoxNTk1MDU5NTI0LCJleHAiOjE1OTUwNjMxMjR9.CI8WxiGrK3R1XGkqnByGdoIQwHpSMxSDWLehnES8fTQ",
-    "message": "OK"
+    "enable2fa": 0,
+    "emailVerified": 1,
+    "message": "OK",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2l0aXplbklkZW50aWZpY2F0aW9uSWQiOiIxMjMiLCJlbWFpbCI6InRpbWNoaWRleWV1MTk5OEBnbWFpbC5jb20iLCJwaG9uZU51bWJlciI6IjAxMjM0NTYiLCJ1c2VybmFtZSI6Im5nb2MiLCJsYXN0TmFtZSI6Im5nb2MiLCJmaXJzdE5hbWUiOiJuZ3V5ZW4iLCJkYXRlT2ZCaXJ0aCI6IjEyLzA3LzE5OTgiLCJhZGRyZXNzIjoic2RzYWRzYWRhc3NkIiwidXNlclR5cGUiOjAsInN0YXR1cyI6MSwiYXBwcm92ZVN0YXR1cyI6MSwiZW5hYmxlMmZhIjowLCJlbWFpbFZlcmlmaWVkIjp0cnVlLCJpYXQiOjE1OTUxODUxNjYsImV4cCI6MTU5NTE4ODc2Nn0.93LR0TtKdddZc8TXp91zPhhV8NDj7ubH0ZwWauIde6g"
+}
+
+
+
+
+trường hợp 2: CÓ sử dụng xác minh 2 bước (enable2fa:1)
+
+bước 1:
+
+/api/auth/login
+
+method: POST
+điều kiện: đã logout, email/cmnd/sdt/username sẽ là username và username phải có trong DB
+params:
+
+username:ngoc
+password:khongcopass
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+gửi mail cho user và trả ra
+response: 
+{
+    "enable2fa": 1
+}
+
+bước 2:
+
+/api/verify2fa
+
+method: POST
+điều kiện: đã logout, email/cmnd/sdt/username sẽ là username và username phải có trong DB
+params:
+
+verifyCode:UCZORzmxwIyziev
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response:
+{
+    "id": 1,
+    "citizenIdentificationId": "123",
+    "email": "timchideyeu1998@gmail.com",
+    "phoneNumber": "0123456",
+    "username": "ngoc",
+    "lastName": "ngoc",
+    "firstName": "nguyen",
+    "dateOfBirth": "12/07/1998",
+    "address": "sdsadsadassd",
+    "userType": 0,
+    "status": 1,
+    "approveStatus": 1,
+    "enable2fa": 1,
+    "emailVerified": 1,
+    "message": "OK",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2l0aXplbklkZW50aWZpY2F0aW9uSWQiOiIxMjMiLCJlbWFpbCI6InRpbWNoaWRleWV1MTk5OEBnbWFpbC5jb20iLCJwaG9uZU51bWJlciI6IjAxMjM0NTYiLCJ1c2VybmFtZSI6Im5nb2MiLCJsYXN0TmFtZSI6Im5nb2MiLCJmaXJzdE5hbWUiOiJuZ3V5ZW4iLCJkYXRlT2ZCaXJ0aCI6IjEyLzA3LzE5OTgiLCJhZGRyZXNzIjoic2RzYWRzYWRhc3NkIiwidXNlclR5cGUiOjAsInN0YXR1cyI6MSwiYXBwcm92ZVN0YXR1cyI6MSwiZW5hYmxlMmZhIjoxLCJlbWFpbFZlcmlmaWVkIjp0cnVlLCJpYXQiOjE1OTUxODUzODUsImV4cCI6MTU5NTE4ODk4NX0.2mib0Y7yTy7TZaNSh_cu6VTNMd3892QJ2WppPRgooxk"
 }
