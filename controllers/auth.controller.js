@@ -59,6 +59,16 @@ module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 	return res.status(200).send(result);
 });
 
+//hàm login bước 2
+module.exports.postAuthLoginAIOsteptwo = asyncHandler(async function(req, res, next) {
+	const result = await userService.authenticationLoginAIOStepTwo(req.body.verifyCode);
+	if (!result) {
+		return res.status(403).send({ message: 'Wrong verifyCode' });
+	}
+
+	return res.status(200).send(result);
+});
+
 module.exports.postAuthActive = asyncHandler(async function(req, res, next) {
 	const result = await userService.activeEmailCode(req.body.activeCode);
 	if (!result) {

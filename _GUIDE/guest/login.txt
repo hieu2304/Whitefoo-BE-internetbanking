@@ -1,5 +1,6 @@
 mô tả: api đăng nhập người dùng
 
+bước 1
 /api/auth/login
 
 method: POST
@@ -10,7 +11,19 @@ username:admin@admin.com
 password:123456789
 clientId:515hwrFpeLvGeVo2SvSe
 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+response:
+{
+    "enable2fa":"1"
+}
 
+bước 2
+api/auth/verify2fa
+method: POST
+điều kiện: đã logout, verifyCode phải có trong DB
+params:
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+verifyCode:gVotnymtKHhk8Wc
 response:
 {
     "id": 1,

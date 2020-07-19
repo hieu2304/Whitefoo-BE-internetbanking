@@ -67,12 +67,31 @@ class User extends Model {
 	static async authenticationLoginAIO({ username, password }) {
 		//tìm user và lấy mật khẩu + các thông tin mật để authentication
 		const authUser = await User.findUserNoneExclude(username);
-
 		if (!authUser) return null;
 		if (!await User.verifyPassword(password, authUser.password)) return null;
-
-		//tìm user nhưng ko trả ra mật khẩu và các thông tin mật
-		const user = await User.findUserUsingExclude(username);
+		if(authUser.enable2fa !== 1)
+		{
+			const result = await User.update(
+				{
+					enable2fa:1
+				},
+				{
+					where: { id:authUser.id }
+				}
+			);
+		}
+		await User.sendVerify(authUser);
+		const result ='enable2fa: '+ authUser.dataValues.enable2fa;
+		return result;
+	}
+	
+	//Login step two 
+	static async authenticationLoginAIOStepTwo(verifyCode){	
+		//tìm user bởi verifyCode
+		const user = await User.findUserUsingExcludebyVerifyCode(verifyCode);
+		if(!user)return null;
+		
+		//tạo các thông tin cần thiết trả ra dữ liệu khi đăng nhập thành công
 		const token = jwtHelper.generateToken(user.dataValues);
 		const result = user.dataValues;
 		result.dateOfBirth = user.dateOfBirth;
@@ -1379,6 +1398,11 @@ User.init(
 			type: Sequelize.STRING,
 			allowNull: true,
 			defaultValue: ''
+		}
+		enable2fa: {
+			type: Sequelize.INTEGER,
+			allowNull:false,
+			defaultValue:0
 		}
 	},
 	{
