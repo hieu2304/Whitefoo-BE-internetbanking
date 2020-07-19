@@ -2,6 +2,8 @@ CÁC THÔNG TIN NÊN NHỚ:
 1 là bình thường, khác 1 là bất thường, cụ thể:
 
 - Bảng User:
+    + lastName: bình thường là HỌ nhưng FE quy định là TÊN
+    + firstName: bình thường là TÊN nhưng FE quy định là HỌ
     + approveStatus : 1 là đã kích hoạt CMND, 0 là bị từ chối, 2 là đang chò7 duyệt (INTERGER)
     + userType: 1 là khách hàng và 0 là nhân viên (INTERGER)
     + status:   1 = OK, 0 = Locked  (INTERGER)

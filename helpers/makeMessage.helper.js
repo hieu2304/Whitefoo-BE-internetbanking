@@ -22,7 +22,7 @@ module.exports.verifyEmailMessage = function(email, lastName, firstName, activeC
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa đăng ký tài khoản thành công, hãy bấm nút bên dưới để kích hoạt tài khoản!'
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa đăng ký tài khoản thành công, hãy bấm nút bên dưới để kích hoạt tài khoản!'
 		);
 
 		html = html.replace('{Re_Content_2}', '');
@@ -93,7 +93,7 @@ module.exports.loadUpSuccessMessage = function(
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa nạp tiền thành công, chi tiết:'
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa nạp tiền thành công, chi tiết:'
 		);
 
 		html = html.replace(
@@ -161,7 +161,7 @@ module.exports.transferSuccessMessage = function(
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa thực hiện chuyển tiền thành công, chi tiết:'
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa thực hiện chuyển tiền thành công, chi tiết:'
 		);
 
 		html = html.replace(
@@ -233,7 +233,7 @@ module.exports.transferSuccessMessageDes = function(
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa nhận tiền thành công, chi tiết:'
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa nhận tiền thành công, chi tiết:'
 		);
 
 		html = html.replace(
@@ -282,7 +282,7 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa yêu cầu khôi phục mật khẩu, hãy bấm nút bên dưới để tiến hành quy trình khôi phục mật khẩu!'
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa yêu cầu khôi phục mật khẩu, hãy bấm nút bên dưới để tiến hành quy trình khôi phục mật khẩu!'
 		);
 
 		html = html.replace('{Re_Content_2}', '');
@@ -312,7 +312,7 @@ module.exports.transferVerifyMessage = function(email, lastName, firstName, veri
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_LastName} {Re_FirstName}, bạn vừa yêu cầu lấy mã xác minh 2 bước, mã của bạn là:'
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa yêu cầu lấy mã xác minh 2 bước, mã của bạn là:'
 		);
 
 		html = html.replace('{Re_Content_2}', verifyCode);
