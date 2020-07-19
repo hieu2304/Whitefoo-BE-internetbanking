@@ -132,10 +132,15 @@ module.exports.postUpdateAccount = asyncHandler(async function(req, res, next) {
 });
 
 //nhân viên duyệt hoặc từ chối 1 người dùng nhất định
-module.exports.getVerifyIdCard = function(req, res) {
-	return res.status(200).send({ message: 'OK' });
-};
-module.exports.postVerifyIdCard = asyncHandler(async function(req, res, next) {
+//POST là duyệt
+//GET là lấy list
+module.exports.getVerifyUser = asyncHandler(async function(req, res, next) {
+	const result = await userService.getPendingVerifyUserList();
+
+	return res.status(200).send(result);
+});
+
+module.exports.postVerifyUser = asyncHandler(async function(req, res, next) {
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
@@ -143,14 +148,4 @@ module.exports.postVerifyIdCard = asyncHandler(async function(req, res, next) {
 	await userService.verifyIdCard(req.body, currentUser);
 
 	return res.status(200).send({ message: 'OK' });
-});
-
-//nhân viên lấy danh sách các user chưa duyệt cmnd
-module.exports.getGetNotVerify = function(req, res) {
-	return res.status(200).send({ message: 'OK' });
-};
-module.exports.postGetNotVerify = asyncHandler(async function(req, res, next) {
-	const result = await userService.getNotVerify();
-
-	return res.status(200).send(result);
 });

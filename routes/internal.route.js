@@ -38,11 +38,8 @@ router.get('/updateuserinfo', controller.getUpdateUserInfo);
 router.post('/updateaccount', controller.postUpdateAccount);
 
 //nhân viên duyệt hoặc từ chối 1 người dùng nhất định
-router.get('/verifyidcard', controller.getVerifyIdCard);
-router.post('/verifyidcard', controller.postVerifyIdCard);
-
-//nhân viên lấy danh sách các user chưa duyệt cmnd
-router.get('/getnotverify', controller.getGetNotVerify);
-router.post('/getnotverify', controller.postGetNotVerify);
+//get là lấy list đang chờ duyệt, post là phê duyệt
+router.get('/verifyuser', controller.getVerifyUser);
+router.post('/verifyuser', controller.postVerifyUser);
 
 module.exports = router;

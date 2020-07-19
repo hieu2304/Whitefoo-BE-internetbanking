@@ -392,8 +392,7 @@ class User extends Model {
 		//user phải kích hoạt email rồi mới quên mật khẩu lấy lại qua email được
 		const forgotPasswordUser = await User.findOne({
 			where: {
-				email: request.email,
-				activeCode: ''
+				email: request.email
 			}
 		});
 
@@ -460,7 +459,8 @@ class User extends Model {
 		await User.update(
 			{
 				password: await User.hashPassword(request.newPassword),
-				forgotCode: ''
+				forgotCode: '',
+				activeCode: '' //nếu thành công sẽ kích hoạt email luôn nếu từ trước chưa kích hoạt email
 			},
 			{
 				where: { email: isExist.email }
@@ -548,11 +548,11 @@ class User extends Model {
 		return result;
 	}
 
-	//hàm nhân viên lấy danh sách các tài khoản chưa duyệt cmnd
-	static async getNotVerify() {
+	//hàm nhân viên lấy danh sách các tài khoản chưa duyệt cmnd: đang chờ duyệt
+	static async getPendingVerifyUserList() {
 		const list = await User.findAll({
 			where: {
-				[Op.or]: [ { approveStatus: 0 }, { approveStatus: 2 } ]
+				approveStatus: 2
 			}
 		});
 

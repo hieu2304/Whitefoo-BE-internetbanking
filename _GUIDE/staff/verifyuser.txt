@@ -1,15 +1,20 @@
+mô tả: nhân viên gọi để duyệt hoặc từ chối thằng user đang cần xác nhận CMND
+
+khi từ chối thì ko xóa cmnd của thằng user trong DB
+
+
 mô tả: nhân viên lấy danh sách user chưa được duyệt CMND
 
-/api/getnotverify
+/api/verifyuser
 
-method:POST
+method:GET
 
 params:
 không có
 clientId:515hwrFpeLvGeVo2SvSe
 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
-response: danh sách các user chưa duyệt cmnd (!=1 là chưa duyệt: đang chờ hoặc bị từ chối quy chung là chưa duyệt)
+response: danh sách các user đang chờ duyệt CMND (approveStatus == 2 only)
 [
     {
         "id": 2,
@@ -23,7 +28,7 @@ response: danh sách các user chưa duyệt cmnd (!=1 là chưa duyệt: đang 
         "address": "sdasdasdasd",
         "userType": 1,
         "status": 1,
-        "approveStatus": 0,
+        "approveStatus": 2,
         "emailVerified": 1
     },
     {
@@ -42,3 +47,21 @@ response: danh sách các user chưa duyệt cmnd (!=1 là chưa duyệt: đang 
         "emailVerified": 1
     }
 ]
+
+
+
+
+
+/api/verifyuser
+
+method: POST
+
+params:
+
+userId: id của người dùng cần duyệt (có thể ghi userId hoặc id)
+approveStatus: 1 hoặc 0 (0 là từ chối duyệt, 1 là duyệt, 2 là chờ duyệt)
+
+response:
+{
+    message: "OK"
+}
