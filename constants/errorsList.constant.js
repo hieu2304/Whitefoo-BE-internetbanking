@@ -15,6 +15,11 @@ module.exports.transferErrorValidate = {
 		message: 'verifyCode must not empty'
 	},
 
+	VERIFYCODE_INVALID: {
+		code: 'VERIFYCODE_INVALID',
+		message: 'Invalid or wrong verifyCode'
+	},
+
 	ACCOUNTID_EMPTY: {
 		code: 'ACCOUNTID_EMPTY',
 		message: 'accountId must not empty'
@@ -38,11 +43,6 @@ module.exports.transferErrorValidate = {
 	NOT_BELONG: {
 		code: 'NOT_BELONG',
 		message: 'This account not belong to the current user'
-	},
-
-	VERIFYCODE_INVALID: {
-		code: 'VERIFYCODE_INVALID',
-		message: 'Invalid or wrong verifyCode'
 	},
 
 	NOT_EXISTS: {

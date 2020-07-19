@@ -103,9 +103,16 @@ module.exports.postGetInfo = asyncHandler(async function(req, res, next) {
 	return res.status(200).send(result);
 });
 
-module.exports.getGetInfo = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
-};
+module.exports.getGetInfo = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getInfo(currentUser);
+
+	return res.status(200).send(result);
+});
 
 //user get self's accounts information
 module.exports.postGetAccount = asyncHandler(async function(req, res, next) {
@@ -118,9 +125,16 @@ module.exports.postGetAccount = asyncHandler(async function(req, res, next) {
 
 	return res.status(200).send(result);
 });
-module.exports.getGetAccount = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
-};
+module.exports.getGetAccount = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getAccount(currentUser);
+
+	return res.status(200).send(result);
+});
 
 //change password after login success
 //currentPassword

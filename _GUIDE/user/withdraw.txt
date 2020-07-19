@@ -1,0 +1,15 @@
+mô tả: api rút tiền bước 2 (bước 1 là /api/sendverify)
+
+/api/withdraw
+
+method: POST
+điều kiện: user đã verify Email, đã được duyệt CMND
+
+params:
+
+verifyCode:mã được gửi qua email (người dùng nhập mã này)
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+response: nếu mã sai thì response lỗi, đúng thì OK kèm gửi mail
+

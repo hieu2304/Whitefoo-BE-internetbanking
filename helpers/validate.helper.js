@@ -113,4 +113,8 @@ module.exports.validateTransfer = function() {
 	];
 };
 
+module.exports.validateWithdraw = function() {
+	return [ check('verifyCode', errorConstantTransfer.VERIFYCODE_EMPTY).isLength({ min: 1 }) ];
+};
+
 module.exports.validateLoginInformation = function(request) {};

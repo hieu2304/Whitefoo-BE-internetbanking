@@ -1217,6 +1217,51 @@ class User extends Model {
 		return null;
 	}
 
+	static async withdrawStepTwo(request, currentUser) {
+		const ErrorsList = [];
+		const errorListTransfer = errorListConstant.transferErrorValidate;
+
+		//xác thực verifyCode...
+		const checkingUser = await User.activeVerifyCode(request.verifyCode);
+
+		if (!checkingUser) {
+			ErrorsList.push(errorListTransfer.VERIFYCODE_INVALID);
+			return ErrorsList;
+		}
+
+		//Nếu thằng đang đăng nhập không sở hữu tài khoản thì xóa mã verify rồi cút nó ra
+		if (checkingUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
+			ErrorsList.push(errorListTransfer.NOT_BELONG);
+			return ErrorsList;
+		}
+
+		makeMessageHelper.withdrawMessage(
+			'timchideyeu1998@gmail.com',
+			'Nguyễn',
+			'Ngọc',
+			6500000,
+			50000,
+			'0123456789',
+			360,
+			1,
+			12,
+			'14/7/2020',
+			0,
+			'USD',
+			'không em, thích thì rút',
+			function(response) {
+				emailHelper.send(
+					'timchideyeu1998@gmail.com',
+					'Rút tiền thành công',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
+		);
+		return null;
+	}
+
 	static async loadUpBalance(request, currentUser) {
 		const result = await accountService.addBalanceForAccount(request, currentUser);
 		if (!result) return null;

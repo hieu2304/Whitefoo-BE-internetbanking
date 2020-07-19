@@ -2,7 +2,7 @@ mô tả: người dùng tự lấy các thông tin cá nhân cơ bản
 
 /api/getinfo
 
-method: POST
+method: POST và GET đều như nhau
 điều kiện: đã login, CHƯA xác nhận email, CHƯA kích hoạt CMND
 
 params: không có gì thêm
