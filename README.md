@@ -14,6 +14,7 @@ Run `npm run dev` to start the dev server. Navigate to `http://localhost:3000/`.
 
 ## Folders structure
 [VI]
+
     - thư mục constants: khai báo các biến cố định hoặc mảng cố định muốn mặc định gì đó, cũng có thể là arr thông báo lỗi, 1 số slogans, Regex pattern....
     
     - thư mục helpers: chứa các hàm xử lý ngoài: ép kiểu ngày tháng, cắt chuỗi theo nhu cầu, các hàm random(string,number),mã hóa ngoài, xử lý Regex...
@@ -25,6 +26,7 @@ Run `npm run dev` to start the dev server. Navigate to `http://localhost:3000/`.
     - thư mục controller để khai báo các hàm sử dụng ở routes
 
 [ENG]
+
     - constants folder : contains declaration of fixed arrays , constants , slogans , regular expression patterns ...
 
     - helpers folder : contains utility functions (date time formatting , string processing , randomizing , encrypting , regex handling)
@@ -36,6 +38,7 @@ Run `npm run dev` to start the dev server. Navigate to `http://localhost:3000/`.
     - middleware folder and service folder : contains utility functions and data fetching
     
 ## Third party used
-    - Api get exchange rate: https://www.freeforexapi.com/Home/Api
 
-    - Google reCAPTCHA v2: www.google.com/recaptcha/api
+    - Api get exchange rate: [freeforexapi](https:/www.freeforexapi.com/Home/Api)
+
+    - [Google reCAPTCHA v2](www.google.com/recaptcha/)
