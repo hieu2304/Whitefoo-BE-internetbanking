@@ -18,10 +18,12 @@ This project was generated with [npm](https://github.com/npm/cli) version 6.14.4
 
 
 [ENG]
-this is our bank's backend, named whitefoo:
+whitefoo bank project's backend
 
-    - constant folder: declare some permanent array, variable, errors list, slogans, Regular expression pattern....
-    - helper folder: contains many help handling when coding, such as: format datetime, custom substring, make some random string or number, decode & encode some others type, handling ReGex...
-    - middleware folder and service folder having the same feature as we studied
-    - controller folder: declare function handling, will be calling form routes
-    - IF you re-structure these or login-structure, PLEASE notify for everyone in the team, Especially the BACK-END team
+    - constants folder : contains declaration of fixed arrays , constants , slogans , regular expression patterns ...
+    - helpers folder : contains "insert expression here" functions (date time formatting , string processing , randomizing , encripting , regex handling)
+    - controllers : contains declaration of functions used in routes folder
+    - routes folder : routing for function calls ( will be called from controllers )
+    - middleware folder and service folder : contains utility functions and data fetching
+    - In case of changing folder's structure or logical structure , PLEASE INFORM OTHER GROUP MEMBERS ESPECIALLY THE BACKEND TEAM
+    
