@@ -24,7 +24,8 @@ Run `npm run dev` to start the dev server. Navigate to `http://localhost:3000/`.
 
 [ENG]
     - constants folder : contains declaration of fixed arrays , constants , slogans , regular expression patterns ...
-    - helpers folder : contains "insert expression here" functions (date time formatting , string processing , randomizing , encrypting , regex handling)
+    - helpers folder : contains utility functions (date time formatting , string processing , randomizing , encrypting , regex handling)
+>>>>>>> 21e7ce47be73e316a5e5bbada6ee5e49d3764856
     - controllers : contains declaration of functions used in routes folder
     - routes folder : routing for function calls ( will be called from controllers )
     - middleware folder and service folder : contains utility functions and data fetching
