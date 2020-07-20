@@ -25,8 +25,12 @@ router.get('/testfunctional', controller.testFunctional);
 //B1: send verifyCode
 router.get('/sendverify', controller.getSendVerify);
 router.post('/sendverify', controller.postSendVerify);
-//B2 verify the Code then transfer
+//B2 verify the Code then transfer, sử dụng validate của transfer
 router.get('/transferinternal', controller.getTransferInternal);
 router.post('/transferinternal', validateHelper.validateTransfer(), controller.postTransferInternal);
+
+//User rút tiền (B1 xài sendverify), sử dụng validate của withdraw
+router.get('/withdraw', controller.getWithdraw);
+router.post('/withdraw', validateHelper.validateWithdraw(), controller.postWithdraw);
 
 module.exports = router;

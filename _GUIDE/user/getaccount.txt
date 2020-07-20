@@ -2,7 +2,11 @@ mô tả: người dùng tự lấy các thông tin cơ bản của các tài kh
 
 /api/getaccount 
 
-method: POST
+mô tả: user tự get danh sách account của mình
+
+/api/getaccount
+
+method: POST và GET đều như nhau
 điều kiện: đã login, CHƯA xác nhận email, CHƯA kích hoạt CMND
 
 params:không có gì thêm

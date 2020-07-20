@@ -1,5 +1,6 @@
 const getHTMLService = require('../constants/getHTML.constant');
 const getAttachments = require('../constants/attachments.constant');
+const moment = require('moment');
 var fs = require('fs');
 
 const registerThankMessage =
@@ -267,6 +268,7 @@ module.exports.transferSuccessMessageDes = function(
 	});
 };
 
+//tin nhắn quên mật khẩu
 module.exports.forgotPasswordMessage = function(email, lastName, firstName, forgotCode, callback) {
 	//${HOST_URL}/passwordrecovery?token=fapfapfap
 
@@ -302,6 +304,7 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 	});
 };
 
+//tin nhắn gửi cho các hoạt động cần xác minh 2 bước
 module.exports.transferVerifyMessage = function(email, lastName, firstName, verifyCode, callback) {
 	const content = 'Mã xác minh 2 bước của bạn là: ' + verifyCode;
 	getHTMLService.getHTMLPattern(0, function(response) {
@@ -325,6 +328,100 @@ module.exports.transferVerifyMessage = function(email, lastName, firstName, veri
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
 		const attachments = getAttachments.verifyAttachments;
+
+		return callback({ content, html, attachments });
+	});
+};
+
+//tin nhắn gửi khi rút tiền
+module.exports.withdrawMessage = function(
+	email, //email client
+	lastName, //tên của client
+	firstName, //họ của client
+	value, //tiền vốn
+	profit, //tiền lời
+	accountId, //STK rút
+	dayPassed, //số ngày đã gửi
+	termPassed, //số kỳ hạn đã gửi
+	term, //kỳ hạn mà client đăng ký
+	startTermDate, //ngày bắt đầu tính (gửi)
+	valueLeft, //vốn sau khi rút
+	currencyIn, //đơn vị tiền tệ của tài khoản
+	message, //tin nhắn kèm theo
+	callback
+) {
+	const currency = ' ' + currencyIn;
+	const content =
+		'Bạn vừa rút tiền thành công:\nSTK' +
+		accountId +
+		'\nTiền vốn đã rút:' +
+		value +
+		currency +
+		'\nTiền lời đã rút:' +
+		profit +
+		currency +
+		'\nSố dư sau khi rút: ' +
+		valueLeft +
+		currency +
+		'Kỳ hạn đăng ký: ' +
+		term +
+		' tháng' +
+		'\nNgày gửi: ' +
+		startTermDate +
+		'\nNgày rút: ' +
+		moment().format('DD/MM/YYYY') +
+		'\nSố ngày đã gửi: ' +
+		dayPassed +
+		'\nSố kỳ đã gửi: ' +
+		termPassed +
+		'\nTin nhắn: ' +
+		message;
+
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
+
+		html = html.replace('{Re_Image}', 'b');
+		html = html.replace('{Re_Title}', 'Rút tiền thành công');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa rút tiền thành công, chi tiết:'
+		);
+
+		html = html.replace(
+			'{Re_Content_2}',
+			'<br>STK chọn rút: ' +
+				accountId +
+				'<br>Tiền vốn đã rút: ' +
+				value +
+				'<br>Tiền lời đã rút: ' +
+				profit +
+				'<br>Số dư sau khi rút: ' +
+				valueLeft +
+				'<br>Kỳ hạn đăng ký: ' +
+				term +
+				' tháng' +
+				'<br>Ngày gửi: ' +
+				startTermDate +
+				'<br>Ngày rút: ' +
+				moment().format('DD/MM/YYYY') +
+				'<br>Số ngày đã gửi: ' +
+				dayPassed +
+				'<br>Số kỳ đã gửi: ' +
+				termPassed +
+				'<br>Tin nhắn: ' +
+				message
+		);
+
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.receiveAttachments;
 
 		return callback({ content, html, attachments });
 	});

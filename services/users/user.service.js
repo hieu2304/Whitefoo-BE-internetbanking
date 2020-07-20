@@ -17,22 +17,37 @@ const audit_logService = require('../users/audit_log.service');
 const requestService = require('request');
 
 class User extends Model {
+	////////////////////////////////////////////////////////////////////////////////
+	//						CÁC HÀM TÌM KIẾM, TÌM KIẾM RỒI KIỂM TRA
+	////////////////////////////////////////////////////////////////////////////////
+
+	//tìm user theo khóa chính id
 	static async findUserByPKNoneExclude(id) {
 		const user = await User.findByPk(id);
+		if (!user) return null;
 
-		return user;
+		const result = user.dataValues;
+		result.dateOfBirth = user.dateOfBirth;
+		result.emailVerified = 1;
+		if (user.activeCode !== '') result.emailVerified = 0;
+
+		return result;
 	}
 	static async findUserByPKUsingExclude(id) {
-		const user = await User.findOne({
-			where: { id: id },
-			attributes: {
-				exclude: [ 'password', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode', 'status' ]
-			}
-		});
+		const result = await User.findUserByPKNoneExclude(id);
+		if (!result) return null;
 
-		return user;
+		delete result.password;
+		delete result.createdAt;
+		delete result.updatedAt;
+		delete result.verifyCode;
+		delete result.forgotCode;
+		delete result.activeCode;
+
+		return result;
 	}
 
+	//tìm user tương đối theo: email, sdt, cmnd và username
 	static async findUserNoneExclude(username) {
 		const user = await User.findOne({
 			where: {
@@ -44,84 +59,117 @@ class User extends Model {
 				]
 			}
 		});
-		return user;
-	}
 
-	static async findUserUsingExclude(username) {
-		const user = await User.findOne({
-			where: {
-				[Op.or]: [
-					{ email: username },
-					{ citizenIdentificationId: username },
-					{ phoneNumber: username },
-					{ username: username }
-				]
-			},
-			attributes: {
-				exclude: [ 'password', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode', 'status' ]
-			}
-		});
-		return user;
-	}
+		if (!user) return null;
 
-	static async authenticationLoginAIO({ username, password }) {
-		//tìm user và lấy mật khẩu + các thông tin mật để authentication
-		const authUser = await User.findUserNoneExclude(username);
-
-		if (!authUser) return null;
-		if (!await User.verifyPassword(password, authUser.password)) return null;
-
-		//tìm user nhưng ko trả ra mật khẩu và các thông tin mật
-		const user = await User.findUserUsingExclude(username);
-		const token = jwtHelper.generateToken(user.dataValues);
 		const result = user.dataValues;
 		result.dateOfBirth = user.dateOfBirth;
-		result.token = token;
-		result.message = 'OK';
+		result.emailVerified = 1;
+		if (user.activeCode !== '') result.emailVerified = 0;
+
+		return result;
+	}
+	static async findUserUsingExclude(username) {
+		const result = await User.findUserNoneExclude(username);
+		if (!result) return null;
+
+		delete result.password;
+		delete result.createdAt;
+		delete result.updatedAt;
+		delete result.verifyCode;
+		delete result.forgotCode;
+		delete result.activeCode;
+
 		return result;
 	}
 
-	static async authenticationLoginByEmail({ email, password }) {
-		const authUser = await User.findOne({
+	//hàm nhân viên lấy danh sách các tài khoản chưa duyệt cmnd: đang chờ duyệt
+	static async getPendingVerifyUserList() {
+		const list = await User.findAll({
 			where: {
-				email: email
+				approveStatus: 2
 			}
 		});
-		if (!authUser) return null;
-		if (!await User.verifyPassword(password, authUser.password)) return null;
-		const user = await User.findUserUsingExclude(email);
-		const token = jwtHelper.generateToken(user.dataValues);
-		return { user, token };
+
+		const result = [];
+		for (var i = 0; i < list.length; i++) {
+			result.push(await User.findUserByPKUsingExclude(list[i].id));
+		}
+
+		return result;
 	}
 
-	static async authenticationLoginByPhoneNumber({ phoneNumber, password }) {
-		const authUser = await User.findOne({
+	//hàm nhân viên tìm kiếm trả về list user theo keyword
+	static async searchByKeyword(request) {
+		const keyword = request.keyword.toLowerCase();
+		const listNumberOne = await User.findAll({
 			where: {
-				phoneNumber: phoneNumber
+				[Op.or]: [
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), { [Op.like]: '%' + keyword + '%' }),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('citizenIdentificationId')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('phoneNumber')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstName')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastName')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+
+					//Họ + ' ' + Tên
+					Sequelize.where(
+						Sequelize.fn(
+							'lower',
+							Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName'))
+						),
+						{
+							[Op.like]: '%' + keyword + '%'
+						}
+					)
+				],
+				userType: 1
+			},
+			attributes: {
+				exclude: [ 'password', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
 			}
 		});
-		if (!authUser) return null;
-		if (!await User.verifyPassword(password, authUser.password)) return null;
 
-		const user = await User.findUserUsingExclude(phoneNumber);
-		const token = jwtHelper.generateToken(user.dataValues);
-		return { user, token };
-	}
-
-	static async authenticationLoginByCitizenIdentificationId({ citizenIdentificationId, password }) {
-		const authUser = await User.findOne({
-			where: {
-				citizenIdentificationId: citizenIdentificationId
+		const result = [];
+		for (var i = 0; i < listNumberOne.length; i++) {
+			result.push(listNumberOne[i].dataValues);
+			result[i].dateOfBirth = listNumberOne[i].dateOfBirth;
+			result[i].emailVerified = 1;
+			const checkUser = await User.findUserByPKNoneExclude(result[i].id);
+			if (checkUser.activeCode !== '') {
+				result[i].emailVerified = 0;
 			}
-		});
-		if (!authUser) return null;
-		if (!await User.verifyPassword(password, authUser.password)) return null;
+		}
 
-		const user = await User.findUserUsingExclude(citizenIdentificationId);
-		const token = jwtHelper.generateToken(user.dataValues);
-		return { user, token };
+		return result;
 	}
 
+	//hàm nhân viên lấy danh sách STK của 1 user
+	static async getUserAccount(request) {
+		const user = await User.findUserByPKNoneExclude(request.id);
+		if (!user) return null;
+		const accountList = await accountService.getAllAccountReferenceByIdNoneExclude(request.id);
+
+		return accountList;
+	}
+
+	//user lấy danh sách STK của mình dựa vào id
+	static async getAccount(request) {
+		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id.toString());
+		return accountList;
+	}
+
+	//kiểm tra trùng username
 	static async checkConflictUserName(username) {
 		const conflictEmail = await User.findAll({
 			where: {
@@ -131,7 +179,7 @@ class User extends Model {
 		if (conflictEmail.length > 0) return 'Conflict User Name';
 		return null;
 	}
-
+	//kiểm tra trùng email
 	static async checkConflictEmail(email) {
 		const conflictEmail = await User.findAll({
 			where: {
@@ -141,7 +189,7 @@ class User extends Model {
 		if (conflictEmail.length > 0) return 'Conflict email';
 		return null;
 	}
-
+	//kiểm tra trùng SDT
 	static async checkConflictPhoneNumber(phoneNumber) {
 		const conflictPhoneNumber = await User.findAll({
 			where: {
@@ -151,7 +199,7 @@ class User extends Model {
 		if (conflictPhoneNumber.length > 0) return 'Conflict phone number';
 		return null;
 	}
-
+	//kiểm tra trùng CMND
 	static async checkConflictCitizenIdentificationId(citizenIdentificationId) {
 		const conflictCitizenIdentificationId = await User.findAll({
 			where: {
@@ -161,9 +209,7 @@ class User extends Model {
 		if (conflictCitizenIdentificationId.length > 0) return 'Conflict citizenIdentificationId';
 		return null;
 	}
-
-	//hàm này kiểm tra xem các thông tin: SDT, CMND, email, username có bị trùng với ai trong DB ko
-	//để đăng ký mới thì 4 thông tin trên phải ko trùng với bất kỳ ai đã tồn tại trong DB
+	//hàm này kiểm tra trùng tổng hợp 4 cái 1 lúc: CMND, SDT, USERNAME, EMAIL
 	static async checkConflictUser(request) {
 		//tạo 1 Error List sẵn
 		const errorList = [];
@@ -202,6 +248,11 @@ class User extends Model {
 		return null;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
+	//						CÁC HÀM TÌM KIẾM RỒI XÁC THỰC, XÁC THỰC
+	////////////////////////////////////////////////////////////////////////////////
+
+	//xác thực mã 2 bước, có thì trả ra user
 	static async activeVerifyCode(_code) {
 		const isExist = await User.findOne({
 			where: {
@@ -221,7 +272,7 @@ class User extends Model {
 		}
 		return null;
 	}
-
+	//xác thực mã kích hoạt EMAIL, có thì trả ra user
 	static async activeEmailCode(_code) {
 		const isExist = await User.findOne({
 			where: {
@@ -241,6 +292,16 @@ class User extends Model {
 		}
 		return null;
 	}
+	//xác thực mã quên mật khẩu, có thì trả ra user
+	static async verifyForgotCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				forgotCode: _code
+			}
+		});
+		if (isExist) return isExist;
+		return null;
+	}
 
 	//hàm kiểm tra user active email chưa
 	static async checkUserActiveEmailCodeYet(currentUser) {
@@ -251,11 +312,9 @@ class User extends Model {
 			}
 		});
 
-		//nếu đã active email, return true (AKA not null)
 		if (isExist) return isExist;
 		return null;
 	}
-
 	//hàm kiểm tra user active CMND chưa
 	static async checkUserApprovedYet(currentUser) {
 		const isExist = await User.findOne({
@@ -270,57 +329,71 @@ class User extends Model {
 		return null;
 	}
 
-	static async checkIfExistVerifyCode(_code) {
+	static async checkInternalUser(currentUser) {
 		const isExist = await User.findOne({
 			where: {
-				verifyCode: _code
+				email: currentUser.email,
+				userType: 0
 			}
 		});
-		if (isExist) return true;
-		return false;
+		if (isExist) return isExist;
+		return null;
 	}
 
-	static async checkIfExistActiveCode(_code) {
-		const isExist = await User.findOne({
-			where: {
-				activeCode: _code
-			}
-		});
-		if (isExist) return true;
-		return false;
-	}
+	//login step one
+	static async authenticationLoginAIO({ username, password }) {
+		const authUser = await User.findUserNoneExclude(username);
+		if (!authUser) return null;
+		if (!await User.verifyPassword(password, authUser.password)) return null;
 
-	static async checkIfExistForgotCode(_code) {
-		const isExist = await User.findOne({
-			where: {
-				forgotCode: _code
-			}
-		});
-		if (isExist) return true;
-		return false;
-	}
+		const result = await User.findUserByPKUsingExclude(authUser.id);
 
-	//hàm này ko async vì ta sẽ dùng req.session để nhận biết, ko dùng tới DB
-	static checkUserVeiryCitizenIdentificationIdYet(currentUser) {
-		var result = String(currentUser.citizenIdentificationId).startsWith('empty=[');
-		//nếu CMND bắt đầu bằng empty -> chưa xác nhận
-		if (result) return null;
-		return 'activated';
-	}
+		//nếu có kích hoạt 2 lớp thì send mail và qua bước 2
+		if (authUser.enable2fa === 1) {
+			await User.sendVerify(authUser);
+			delete result.id;
+			delete result.citizenIdentificationId;
+			delete result.email;
+			delete result.phoneNumber;
+			delete result.username;
+			delete result.lastName;
+			delete result.firstName;
+			delete result.dateOfBirth;
+			delete result.address;
+			delete result.userType;
+			delete result.approveStatus;
+			delete result.emailVerified;
+			delete result.status;
 
-	//hàm này đảm bảo code random được tạo ra là độc nhất, đang không tồn tại trong DB
-	static async getUniqueRandomCode() {
-		var randomCode = randomHelper.getRandomString(15);
-		while (
-			(await User.checkIfExistVerifyCode(randomCode)) ||
-			(await User.checkIfExistForgotCode(randomCode)) ||
-			(await User.checkIfExistActiveCode(randomCode))
-		) {
-			randomCode = randomHelper.getRandomString(15);
+			return result;
 		}
-		return randomCode;
+
+		const token = jwtHelper.generateToken(result);
+
+		result.message = 'OK';
+		result.token = token;
+		return result;
 	}
 
+	//Login step two
+	static async authenticationLoginAIOStepTwo(verifyCode) {
+		//xác minh verifyCode
+		const authUser = await User.activeVerifyCode(verifyCode);
+		if (!authUser) return null;
+
+		const result = await User.findUserByPKUsingExclude(authUser.id);
+		const token = jwtHelper.generateToken(result);
+
+		result.message = 'OK';
+		result.token = token;
+		return result;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	//								CÁC HÀM TẠO
+	////////////////////////////////////////////////////////////////////////////////
+
+	//đăng ký
 	static async createNewUser(request) {
 		const isUserConflict = await User.checkConflictUser(request);
 
@@ -365,23 +438,49 @@ class User extends Model {
 		return null;
 	}
 
-	static async checkInternalUser(currentUser) {
-		const isExist = await User.findOne({
-			where: {
-				email: currentUser.email,
-				userType: 0
+	//cần tạo mã 2 bước gọi hàm này
+	static async sendVerify(currentUser) {
+		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
+		const ErrorsList = [];
+		const errorListTransfer = errorListConstant.registerErrorValidate;
+		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
+
+		if (!foundUser) {
+			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
+			return errorList;
+		}
+
+		//nếu vượt qua kiểm tra thì bắt đầu quá trình send mã
+		const newVerifyCode = await User.getUniqueRandomCode();
+
+		//update DB
+		await User.update(
+			{
+				verifyCode: newVerifyCode
+			},
+			{
+				where: { id: currentUser.id }
 			}
-		});
-		if (isExist) return isExist;
+		);
+
+		//send Email
+		makeMessageHelper.transferVerifyMessage(
+			foundUser.email,
+			foundUser.lastName,
+			foundUser.firstName,
+			newVerifyCode,
+			function(response) {
+				emailHelper.send(
+					foundUser.email,
+					'Xác minh 2 bước',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
+		);
+
 		return null;
-	}
-
-	static hashPassword(passwordInput) {
-		return bcrypt.hashSync(passwordInput, 10);
-	}
-
-	static verifyPassword(passwordsUnHashed, passwordsHashed) {
-		return bcrypt.compareSync(passwordsUnHashed, passwordsHashed);
 	}
 
 	//quên mật khẩu bước 1: tạo forgotCode và gửi email cho user quên mât khẩu
@@ -431,215 +530,9 @@ class User extends Model {
 		return newForgotCode;
 	}
 
-	//bước 2 - ForgotPasswordStepTwo
-	//hàm này kiểm tra mã gửi dùng cho quên mật khẩu có giống không
-	static async verifyForgotCode(_code) {
-		const isExist = await User.findOne({
-			where: {
-				forgotCode: _code
-			}
-		});
-		if (isExist) return true;
-		return false;
-	}
-
-	//bước 3
-	//hàm này viết thay đổi mật khẩu cũ thành mật khẩu mới
-	static async ForgotPasswordStepThree(request) {
-		if (!request.forgotCode) return null;
-
-		const isExist = await User.findOne({
-			where: {
-				forgotCode: request.forgotCode
-			}
-		});
-
-		if (!isExist) return null;
-
-		await User.update(
-			{
-				password: await User.hashPassword(request.newPassword),
-				forgotCode: '',
-				activeCode: '' //nếu thành công sẽ kích hoạt email luôn nếu từ trước chưa kích hoạt email
-			},
-			{
-				where: { email: isExist.email }
-			}
-		);
-		return isExist;
-	}
-
-	//hàm này được viết cho chức năng đã đăng nhập muốn đổi mật khẩu
-	// FE BE đều lưu USer , email,
-	static async changePasswordAfterLogin(request, currentUser) {
-		//request.currentPassword, newPassword
-		const result = await User.findUserNoneExclude(currentUser.email);
-		if (!result) return null;
-		const verifyOldPassword = await User.verifyPassword(request.currentPassword, result.password);
-		if (!verifyOldPassword) return null;
-
-		const newResult = await User.update(
-			{
-				password: await User.hashPassword(request.newPassword)
-			},
-			{
-				where: {
-					email: currentUser.email
-				}
-			}
-		);
-		return result;
-	}
-
-	//hàm tìm kiếm trả về list theo keyword
-	static async searchByKeyword(request) {
-		const keyword = request.keyword.toLowerCase();
-		const listNumberOne = await User.findAll({
-			where: {
-				[Op.or]: [
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), { [Op.like]: '%' + keyword + '%' }),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('citizenIdentificationId')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('phoneNumber')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstName')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastName')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-
-					//Họ + ' ' + Tên
-					Sequelize.where(
-						Sequelize.fn(
-							'lower',
-							Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName'))
-						),
-						{
-							[Op.like]: '%' + keyword + '%'
-						}
-					)
-				],
-				userType: 1
-			},
-			attributes: {
-				exclude: [ 'password', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
-			}
-		});
-
-		const result = [];
-		for (var i = 0; i < listNumberOne.length; i++) {
-			result.push(listNumberOne[i].dataValues);
-			//vì .dataValues là lấy dữ liệu gốc chưa qua getter fotmat
-			//muốn lấy dạng format DD/MM/YYYY phải xài dữ liệu trả từ getter
-			result[i].dateOfBirth = listNumberOne[i].dateOfBirth;
-			result[i].emailVerified = 1;
-			const checkUser = await User.findUserByPKNoneExclude(result[i].id);
-			if (checkUser.activeCode !== '') {
-				result[i].emailVerified = 0;
-			}
-		}
-
-		return result;
-	}
-
-	//hàm nhân viên lấy danh sách các tài khoản chưa duyệt cmnd: đang chờ duyệt
-	static async getPendingVerifyUserList() {
-		const list = await User.findAll({
-			where: {
-				approveStatus: 2
-			}
-		});
-
-		const result = [];
-		for (var i = 0; i < list.length; i++) {
-			result.push(list[i].dataValues);
-			result[i].dateOfBirth = list[i].dateOfBirth;
-			result[i].emailVerified = 1;
-			if (result[i].activeCode !== '') result[i].emailVerified = 0;
-			delete result[i].password;
-			delete result[i].verifyCode;
-			delete result[i].forgotCode;
-			delete result[i].activeCode;
-			delete result[i].createdAt;
-			delete result[i].updatedAt;
-		}
-
-		return result;
-	}
-
-	//hàm nhân viên duyệt cmnd user (update approveStatus)
-	static async verifyIdCard(request, currentUser) {
-		// 0 là từ chối, 1 là duyệt, 2 là chờ
-		var newApprove = request.approveStatus;
-		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
-		if (newApprove && userId) {
-			newApprove = parseInt(newApprove);
-
-			//update
-			await User.update(
-				{
-					approveStatus: newApprove
-				},
-				{
-					where: {
-						id: userId
-					}
-				}
-			);
-			//push audit log
-			await audit_logService.pushAuditLog(currentUser.id, userId, 'approve', 'approveStatus: ' + newApprove);
-		}
-	}
-
-	//hàm user xem thông tin bản thân dựa vào id
-	static async getInfo(request) {
-		//dùng để trả về
-		var user = await User.findUserByPKUsingExclude(request.id);
-
-		//dùng để xử lý logic
-		const checkUser = await User.findUserByPKNoneExclude(request.id);
-
-		//keep the dateOfBirth that formatted by Getters
-		const dateOfBirth = user.dateOfBirth;
-		user = user.dataValues;
-		user.dateOfBirth = dateOfBirth;
-
-		user.emailVerified = 1;
-		if (checkUser.activeCode !== '') {
-			user.emailVerified = 0;
-		}
-
-		return user;
-	}
-
-	//hàm user xem các tài khoản của mình dựa vào id
-	static async getAccount(request) {
-		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id.toString());
-		return accountList;
-	}
-
-	//hàm nhân viên xem thông tin ai đó hoặc bản thân, ko ẩn bất kỳ fields nào
-	static async getUserInfo(request) {
-		const user = await User.findUserByPKNoneExclude(request.id);
-		if (!user) return null;
-
-		return user;
-	}
-
-	//hàm nhân viên xem thông tin các tài khoản của user nào đó
-	static async getUserAccount(request) {
-		const user = await User.findUserByPKNoneExclude(request.id);
-		if (!user) return null;
-		const accountList = await accountService.getAllAccountReferenceByIdNoneExclude(request.id);
-
-		return accountList;
-	}
+	////////////////////////////////////////////////////////////////////////////////
+	//							CÁC HÀM CHỈNH SỬA, CẬP NHẬT
+	////////////////////////////////////////////////////////////////////////////////
 
 	//hàm đếm số lượng nhân viên hiện có
 	static async countStaff() {
@@ -652,9 +545,7 @@ class User extends Model {
 		const count = countList.count;
 		return count;
 	}
-
-	//hàm user xin làm nhân viên
-	//thằng nào xin trước thằng đó được làm
+	//thằng nào xin làm nhân viên trước thằng đó được làm
 	static async requestStaff(request) {
 		if (typeof request.id === 'undefined') return 'id must not empty';
 		const checkUser = await User.findByPk(request.id);
@@ -687,30 +578,124 @@ class User extends Model {
 		return null;
 	}
 
-	//update thông tin người dùng gọi từ nhân viên
+	//hàm này được viết cho chức năng đã đăng nhập muốn đổi mật khẩu
+	static async changePasswordAfterLogin(request, currentUser) {
+		//request.currentPassword, newPassword
+		const result = await User.findUserNoneExclude(currentUser.email);
+		if (!result) return null;
+		const verifyOldPassword = await User.verifyPassword(request.currentPassword, result.password);
+		if (!verifyOldPassword) return null;
+
+		const newResult = await User.update(
+			{
+				password: await User.hashPassword(request.newPassword)
+			},
+			{
+				where: {
+					email: currentUser.email
+				}
+			}
+		);
+		return result;
+	}
+
+	//bước 3 của quên mật khẩu
+	static async ForgotPasswordStepThree(request) {
+		if (!request.forgotCode) return null;
+
+		const isExist = await User.verifyForgotCode(request.forgotCode);
+
+		if (!isExist) return null;
+
+		await User.update(
+			{
+				password: await User.hashPassword(request.newPassword),
+				forgotCode: '',
+				activeCode: '' //nếu thành công sẽ kích hoạt email luôn nếu từ trước chưa kích hoạt email
+			},
+			{
+				where: { email: isExist.email }
+			}
+		);
+
+		return isExist;
+	}
+
+	//user tự update CMND và chờ duyệt
+	static async updateIdCard(request, currentUser) {
+		const ErrorsList = [];
+		const errorListTransfer = errorListConstant.registerErrorValidate;
+		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
+		if (!foundUser) {
+			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
+			return errorList;
+		}
+
+		var newCitizenIdentificationId = request.citizenIdentificationId;
+		if (newCitizenIdentificationId && newCitizenIdentificationId != foundUser.citizenIdentificationId) {
+			//Kiểm tra CMND trùng
+			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
+			if (isConflict) {
+				errorList.push(registerErrors.CITIZENIDENTIFICATIONID_CONFLICT);
+				return errorList;
+			}
+
+			await User.update(
+				{
+					citizenIdentificationId: newCitizenIdentificationId,
+					approveStatus: 2
+				},
+				{
+					where: {
+						id: foundUser.id
+					}
+				}
+			);
+		}
+		return null;
+	}
+
+	//nhân viên duyệt cmnd user (update approveStatus)
+	static async verifyIdCard(request, currentUser) {
+		// 0 là từ chối, 1 là duyệt, 2 là chờ
+		var newApprove = request.approveStatus;
+		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
+		if (newApprove && userId) {
+			newApprove = parseInt(newApprove);
+
+			//update
+			await User.update(
+				{
+					approveStatus: newApprove
+				},
+				{
+					where: {
+						id: userId
+					}
+				}
+			);
+			//push audit log
+			await audit_logService.pushAuditLog(currentUser.id, userId, 'approve', 'approveStatus: ' + newApprove);
+		}
+	}
+
+	//nhân viên update người dùng
 	static async updateUserInfo(request, currentUser) {
 		const errorList = [];
 
-		//dùng các constant lỗi tương đối giống register nên dùng chung error của register
 		const registerErrors = errorListConstant.registerErrorValidate;
 
-		//nếu không truyền userId hoặc id để tìm được user
 		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
 		if (!userId) {
 			errorList.push(registerErrors.USER_NOT_FOUND);
 			return errorList;
 		}
 
-		//nếu id user không tồn tại
 		const user = await User.findUserByPKUsingExclude(userId);
 		if (!user) {
 			errorList.push(registerErrors.USER_NOT_FOUND);
 			return errorList;
 		}
-		//mô tả logic
-		//vì muốn DB chỉ update 1 lần gọi
-		//nên nếu người dùng có nhập thì kiểm tra trùng và tính hợp lệ
-		//nếu người dùng ko nhập thì set giá trị cũ
 
 		var newLastName = request.lastName;
 		if (!newLastName) newLastName = user.lastName;
@@ -857,79 +842,28 @@ class User extends Model {
 		return null;
 	}
 
-	//hàm user tự update CMND và chờ duyệt
-	static async updateIdCard(request, currentUser) {
-		const ErrorsList = [];
-		const errorListTransfer = errorListConstant.registerErrorValidate;
-		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
-		if (!foundUser) {
-			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
-			return errorList;
-		}
+	//nhân viên nạp tiền cho người dùng
+	static async loadUpBalance(request, currentUser) {
+		const result = await accountService.addBalanceForAccount(request, currentUser);
+		if (!result) return null;
 
-		var newCitizenIdentificationId = request.citizenIdentificationId;
-		if (newCitizenIdentificationId && newCitizenIdentificationId != foundUser.citizenIdentificationId) {
-			//Kiểm tra CMND trùng
-			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
-			if (isConflict) {
-				errorList.push(registerErrors.CITIZENIDENTIFICATIONID_CONFLICT);
-				return errorList;
-			}
+		const loadForAccount = await accountService.getAccountNoneExclude(request.accountId);
+		const loadForUser = await User.findUserByPKNoneExclude(parseInt(loadForAccount.userId));
 
-			await User.update(
-				{
-					citizenIdentificationId: newCitizenIdentificationId,
-					approveStatus: 2
-				},
-				{
-					where: {
-						id: foundUser.id
-					}
-				}
-			);
-		}
-		return null;
-	}
-
-	//Chuyển khoản nội bộ, có 2 bước:
-	// 1 là gửi mã verify qua email cho user nhập
-	// 2 là gọi api kèm mã verify
-	//BƯỚC 1 (xài chung cho internal và external, rút tiền các thứ)
-	static async sendVerify(currentUser) {
-		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
-		const ErrorsList = [];
-		const errorListTransfer = errorListConstant.registerErrorValidate;
-		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
-
-		if (!foundUser) {
-			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
-			return errorList;
-		}
-
-		//nếu vượt qua kiểm tra thì bắt đầu quá trình send mã
-		const newVerifyCode = await User.getUniqueRandomCode();
-
-		//update DB
-		await User.update(
-			{
-				verifyCode: newVerifyCode
-			},
-			{
-				where: { id: currentUser.id }
-			}
-		);
-
-		//send Email
-
-		makeMessageHelper.transferVerifyMessage(
-			foundUser.email,
-			foundUser.lastName,
-			foundUser.firstName,
-			newVerifyCode,
+		//gửi email
+		makeMessageHelper.loadUpSuccessMessage(
+			loadForUser.email,
+			request.accountId,
+			loadForUser.lastName,
+			loadForUser.firstName,
+			request.balance,
+			request.currency,
+			loadForAccount.currencyType,
+			result.newBalance,
 			function(response) {
 				emailHelper.send(
-					foundUser.email,
-					'Xác minh 2 bước',
+					loadForUser.email,
+					'Nạp tiền thành công',
 					response.content,
 					response.html,
 					response.attachments
@@ -937,50 +871,10 @@ class User extends Model {
 			}
 		);
 
-		return null;
+		return result;
 	}
-	//BƯỚC 2 (hàm này chỉ xài cho internal)
-	/*
-	có 4 TH xảy ra:
-	TH1: bên gửi USD, bên nhận VND
-		kiểm tra MIN và MAX: 
-			chuyển USD value sang VND rồi kiểm tra vì bảng quy định theo VND
-		tính phí: 
-			chuyển USD value sang VND vì bảng phí theo VND->tính xog chuyển ngược về USD
-		chuyển khoản:
-			+ trừ A (phí đã chuyển về USD+value)
-			+ cộng B: chuyển USD value sang VND vì bên B xài VND
 
-
-	TH2: bên gửi USD, bên nhận USD
-		kiểm tra MIN và MAX: 
-			chuyển USD value sang VND rồi kiểm tra vì bảng quy định theo VND
-		tính phí:
-			chuyển USD value sang VND vì bảng phí theo VND->tính xog chuyển ngược về USD
-		chuyển khoản:
-			+ trừ A (phí đã chuyển về USD+value)
-			+ cộng B: USD value
-
-
-	TH3: bên gửi VND, bên nhận USD
-		kiểm tra MIN và MAX: 
-			kiểm tra VND value
-		tính phí: 
-			tính phí dựa vào VND value
-		chuyển khoản:
-			+ trừ A (phí+value VND)
-			+ cộng B: chuyển VND value sang USD vì bên B xài USD
-
-
-	TH4: bên gửi VND, bên nhận VND
-		kiểm tra MIN và MAX: 
-			kiểm tra VND value
-		tính phí: 
-			tính phí dựa vào VND value
-		chuyển khoản:
-			+ trừ A (phí+value VND)
-			+ cộng B: VND value
-	*/
+	//chuyển tiền nội bộ
 	static async transferInternalStepTwo(request, currentUser) {
 		var message = request.message;
 		if (!message || message == ' ' || message == '') message = 'Không có tin nhắn kèm theo!';
@@ -1187,65 +1081,105 @@ class User extends Model {
 			}
 		);
 
-		////for debug only
-		// return [
-		// 	{
-		// 		email: foundUser.email,
-		// 		l: foundUser.lastName,
-		// 		f: foundUser.firstName,
-		// 		send: money,
-		// 		fee: newFee,
-		// 		AID: foundAccount.accountId,
-		// 		BID: foundAccountDes.accountId,
-		// 		left: newBalance,
-		// 		type: foundAccount.currencyType,
-		// 		message: message
-		// 	},
-		// 	{
-		// 		email: foundUserDes.email,
-		// 		l: foundUserDes.lastName,
-		// 		f: foundUserDes.firstName,
-		// 		receive: transferMoney,
-		// 		AID: foundAccount.accountId,
-		// 		BID: foundAccountDes.accountId,
-		// 		left: newBalanceDes,
-		// 		type: foundAccountDes.currencyType,
-		// 		message: message
-		// 	},
-		//{ newSuccessTransferMessageA }, { newSuccessTransferMessageB }
-		// ];
 		return null;
 	}
 
-	static async loadUpBalance(request, currentUser) {
-		const result = await accountService.addBalanceForAccount(request, currentUser);
-		if (!result) return null;
+	//rút tiền
+	static async withdrawStepTwo(request, currentUser) {
+		const ErrorsList = [];
+		const errorListTransfer = errorListConstant.transferErrorValidate;
 
-		const loadForAccount = await accountService.getAccountNoneExclude(request.accountId);
-		const loadForUser = await User.findUserByPKNoneExclude(parseInt(loadForAccount.userId));
+		//xác thực verifyCode...
+		const checkingUser = await User.activeVerifyCode(request.verifyCode);
 
-		//gửi email
-		makeMessageHelper.loadUpSuccessMessage(
-			loadForUser.email,
-			request.accountId,
-			loadForUser.lastName,
-			loadForUser.firstName,
-			request.balance,
-			request.currency,
-			loadForAccount.currencyType,
-			result.newBalance,
+		if (!checkingUser) {
+			ErrorsList.push(errorListTransfer.VERIFYCODE_INVALID);
+			return ErrorsList;
+		}
+
+		//Nếu thằng đang đăng nhập không sở hữu tài khoản thì xóa mã verify rồi cút nó ra
+		if (checkingUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
+			ErrorsList.push(errorListTransfer.NOT_BELONG);
+			return ErrorsList;
+		}
+
+		makeMessageHelper.withdrawMessage(
+			'timchideyeu1998@gmail.com',
+			'Nguyễn',
+			'Ngọc',
+			6500000,
+			50000,
+			'0123456789',
+			360,
+			1,
+			12,
+			'14/7/2020',
+			0,
+			'USD',
+			'không em, thích thì rút',
 			function(response) {
 				emailHelper.send(
-					loadForUser.email,
-					'Nạp tiền thành công',
+					'timchideyeu1998@gmail.com',
+					'Rút tiền thành công',
 					response.content,
 					response.html,
 					response.attachments
 				);
 			}
 		);
+		return null;
+	}
 
-		return result;
+	////////////////////////////////////////////////////////////////////////////////
+	//							CÁC HÀM HỖ TRỢ KHÁC
+	////////////////////////////////////////////////////////////////////////////////
+	//các hàm check hỗ trợ để tạo mã
+	static async checkIfExistVerifyCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				verifyCode: _code
+			}
+		});
+		if (isExist) return true;
+		return false;
+	}
+	static async checkIfExistActiveCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				activeCode: _code
+			}
+		});
+		if (isExist) return true;
+		return false;
+	}
+	static async checkIfExistForgotCode(_code) {
+		const isExist = await User.findOne({
+			where: {
+				forgotCode: _code
+			}
+		});
+		if (isExist) return true;
+		return false;
+	}
+	//hàm này đảm bảo code random được tạo ra là độc nhất, đang không tồn tại trong DB
+	static async getUniqueRandomCode() {
+		var randomCode = randomHelper.getRandomString(15);
+		while (
+			(await User.checkIfExistVerifyCode(randomCode)) ||
+			(await User.checkIfExistForgotCode(randomCode)) ||
+			(await User.checkIfExistActiveCode(randomCode))
+		) {
+			randomCode = randomHelper.getRandomString(15);
+		}
+		return randomCode;
+	}
+
+	//các hàm liên quan password
+	static hashPassword(passwordInput) {
+		return bcrypt.hashSync(passwordInput, 10);
+	}
+	static verifyPassword(passwordsUnHashed, passwordsHashed) {
+		return bcrypt.compareSync(passwordsUnHashed, passwordsHashed);
 	}
 }
 
@@ -1309,6 +1243,12 @@ User.init(
 		//approveStatus: 1 là đã duyệt cmnd, 0 là từ chối, 2 là đang chờ duyệt
 		approveStatus: {
 			type: Sequelize.INTEGER,
+			allowNull: false,
+			defaultValue: 0
+		},
+
+		enable2fa: {
+			type: Sequelize.INTEGER, //1 là có kích hoạt 2 bước login, 0 là ko có
 			allowNull: false,
 			defaultValue: 0
 		},

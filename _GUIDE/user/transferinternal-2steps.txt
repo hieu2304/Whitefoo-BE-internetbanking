@@ -24,3 +24,81 @@ response:
 }
 
 thành công thì sẽ có email cả 2 bên nhận và gửi
+
+
+
+
+
+
+/*
+	có 4 TH xảy ra:
+	TH1: bên gửi USD, bên nhận VND
+		kiểm tra MIN và MAX: 
+			chuyển USD value sang VND rồi kiểm tra vì bảng quy định theo VND
+		tính phí: 
+			chuyển USD value sang VND vì bảng phí theo VND->tính xog chuyển ngược về USD
+		chuyển khoản:
+			+ trừ A (phí đã chuyển về USD+value)
+			+ cộng B: chuyển USD value sang VND vì bên B xài VND
+
+
+	TH2: bên gửi USD, bên nhận USD
+		kiểm tra MIN và MAX: 
+			chuyển USD value sang VND rồi kiểm tra vì bảng quy định theo VND
+		tính phí:
+			chuyển USD value sang VND vì bảng phí theo VND->tính xog chuyển ngược về USD
+		chuyển khoản:
+			+ trừ A (phí đã chuyển về USD+value)
+			+ cộng B: USD value
+
+
+	TH3: bên gửi VND, bên nhận USD
+		kiểm tra MIN và MAX: 
+			kiểm tra VND value
+		tính phí: 
+			tính phí dựa vào VND value
+		chuyển khoản:
+			+ trừ A (phí+value VND)
+			+ cộng B: chuyển VND value sang USD vì bên B xài USD
+
+
+	TH4: bên gửi VND, bên nhận VND
+		kiểm tra MIN và MAX: 
+			kiểm tra VND value
+		tính phí: 
+			tính phí dựa vào VND value
+		chuyển khoản:
+			+ trừ A (phí+value VND)
+			+ cộng B: VND value
+	*/
+
+
+
+
+////for debug only
+		// return [
+		// 	{
+		// 		email: foundUser.email,
+		// 		l: foundUser.lastName,
+		// 		f: foundUser.firstName,
+		// 		send: money,
+		// 		fee: newFee,
+		// 		AID: foundAccount.accountId,
+		// 		BID: foundAccountDes.accountId,
+		// 		left: newBalance,
+		// 		type: foundAccount.currencyType,
+		// 		message: message
+		// 	},
+		// 	{
+		// 		email: foundUserDes.email,
+		// 		l: foundUserDes.lastName,
+		// 		f: foundUserDes.firstName,
+		// 		receive: transferMoney,
+		// 		AID: foundAccount.accountId,
+		// 		BID: foundAccountDes.accountId,
+		// 		left: newBalanceDes,
+		// 		type: foundAccountDes.currencyType,
+		// 		message: message
+		// 	},
+		//{ newSuccessTransferMessageA }, { newSuccessTransferMessageB }
+		// ];

@@ -42,10 +42,6 @@ module.exports.getVerifyForgotCode = function(req, res, next) {
 
 //UpdateNewPassword for User with Forgot Code
 //step 3 -forgot password
-//this step required a validation
-//newPassword
-//confirmPassword
-//forgotCode
 module.exports.postUpdateNewPassword = asyncHandler(async function(req, res, next) {
 	const errors = validateHelper.validateErrorHandle(req);
 	if (errors) {
@@ -65,10 +61,6 @@ module.exports.getUpdateNewPassword = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
 
-//
-//
-//
-//
 //Register
 module.exports.getRegister = function(req, res) {
 	return res.status(200).send({ message: 'OK' });
@@ -98,14 +90,21 @@ module.exports.postGetInfo = asyncHandler(async function(req, res, next) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 
-	const result = await userService.getInfo(currentUser);
+	const result = await userService.findUserByPKUsingExclude(currentUser.id);
 
 	return res.status(200).send(result);
 });
 
-module.exports.getGetInfo = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
-};
+module.exports.getGetInfo = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.findUserByPKUsingExclude(currentUser.id);
+
+	return res.status(200).send(result);
+});
 
 //user get self's accounts information
 module.exports.postGetAccount = asyncHandler(async function(req, res, next) {
@@ -118,9 +117,16 @@ module.exports.postGetAccount = asyncHandler(async function(req, res, next) {
 
 	return res.status(200).send(result);
 });
-module.exports.getGetAccount = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
-};
+module.exports.getGetAccount = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getAccount(currentUser);
+
+	return res.status(200).send(result);
+});
 
 //change password after login success
 //currentPassword
