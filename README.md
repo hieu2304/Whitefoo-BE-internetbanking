@@ -21,7 +21,7 @@ This project was generated with [npm](https://github.com/npm/cli) version 6.14.4
 whitefoo bank project's backend
 
     - constants folder : contains declaration of fixed arrays , constants , slogans , regular expression patterns ...
-    - helpers folder : contains "insert expression here" functions (date time formatting , string processing , randomizing , encripting , regex handling)
+    - helpers folder : contains utility functions (date time formatting , string processing , randomizing , encripting , regex handling)
     - controllers : contains declaration of functions used in routes folder
     - routes folder : routing for function calls ( will be called from controllers )
     - middleware folder and service folder : contains utility functions and data fetching
