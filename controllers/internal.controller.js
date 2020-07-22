@@ -10,20 +10,20 @@ module.exports.postCreateAccount = asyncHandler(async function(req, res, next) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
-	if (!userId) return res.status(409).send({ message: 'id not exist' });
+	if (!userId) return res.status(400).send({ message: 'id not exist' });
 
 	const checkUser = await userService.findByPk(userId);
-	if (!checkUser) return res.status(409).send({ message: 'user not exist' });
+	if (!checkUser) return res.status(400).send({ message: 'user not exist' });
 
 	const result = await accountService.createNewAccount(req.body, currentUser);
 
-	if (!result) return res.status(409).send({ message: 'fail' });
-	return res.status(200).send(result);
+	if (!result) return res.status(400).send({ message: 'Create fail' });
+	return res.status(201).send(result);
 });
 
 // create Account Internal get
 module.exports.getCreateAccount = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
+	return res.status(201).send({ message: 'OK' });
 };
 
 //search by keyword
@@ -31,7 +31,7 @@ module.exports.getSearchKeyword = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
 module.exports.postSearchKeyword = asyncHandler(async function(req, res, next) {
-	if (!req.body.keyword) return res.status(409).send({ message: 'keyword must not empty' });
+	if (!req.body.keyword) return res.status(400).send({ message: 'keyword must not empty' });
 
 	const list = await userService.searchByKeyword(req.body);
 	return res.status(200).send(list);
@@ -41,18 +41,18 @@ module.exports.postSearchKeyword = asyncHandler(async function(req, res, next) {
 //nhân viên lấy thông tin cá nhân của ai đó + các STK của người đó
 module.exports.getGetUserInfo = asyncHandler(async function(req, res, next) {
 	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
-	if (!userId) return res.status(409).send({ message: 'User not found' });
+	if (!userId) return res.status(400).send({ message: 'User not found' });
 
 	const result = await userService.findUserByPKNoneExclude(userId);
-	if (!result) return res.status(409).send({ message: 'User not found' });
+	if (!result) return res.status(400).send({ message: 'User not found' });
 	return res.status(200).send(result);
 });
 module.exports.postGetUserInfo = asyncHandler(async function(req, res, next) {
 	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
-	if (!userId) return res.status(409).send({ message: 'User not exist' });
+	if (!userId) return res.status(400).send({ message: 'User not exist' });
 
 	const result = await userService.findUserByPKNoneExclude(userId);
-	if (!result) return res.status(409).send({ message: 'User not found' });
+	if (!result) return res.status(400).send({ message: 'User not found' });
 	return res.status(200).send(result);
 });
 
@@ -63,10 +63,10 @@ module.exports.getGetUserAccount = function(req, res, next) {
 };
 module.exports.postGetUserAccount = asyncHandler(async function(req, res, next) {
 	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
-	if (!userId) return res.status(409).send({ message: 'id not exist' });
+	if (!userId) return res.status(400).send({ message: 'id not exist' });
 
 	const result = await userService.getUserAccount(req.body);
-	if (!result) return res.status(409).send({ message: 'User not found' });
+	if (!result) return res.status(400).send({ message: 'User not found' });
 	return res.status(200).send(result);
 });
 
@@ -77,17 +77,17 @@ module.exports.getGetAccountInfo = function(req, res, next) {
 };
 module.exports.postGetAccountInfo = asyncHandler(async function(req, res, next) {
 	const accountId = typeof req.body.accountId !== 'undefined' ? req.body.accountId : req.body.id;
-	if (!accountId) return res.status(409).send({ message: 'not exist Id ' + accountId });
+	if (!accountId) return res.status(400).send({ message: 'not exist Id ' + accountId });
 	const result = await accountService.getAccountNoneExclude(accountId);
 
-	if (!result) return res.status(409).send({ message: 'not exist accountId ' + accountId });
+	if (!result) return res.status(400).send({ message: 'not exist accountId ' + accountId });
 	return res.status(200).send(result);
 });
 
 //nhân viên nạp tiền vào tài khoản cho 1 tài khoản nhất định
 module.exports.postAddBalance = asyncHandler(async function(req, res, next) {
 	const accountId = typeof req.body.accountId !== 'undefined' ? req.body.accountId : req.body.id;
-	if (!accountId) return res.status(409).send({ message: 'not exist accountId ' + accountId });
+	if (!accountId) return res.status(400).send({ message: 'not exist accountId ' + accountId });
 
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
@@ -96,7 +96,7 @@ module.exports.postAddBalance = asyncHandler(async function(req, res, next) {
 
 	const result = await userService.loadUpBalance(req.body, currentUser);
 
-	if (!result) return res.status(409).send({ message: 'failed' });
+	if (!result) return res.status(400).send({ message: 'Add failed' });
 	return res.status(200).send({ message: 'OK' });
 });
 module.exports.getAddBalance = function(req, res) {
@@ -132,7 +132,7 @@ module.exports.postUpdateAccount = asyncHandler(async function(req, res, next) {
 
 	const result = await accountService.updateAccount(req.body, currentUser);
 
-	if (!result) return res.status(409).send({ message: 'failed' });
+	if (!result) return res.status(400).send({ message: 'failed' });
 	return res.status(200).send({ message: 'OK' });
 });
 

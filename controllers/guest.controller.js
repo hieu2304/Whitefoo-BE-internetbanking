@@ -4,6 +4,24 @@ const validateHelper = require('../helpers/validate.helper');
 const jwtHelper = require('../helpers/jwt.helper');
 const exchange_currencyService = require('../services/currency/exchange_currency.service');
 
+//api cập nhật thông tin người dùng
+module.exports.postUpdateInfo = asyncHandler(async function(req, res, next) {
+	//lấy thông tin user hiện tại thông qua token
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+	
+	//kiểm tra và update
+	const result = await userService.updateInfo(req.body, currentUser);
+	if (!result) return res.status(200).send({ message: 'OK' });
+	return res.status(400).send({ message: 'Update info failed' });
+	
+});
+module.exports.getUpdateInfo = asyncHandler(async function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+});
+
 //api xem tỷ lệ USD VND cho FE
 module.exports.getRate = asyncHandler(async function(req, res, next) {
 	const result = await exchange_currencyService.getRate();
@@ -45,9 +63,9 @@ module.exports.getVerifyForgotCode = function(req, res, next) {
 module.exports.postUpdateNewPassword = asyncHandler(async function(req, res, next) {
 	const errors = validateHelper.validateErrorHandle(req);
 	if (errors) {
-		return res.status(409).json(errors);
+		return res.status(400).json(errors);
 	}
-	if (!req.body.forgotCode) return res.status(403).send({ message: 'Invalid forgotCode' });
+	if (!req.body.forgotCode) return res.status(400).send({ message: 'Invalid forgotCode' });
 
 	const result = await userService.ForgotPasswordStepThree(req.body);
 	if (!result) {
@@ -63,24 +81,24 @@ module.exports.getUpdateNewPassword = function(req, res, next) {
 
 //Register
 module.exports.getRegister = function(req, res) {
-	return res.status(200).send({ message: 'OK' });
+	return res.status(201).send({ message: 'OK' });
 };
 
 module.exports.postRegister = asyncHandler(async function(req, res, next) {
 	const errors = validateHelper.validateErrorHandle(req);
 	if (errors) {
-		return res.status(409).json(errors);
+		return res.status(400).json(errors);// lỗi validation
 	}
 
 	const newUser = await userService.createNewUser(req.body);
 
 	//if not null, mean errors returned form model's Service, send error for FE
 	if (newUser) {
-		return res.status(409).send(newUser);
+		return res.status(400).send(newUser);
 	}
 
 	//if null, mean no errors returned from model's Service = success
-	return res.status(200).send({ message: 'OK' });
+	return res.status(201).send({ message: 'OK' });
 });
 
 //user get self's information
@@ -135,7 +153,7 @@ module.exports.getGetAccount = asyncHandler(async function(req, res, next) {
 module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, res, next) {
 	const errors = validateHelper.validateErrorHandle(req);
 	if (errors) {
-		return res.status(409).json(errors);
+		return res.status(400).json(errors);
 	}
 
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
@@ -144,7 +162,7 @@ module.exports.postChangePasswordAfterLogin = asyncHandler(async function(req, r
 	}
 
 	const result = await userService.changePasswordAfterLogin(req.body, currentUser);
-	if (!result) return res.status(403).send({ message: 'Update failed' });
+	if (!result) return res.status(400).send({ message: 'Update failed' });
 	return res.status(200).send({ message: 'OK' });
 });
 module.exports.getChangePasswordAfterLogin = function(req, res, next) {
@@ -169,7 +187,7 @@ module.exports.postRequestStaff = asyncHandler(async function(req, res, next) {
 	const result = await userService.requestStaff(currentUser);
 
 	//nếu có lỗi
-	if (result) return res.status(409).send({ message: result });
+	if (result) return res.status(401).send({ message: result });
 	//nếu ok
 	return res.status(200).send({ message: 'OK' });
 });
@@ -186,11 +204,11 @@ module.exports.postUpdateIdCard = asyncHandler(async function(req, res, next) {
 
 	const errors = validateHelper.validateErrorHandle(req);
 	if (errors) {
-		return res.status(409).json(errors);
+		return res.status(400).json(errors);
 	}
 
 	const result = await userService.updateIdCard(req.body, currentUser);
 
 	if (!result) return res.status(200).send({ message: 'OK' });
-	return res.status(409).send(result);
+	return res.status(400).send(result);
 });

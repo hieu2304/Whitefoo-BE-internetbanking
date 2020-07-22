@@ -19,7 +19,7 @@ module.exports.reCaptchaV2_ReceivingAndValidating = function(req, res) {
 		.connection.remoteAddress}`;
 
 	if (token === null || token === undefined) {
-		return res.status(403).send({ success: false, message: 'Invalid Token reCaptcha' });
+		return res.status(401).send({ success: false, message: 'Invalid Token reCaptcha' });
 	}
 
 	var result = { success: true, message: 'OK' };
@@ -32,7 +32,7 @@ module.exports.reCaptchaV2_ReceivingAndValidating = function(req, res) {
 			result.success = false;
 			result.message = 'failed';
 
-			return res.status(409).send(result);
+			return res.status(400).send(result);
 		}
 
 		return res.status(200).send(result);

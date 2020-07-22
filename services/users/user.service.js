@@ -578,7 +578,7 @@ class User extends Model {
 		return null;
 	}
 
-	//hàm này được viết cho chức năng đã đăng nhập muốn đổi mật khẩu
+	//hàm này được viết cho chức năng đã đăng nhập muốn đổi mật khẩu và đổi thông tin tài khoản
 	static async changePasswordAfterLogin(request, currentUser) {
 		//request.currentPassword, newPassword
 		const result = await User.findUserNoneExclude(currentUser.email);
@@ -678,7 +678,96 @@ class User extends Model {
 			await audit_logService.pushAuditLog(currentUser.id, userId, 'approve', 'approveStatus: ' + newApprove);
 		}
 	}
+	
+	//người dùng tự update thông tin cá nhân
+	static async updateInfo(request,currentUser){
+		//tìm người dùng thông qua currentuser
+		const user = await User.findUserNoneExclude(currentUser.email);
+		if (!user) return null;
 
+		const verifyOldPassword = await User.verifyPassword(request.currentPassword, user.password);
+		if (!verifyOldPassword) return null;
+
+		var newLastName = request.lastName;
+		if (!newLastName) newLastName = user.lastName;
+
+		var newFirstName = request.firstName;
+		if (!newFirstName) newFirstName = user.firstName;
+
+		var newAddress = request.address;
+		if (!newAddress) newAddress = user.address;
+
+		var newEnable2fa = request.enable2fa;
+		if (!newEnable2fa) newEnable2fa = user.enable2fa;
+
+		//format lại cho đúng với PostgreSql
+		var newDateOfBirth = request.dateOfBirth;
+		if (!newDateOfBirth) {
+			newDateOfBirth = user.dataValues.dateOfBirth; //bỏ qua getter
+		} else {
+			//chỉ format khi và chỉ khi khác data cũ, hạn chế xài format tránh lỗi
+			newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+		}
+
+		var newUsername = request.username;
+		if (newUsername && newUsername != user.username) {
+			//Kiểm tra username trùng với ai khác
+			var isConflict = await User.checkConflictUserName(newUsername);
+			if (isConflict) {
+				return null;
+			}
+		} else {
+			newUsername = user.username;
+		}
+
+		var newPhoneNumber = request.phoneNumber;
+		if (newPhoneNumber && newPhoneNumber != user.phoneNumber) {
+			//Kiểm tra SDT trùng
+			var isConflict = await User.checkConflictPhoneNumber(newPhoneNumber);
+			if (isConflict) {
+				return null;
+			}
+		} else {
+			newPhoneNumber = user.phoneNumber;
+		}
+
+		var newEmail = request.email;
+		//nếu ng dùng có nhập email và khác email cũ
+		if (newEmail && newEmail != user.email) {
+			//Kiểm tra trùng với ng khác
+			var isConflict = await User.checkConflictEmail(newEmail);
+			if (isConflict) {
+				return null
+			}
+			//Regular Expresion...type: Email
+		} else {
+			//nếu ng dùng ko nhập email và các TH còn lại
+			newEmail = user.email;
+		}
+
+		//gọi hàm updateIdCard để update CMND
+		await User.updateIdCard(request,currentUser);
+
+		const newResult = await User.update(
+			{
+				email:newEmail,
+				address:newAddress,
+				lastName:newLastName,
+				firstName:newFirstName,
+				enable2fa:newEnable2fa,
+				dateOfBirth:newDateOfBirth,
+				username:newUsername,
+				phoneNumber:newPhoneNumber,
+				password: await User.hashPassword(request.password)
+			},
+			{
+				where: {
+					email: currentUser.email
+				}
+			}
+		);
+		return null;
+	}
 	//nhân viên update người dùng
 	static async updateUserInfo(request, currentUser) {
 		const errorList = [];

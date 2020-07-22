@@ -13,7 +13,7 @@ module.exports.verifyCitizenIdentificationIdRequired = asyncHandler(async functi
 
 	const result = await userService.checkUserApprovedYet(currentUser);
 	if (result) return next();
-	return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
+	return res.status(403).send({ message: 'User not verified CitizenIdentificationId yet' });
 });
 
 // yêu cầu tài khoản phải xác nhận email
@@ -25,7 +25,7 @@ module.exports.verifyEmailRequired = asyncHandler(async function(req, res, next)
 
 	const result = await userService.checkUserActiveEmailCodeYet(currentUser);
 	if (result) return next();
-	return res.status(401).send({ message: 'User not verified email yet' });
+	return res.status(403).send({ message: 'User not verified email yet' });
 });
 
 // yêu cầu phải là nhân viên của ngân hàng
@@ -112,11 +112,11 @@ module.exports.authAll = asyncHandler(async function(req, res, next) {
 
 	//email verified check
 	const checkEmailVerify = await userService.checkUserActiveEmailCodeYet(currentUser);
-	if (!checkEmailVerify) return res.status(401).send({ message: 'User not verified email yet' });
+	if (!checkEmailVerify) return res.status(403).send({ message: 'User not verified email yet' });
 
 	//citizenIdentificationId verified check
 	const checkApprove = await userService.checkUserApprovedYet(currentUser);
-	if (!checkApprove) return res.status(401).send({ message: 'User not verified CitizenIdentificationId yet' });
+	if (!checkApprove) return res.status(403).send({ message: 'User not verified CitizenIdentificationId yet' });
 
 	//if user passed all verify actions -> success
 	return next();

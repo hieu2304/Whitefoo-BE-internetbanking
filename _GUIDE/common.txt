@@ -1,4 +1,10 @@
 CÁC THÔNG TIN NÊN NHỚ:
+- HTTP Status Code:
+    + 200:Ok
+    + 201:Create Success,Register Success
+    + 400:Update fail,Create fail,(No request information exists)
+    + 401:Invalid Token, user not logged in
+    + 403:User do not have permission , Wrong request example: Wrong Username ...
 1 là bình thường, khác 1 là bất thường, cụ thể:
 
 - Bảng User:
