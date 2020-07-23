@@ -10,8 +10,8 @@ const validateHelper = require('../helpers/validate.helper');
 //router.use(authMiddleware.logoutRequired);
 
 //api updateinfo for user(method GET: return value same as /getinfo)
-router.get('/updateinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.getGetInfo);
-router.post('/updateinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.postUpdateInfo);
+router.get('/updateinfo', authMiddleware.authToken, controller.getGetInfo);
+router.post('/updateinfo', authMiddleware.authToken, controller.postUpdateInfo);
 
 //api xem tỷ lệ USD VND cho FE
 router.get('/rate', controller.getRate);
@@ -44,63 +44,38 @@ router.post(
 
 //lấy thông tin cá nhân
 //trước kia ở functional
-router.get('/getinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.getGetInfo);
-router.post('/getinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.postGetInfo);
+router.get('/getinfo', authMiddleware.authToken, controller.getGetInfo);
+router.post('/getinfo', authMiddleware.authToken, controller.postGetInfo);
 
 //lấy thông tin tài khoản chính mình
-router.get('/getaccount', authMiddleware.authToken, authMiddleware.loginRequired, controller.getGetAccount);
-router.post('/getaccount', authMiddleware.authToken, authMiddleware.loginRequired, controller.postGetAccount);
+router.get('/getaccount', authMiddleware.authToken, controller.getGetAccount);
+router.post('/getaccount', authMiddleware.authToken, controller.postGetAccount);
 
 //user yêu cầu gửi lai email kích hoạt email (activeCode)
-router.post('/resend', authMiddleware.authToken, authMiddleware.loginRequired, controller.postResend);
+router.post('/resend', authMiddleware.authToken, controller.postResend);
 
 //đổi mật khẩu sau khi login
 //trước kia ở functional
-router.get(
-	'/changepassword',
-	authMiddleware.authToken,
-	authMiddleware.loginRequired,
-	controller.getChangePasswordAfterLogin
-);
+router.get('/changepassword', authMiddleware.authToken, controller.getChangePasswordAfterLogin);
 router.post(
 	'/changepassword',
 	authMiddleware.authToken,
-	authMiddleware.loginRequired,
 	validateHelper.validateUpdateNewPassword(),
 	controller.postChangePasswordAfterLogin
 );
 
 //User xin làm nhân viên, thằng nào xin trước thằng đó làm
 //yêu đã xác nhận email, ko cần đã xác nhận cmnd
-router.get(
-	'/requeststaff',
-	authMiddleware.authToken,
-	authMiddleware.loginRequired,
-	authMiddleware.verifyEmailRequired,
-	controller.getRequestStaff
-);
-router.post(
-	'/requeststaff',
-	authMiddleware.authToken,
-	authMiddleware.loginRequired,
-	authMiddleware.verifyEmailRequired,
-	controller.postRequestStaff
-);
+router.get('/requeststaff', authMiddleware.authToken, authMiddleware.verifyEmailRequired, controller.getRequestStaff);
+router.post('/requeststaff', authMiddleware.authToken, authMiddleware.verifyEmailRequired, controller.postRequestStaff);
 
 //user update CMND của mình để chờ nhân viên duyệt
 //yêu đã xác nhận email, ko cần đã xác nhận cmnd
 //phải có validate check cmnd
-router.get(
-	'/updateidcard',
-	authMiddleware.authToken,
-	authMiddleware.loginRequired,
-	authMiddleware.verifyEmailRequired,
-	controller.getUpdateIdCard
-);
+router.get('/updateidcard', authMiddleware.authToken, authMiddleware.verifyEmailRequired, controller.getUpdateIdCard);
 router.post(
 	'/updateidcard',
 	authMiddleware.authToken,
-	authMiddleware.loginRequired,
 	authMiddleware.verifyEmailRequired,
 	validateHelper.validateUpdateIdCard(),
 	controller.postUpdateIdCard

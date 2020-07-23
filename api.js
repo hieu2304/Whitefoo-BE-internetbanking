@@ -35,7 +35,7 @@ router.use('/', require('./routes/token.route'));
 
 //################## CÁC API CÓ AUTHENTICATION ##################
 //các API cần JWT còn hiệu lực, yêu cầu đã đăng nhập, tài khoản đã kích hoạt email, tài khoản đã xác nhận CMND/CCCD
-//các auth con trong authAll theo thứ tự: authToken, loginRequired, verifyEmailRequired, verifyCitizenIdentificationIdRequired
+//các auth con trong authAll theo thứ tự: authToken + loginRequired, verifyEmailRequired, verifyCitizenIdentificationIdRequired
 router.use(authMiddleware.authAll);
 
 //các api người dùng sử dụng sau khi login, verify hết các kiểu

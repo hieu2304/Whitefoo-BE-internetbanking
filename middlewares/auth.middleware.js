@@ -68,10 +68,11 @@ module.exports.authSecret = function(req, res, next) {
 	return next();
 };
 
-// yêu cầu có token hợp lệ
+//yêu cầu phải đang tình trạng đã login và yêu cầu có token hợp lệ
 module.exports.authToken = function(req, res, next) {
 	const token = req.headers['token'];
 	if (!token) return res.status(401).send({ message: 'User not logged in' });
+
 	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
 		if (err) {
@@ -83,7 +84,7 @@ module.exports.authToken = function(req, res, next) {
 };
 
 // hàm này tổng hợp yêu cầu theo thứ tự sau:
-//token -> logged in -> email verify -> citizenIdentificationId verify
+//token + logged in -> email verify -> citizenIdentificationId verify
 module.exports.authAll = asyncHandler(async function(req, res, next) {
 	//token check
 	const token = req.headers['token'];
