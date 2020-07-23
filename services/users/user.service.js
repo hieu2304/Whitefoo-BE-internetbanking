@@ -15,7 +15,6 @@ const Decimal = require('decimal.js');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 const audit_logService = require('../users/audit_log.service');
 const requestService = require('request');
-const e = require('express');
 
 class User extends Model {
 	////////////////////////////////////////////////////////////////////////////////
