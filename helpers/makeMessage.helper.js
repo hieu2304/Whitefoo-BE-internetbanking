@@ -1,7 +1,6 @@
 const getHTMLService = require('../constants/getHTML.constant');
 const getAttachments = require('../constants/attachments.constant');
 const moment = require('moment');
-var fs = require('fs');
 
 const registerThankMessage =
 	'Cảm ơn bạn đã tin tưởng và đăng ký whitefooBank của chúng tôi, chúng tôi hy vọng sẽ mang lại cho bạn trải nghiệm tốt nhất!';

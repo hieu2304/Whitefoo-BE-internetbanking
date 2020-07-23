@@ -4,7 +4,6 @@ const regexConstant = require('../constants/regex.constants');
 const asyncHandler = require('express-async-handler');
 const errorConstant = require('../constants/errorsList.constant').registerErrorValidate;
 const errorConstantTransfer = require('../constants/errorsList.constant').transferErrorValidate;
-const Sequelize = require('sequelize');
 
 module.exports.validateErrorHandle = function(req) {
 	var isThereAnyErrors = validationResult(req);
