@@ -97,6 +97,8 @@ module.exports.transferErrorValidate = {
 };
 
 module.exports.registerErrorValidate = {
+	WRONG_PASSWORD: { code: 'WRONG_PASSWORD', message: 'current Password is wrong' },
+
 	EMAIL_CONFLICT: { code: 'EMAIL_CONFLICT', message: 'Email already used by other people' },
 
 	EMAIL_TOO_SHORT: { code: 'EMAIL_TOO_SHORT', message: 'Email to short, min is 5' },

@@ -67,7 +67,7 @@ class exchange_currency extends Model {
 
 		requestService(
 			myurl,
-			asyncHandler(async function(err, respone, body) {
+			asyncHandler(async function(err, response, body) {
 				body = JSON.parse(body);
 				const data = body.rates.USDVND;
 				var mydate = new Date(data.timestamp * 1000);

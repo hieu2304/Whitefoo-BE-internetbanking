@@ -1,0 +1,16 @@
+mô tả: khi người dùng cần send lại kích hoạt email
+
+/api/resend
+method: POST
+
+điều kiện: đã login, Chưa xác minh email
+
+params: không
+
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
+hệ thống sẽ gửi email dựa vào token decode ra của người dùng đăng nhập
+
+trường hợp đẵ  kích hoạt sẽ gọi api này không được

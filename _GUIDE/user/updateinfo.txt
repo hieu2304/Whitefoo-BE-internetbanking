@@ -1,22 +1,33 @@
 mô tả:
 - user được quyền tự update thông tin cho user
 - nếu field nào user không điền hoặc gửi giá trị cũ, hệ thống sẽ hiểu là không update field đó
+- trường hợp update email -> sẽ có mail gửi đến email cũ thông báo đổi email, và gửi mail kích hoạt tới email mới
+- riêng mật khẩu sẽ có 3 field: currentPassword, newPassword, confirmPassword
+    + nếu người dùng bỏ trống currentPassword  -> sẽ ko update password mới gì cả, bỏ qua check 2 field còn lại
+    + nếu người dùng nhập currentPassword sai -> báo sai pass hiện tại
+    + nếu người dùng nhập currentPassword đúng -> kiểm tra field còn lại có đúng và có đạt chiều dài tối thiêu -> nếu thỏa thì update password
+
 
 
 /api/updateinfo
 
+method: GET (trả ra field như call api/getinfo)
+
 method: POST
 
 params:
-userId:2 (1 user phải tồn tại trong DB, có thể dùng tên key là id hoặc userId tùy thích)
-lastName:hieu
-firstName:dang
-phoneNumber:0129391232
-email:dangtrunghieu2304@gmail.com
-username:hieudang
-citizenIdentificationId:123012039128
-dateOfBirth:9/12/2012
-enable2fa:1
+
+lastName:daylaten
+firstName:daylaho
+address:basubasa
+enable2fa:0
+dateOfBirth:31/07/1865
+phoneNumber:1234567
+username:ngoc
+email:abcdef123456r@gmail.com
+currentPassword:khongcopass
+newPassword:khongcopass123
+confirmPassword:khongcopass123
 clientId:515hwrFpeLvGeVo2SvSe
 secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
@@ -24,3 +35,33 @@ response:
 {
     "message": "OK"
 }
+
+các lỗi có thể xảy ra:
+[
+    {
+        "code": "PHONENUMBER_CONFLICT",
+        "message": "phoneNumber already used by other people"
+    },
+    {
+        "code": "USERNAME_CONFLICT",
+        "message": "Username already used by other people"
+    },
+    {
+        "code": "EMAIL_CONFLICT",
+        "message": "Email already used by other people"
+    },
+    
+    {
+        "code": "WRONG_PASSWORD",
+        "message": "current Password is wrong"
+    },
+    {
+        "code": "PASSWORD_TOO_SHORT",
+        "message": "password to short, min is 8"
+    },
+    {
+        "code": "PASSWORD_NOT_EQUAL",
+        "message": "password not equals to confirmPassword"
+    },
+]
+

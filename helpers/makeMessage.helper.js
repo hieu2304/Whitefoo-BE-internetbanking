@@ -23,7 +23,7 @@ module.exports.verifyEmailMessage = function(email, lastName, firstName, activeC
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa đăng ký tài khoản thành công, hãy bấm nút bên dưới để kích hoạt tài khoản!'
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn đã đăng ký tài khoản thành công, để hoàn tất quá trình đăng ký và có thể sử dụng dây đủ các tính năng, hãy bấm nút bên dưới để kích hoạt tài khoản!'
 		);
 
 		html = html.replace('{Re_Content_2}', '');
@@ -422,6 +422,71 @@ module.exports.withdrawMessage = function(
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
 		const attachments = getAttachments.receiveAttachments;
+
+		return callback({ content, html, attachments });
+	});
+};
+
+//tin nhắn cho email cũ khi đổi email
+module.exports.changeEmailMessageOldEmail = function(lastName, firstName, oldEmail, newEmail, callback) {
+	const content = 'đã thay đổi email:\n - Từ: ' + oldEmail + '\n - Sang: ' + newEmail;
+
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
+
+		html = html.replace('{Re_Image}', 'verify');
+		html = html.replace('{Re_Title}', 'Thay đổi Email');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa thực hiện đổi email mới, chi tiết:'
+		);
+
+		html = html.replace('{Re_Content_2}', 'Email cũ: ' + oldEmail + '<br>' + 'Email mới: ' + newEmail);
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.verifyAttachments;
+
+		return callback({ content, html, attachments });
+	});
+};
+
+//tin nhắn cho email mới khi đổi email
+module.exports.changeEmailMessageNewEmail = function(email, lastName, firstName, activeCode, callback) {
+	//${HOST_URL}/activate?token=qwerty
+
+	const linkDirect = process.env.HOST_URL + '/activate?token=' + activeCode;
+
+	const content = 'link kích hoạt Email: ' + linkDirect;
+
+	getHTMLService.getHTMLPattern(1, function(response) {
+		var html = response;
+		html = html.replace('{Re_Image}', 'email');
+		html = html.replace('{Re_Title}', 'Kích hoạt Email');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa đăng ký Email mới thành công, hãy bấm nút bên dưới để kích hoạt Email!'
+		);
+
+		html = html.replace('{Re_Content_2}', '');
+		html = html.replace('{Re_Thanks_Message}', registerThankMessage);
+		html = html.replace('{Re_Button}', 'Kích hoạt');
+		html = html.replace('{Re_Button_URl}', linkDirect);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.emailAttachments;
 
 		return callback({ content, html, attachments });
 	});

@@ -9,9 +9,9 @@ const validateHelper = require('../helpers/validate.helper');
 //chưa login sẽ chèn middleware RequireLogout thủ công tránh lỗi sau khi đã login vẫn dùng middleware này
 //router.use(authMiddleware.logoutRequired);
 
-//api updateinfo for user
-router.get('/updateinfo',authMiddleware.loginRequired,controller.getUpdateInfo);
-router.post('/updateinfo',authMiddleware.loginRequired,controller.postUpdateInfo);
+//api updateinfo for user(method GET: return value same as /getinfo)
+router.get('/updateinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.getGetInfo);
+router.post('/updateinfo', authMiddleware.authToken, authMiddleware.loginRequired, controller.postUpdateInfo);
 
 //api xem tỷ lệ USD VND cho FE
 router.get('/rate', controller.getRate);
@@ -51,6 +51,8 @@ router.post('/getinfo', authMiddleware.authToken, authMiddleware.loginRequired, 
 router.get('/getaccount', authMiddleware.authToken, authMiddleware.loginRequired, controller.getGetAccount);
 router.post('/getaccount', authMiddleware.authToken, authMiddleware.loginRequired, controller.postGetAccount);
 
+//user yêu cầu gửi lai email kích hoạt email (activeCode)
+router.post('/resend', authMiddleware.authToken, authMiddleware.loginRequired, controller.postResend);
 
 //đổi mật khẩu sau khi login
 //trước kia ở functional

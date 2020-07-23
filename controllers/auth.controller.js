@@ -24,7 +24,7 @@ module.exports.getAuthLogout = function(req, res, next) {
 module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 	const result = await userService.authenticationLoginAIO(req.body);
 	if (!result) {
-		return res.status(403).send({ message: 'Wrong login name or password' });
+		return res.status(403).send({ code: 'LOGIN_INVALID', message: 'Wrong login name or password' });
 	}
 
 	return res.status(200).send(result);
@@ -34,7 +34,7 @@ module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 module.exports.postAuthLoginAIOsteptwo = asyncHandler(async function(req, res, next) {
 	const result = await userService.authenticationLoginAIOStepTwo(req.body.verifyCode);
 	if (!result) {
-		return res.status(403).send({ message: 'Wrong verifyCode' });
+		return res.status(403).send({ code: 'VERIFYCODE_INVALID', message: 'Invalid or wrong verifyCode' });
 	}
 
 	return res.status(200).send(result);

@@ -15,6 +15,7 @@ const Decimal = require('decimal.js');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 const audit_logService = require('../users/audit_log.service');
 const requestService = require('request');
+const e = require('express');
 
 class User extends Model {
 	////////////////////////////////////////////////////////////////////////////////
@@ -248,6 +249,18 @@ class User extends Model {
 		return null;
 	}
 
+	//hàm đếm số lượng nhân viên hiện có
+	static async countStaff() {
+		const countList = await User.findAndCountAll({
+			where: {
+				userType: 0
+			}
+		});
+
+		const count = countList.count;
+		return count;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	//						CÁC HÀM TÌM KIẾM RỒI XÁC THỰC, XÁC THỰC
 	////////////////////////////////////////////////////////////////////////////////
@@ -389,6 +402,14 @@ class User extends Model {
 		return result;
 	}
 
+	//kiểm tra user gọi api resend email đã verify chưa, verify rồi thì không send
+	static async resendEmailActiveCode(currentUser) {
+		const foundUser = await User.findUserByPKNoneExclude(currentUser.id);
+		if (foundUser.activeCode === '') return null;
+		await User.sendActive(currentUser);
+		return foundUser;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	//								CÁC HÀM TẠO
 	////////////////////////////////////////////////////////////////////////////////
@@ -400,7 +421,6 @@ class User extends Model {
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
 		if (isUserConflict) return isUserConflict;
 
-		const newActiveCode = await User.getUniqueRandomCode();
 		const newUser = await User.create({
 			email: request.email,
 			lastName: request.lastName,
@@ -411,34 +431,60 @@ class User extends Model {
 			phoneNumber: request.phoneNumber,
 			username: request.username,
 			address: request.address,
-			password: await User.hashPassword(request.password),
-			activeCode: newActiveCode
+			password: await User.hashPassword(request.password)
 		});
 
 		//send email here
 		if (newUser) {
-			makeMessageHelper.verifyEmailMessage(
-				newUser.email,
-				newUser.lastName,
-				newUser.firstName,
-				newActiveCode,
-				function(response) {
-					emailHelper.send(
-						newUser.email,
-						'Kích hoạt tài khoản',
-						response.content,
-						response.html,
-						response.attachments
-					);
-				}
-			);
+			await User.sendActive(newUser);
 		}
 
 		//return null to controller know action was success
 		return null;
 	}
 
-	//cần tạo mã 2 bước gọi hàm này
+	//send mã xác nhận email(activeCode)
+	static async sendActive(currentUser) {
+		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
+		const ErrorsList = [];
+		const errorListTransfer = errorListConstant.registerErrorValidate;
+		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
+
+		if (!foundUser) {
+			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
+			return errorList;
+		}
+
+		const newActiveCode = await User.getUniqueRandomCode();
+
+		//update DB
+		await User.update(
+			{
+				activeCode: newActiveCode
+			},
+			{
+				where: { id: currentUser.id }
+			}
+		);
+
+		makeMessageHelper.verifyEmailMessage(
+			foundUser.email,
+			foundUser.lastName,
+			foundUser.firstName,
+			newActiveCode,
+			function(response) {
+				emailHelper.send(
+					foundUser.email,
+					'Kích hoạt tài khoản',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
+		);
+	}
+
+	//cần tạo mã 2 bước gọi hàm này (verifyCode)
 	static async sendVerify(currentUser) {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
 		const ErrorsList = [];
@@ -534,17 +580,6 @@ class User extends Model {
 	//							CÁC HÀM CHỈNH SỬA, CẬP NHẬT
 	////////////////////////////////////////////////////////////////////////////////
 
-	//hàm đếm số lượng nhân viên hiện có
-	static async countStaff() {
-		const countList = await User.findAndCountAll({
-			where: {
-				userType: 0
-			}
-		});
-
-		const count = countList.count;
-		return count;
-	}
 	//thằng nào xin làm nhân viên trước thằng đó được làm
 	static async requestStaff(request) {
 		if (typeof request.id === 'undefined') return 'id must not empty';
@@ -678,20 +713,19 @@ class User extends Model {
 			await audit_logService.pushAuditLog(currentUser.id, userId, 'approve', 'approveStatus: ' + newApprove);
 		}
 	}
-	
+
 	//người dùng tự update thông tin cá nhân
-	static async updateInfo(request,currentUser){
-		//tìm người dùng thông qua currentuser
+	static async updateSelfInfo(request, currentUser) {
+		const errorList = [];
+		const registerErrors = errorListConstant.registerErrorValidate;
+
 		const user = await User.findUserByPKNoneExclude(currentUser.id);
-		if (!user) return null;
+		if (!user) {
+			errorList.push(registerErrors.USER_NOT_FOUND);
+			return errorList;
+		}
 
-		//tạo newActiveCode dùng cho Email
-		const newActiveCode = await User.getUniqueRandomCode();
-
-		//kiểm tra điều kiện trùng password user trong DB
-		const verifyOldPassword = await User.verifyPassword(request.currentPassword, user.password);
-		if (!verifyOldPassword) return null;
-
+		//đâu tiên là các thông tin cơ bản, thay đổi ko cần 2 bước qua mail hay chờ phê duyệt
 		var newLastName = request.lastName;
 		if (!newLastName) newLastName = user.lastName;
 
@@ -708,13 +742,27 @@ class User extends Model {
 			if (newEnable2fa !== 1 && newEnable2fa !== 0) newEnable2fa = user.enable2fa;
 		}
 
-		//format lại cho đúng với PostgreSql
 		var newDateOfBirth = request.dateOfBirth;
 		if (!newDateOfBirth) {
-			newDateOfBirth = user.dataValues.dateOfBirth; //bỏ qua getter
+			newDateOfBirth = user.dateOfBirth;
+			newDateOfBirth = moment(newDateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
 		} else {
 			//chỉ format khi và chỉ khi khác data cũ, hạn chế xài format tránh lỗi
 			newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+		}
+
+		//tiếp đến là các thông tin quan trọng: username, email, phoneNumber...
+		//cmnd sử dụng form khác, api riêng nên ko dùng ở đây
+
+		var newPhoneNumber = request.phoneNumber;
+		if (newPhoneNumber && newPhoneNumber != user.phoneNumber) {
+			//Kiểm tra SDT trùng
+			var isConflict = await User.checkConflictPhoneNumber(newPhoneNumber);
+			if (isConflict) {
+				errorList.push(registerErrors.PHONENUMBER_CONFLICT);
+			}
+		} else {
+			newPhoneNumber = user.phoneNumber;
 		}
 
 		var newUsername = request.username;
@@ -722,30 +770,23 @@ class User extends Model {
 			//Kiểm tra username trùng với ai khác
 			var isConflict = await User.checkConflictUserName(newUsername);
 			if (isConflict) {
-				return null;
+				errorList.push(registerErrors.USERNAME_CONFLICT);
 			}
 		} else {
 			newUsername = user.username;
 		}
 
-		var newPhoneNumber = request.phoneNumber;
-		if (newPhoneNumber && newPhoneNumber != user.phoneNumber) {
-			//Kiểm tra SDT trùng
-			var isConflict = await User.checkConflictPhoneNumber(newPhoneNumber);
-			if (isConflict) {
-				return null;
-			}
-		} else {
-			newPhoneNumber = user.phoneNumber;
-		}
-
+		//tạo newActiveCode dùng cho Email
+		var newActiveCode = '';
 		var newEmail = request.email;
 		//nếu ng dùng có nhập email và khác email cũ
 		if (newEmail && newEmail != user.email) {
-			//Kiểm tra trùng với ng khác
+			//Kiểm tra trùng email
 			var isConflict = await User.checkConflictEmail(newEmail);
 			if (isConflict) {
-				return null
+				errorList.push(registerErrors.EMAIL_CONFLICT);
+			} else {
+				newActiveCode = await User.getUniqueRandomCode();
 			}
 			//Regular Expresion...type: Email
 		} else {
@@ -753,23 +794,68 @@ class User extends Model {
 			newEmail = user.email;
 		}
 
-		//gọi hàm updateIdCard để update CMND
-		await User.updateIdCard(request,currentUser);
+		if (newActiveCode !== '') {
+			//send email tới email cũ
+			makeMessageHelper.changeEmailMessageOldEmail(newLastName, newFirstName, user.email, newEmail, function(
+				response
+			) {
+				emailHelper.send(user.email, 'Thay đổi Email', response.content, response.html, response.attachments);
+			});
 
-		
+			//send email tới email mới
+			makeMessageHelper.changeEmailMessageNewEmail(newEmail, newLastName, newFirstName, newActiveCode, function(
+				response
+			) {
+				emailHelper.send(
+					newEmail,
+					'Kích hoạt Email mới',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			});
+		}
 
-		const newResult = await User.update(
-		{
-				email:newEmail,
-				address:newAddress,
-				lastName:newLastName,
-				firstName:newFirstName,
-				enable2fa:newEnable2fa,
-				dateOfBirth:newDateOfBirth,
-				username:newUsername,
-				phoneNumber:newPhoneNumber,
-				activeCode:newActiveCode,
-				password: await User.hashPassword(request.password)
+		//phần mật khẩu: không update logic chung các thông tin khác, chỉ update khi thực sự đổi
+		if (request.currentPassword && request.currentPassword !== '') {
+			//nếu có nhập mk cũ đúng thì mới tiến hành xem xét mk mới
+			const newPassword = request.newPassword;
+			const confirmPassword = request.confirmPassword;
+			if (await User.verifyPassword(request.currentPassword, user.password)) {
+				if (newPassword !== confirmPassword) {
+					errorList.push(registerErrors.PASSWORD_NOT_EQUAL);
+				} else if (newPassword.length < 8) {
+					errorList.push(registerErrors.PASSWORD_TOO_SHORT);
+				} else {
+					await User.update(
+						{
+							password: await User.hashPassword(newPassword)
+						},
+						{
+							where: {
+								id: user.id
+							}
+						}
+					);
+				}
+			} else {
+				errorList.push(registerErrors.WRONG_PASSWORD);
+			}
+		}
+
+		if (errorList.length > 0) return errorList;
+
+		await User.update(
+			{
+				email: newEmail,
+				address: newAddress,
+				lastName: newLastName,
+				firstName: newFirstName,
+				enable2fa: newEnable2fa,
+				dateOfBirth: newDateOfBirth,
+				username: newUsername,
+				phoneNumber: newPhoneNumber,
+				activeCode: newActiveCode
 			},
 			{
 				where: {
@@ -777,28 +863,10 @@ class User extends Model {
 				}
 			}
 		);
-		
-		//send email active code here
-		if (newResult) {
-			makeMessageHelper.verifyEmailMessage(
-				newResult.email,
-				newResult.lastName,
-				newResult.firstName,
-				newActiveCode,
-				function(response) {
-					emailHelper.send(
-						newResult.email,
-						'Kích hoạt tài khoản',
-						response.content,
-						response.html,
-						response.attachments
-					);
-				}
-			);
-		}
-	
+
 		return null;
 	}
+
 	//nhân viên update người dùng
 	static async updateUserInfo(request, currentUser) {
 		const errorList = [];
@@ -861,7 +929,8 @@ class User extends Model {
 		//chỉnh định dạng date theo yêu cầu của postgre là YYYY-MM-DD
 		var newDateOfBirth = request.dateOfBirth;
 		if (!newDateOfBirth) {
-			newDateOfBirth = user.dataValues.dateOfBirth; //bỏ qua getter
+			newDateOfBirth = user.dateOfBirth;
+			newDateOfBirth = moment(newDateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
 		} else {
 			//chỉ format khi và chỉ khi khác data cũ, hạn chế xài format tránh lỗi
 			newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
@@ -917,7 +986,7 @@ class User extends Model {
 		if (errorList.length > 0) return errorList;
 
 		//update thông tin user
-		const resultupdate = await user.update(
+		const resultupdate = await User.update(
 			{
 				lastName: newLastName,
 				firstName: newFirstName,
@@ -930,10 +999,10 @@ class User extends Model {
 				username: newUsername,
 				citizenIdentificationId: newCitizenIdentificationId,
 				approveStatus: newApprove,
-				enable2fa:newEnable2fa	// chỉ nhận 0 và 1
+				enable2fa: newEnable2fa // chỉ nhận 0 và 1
 			},
 			{
-				where: { userId: userId }
+				where: { id: userId }
 			}
 		);
 

@@ -90,3 +90,10 @@ response:
     "message": "OK",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2l0aXplbklkZW50aWZpY2F0aW9uSWQiOiIxMjMiLCJlbWFpbCI6InRpbWNoaWRleWV1MTk5OEBnbWFpbC5jb20iLCJwaG9uZU51bWJlciI6IjAxMjM0NTYiLCJ1c2VybmFtZSI6Im5nb2MiLCJsYXN0TmFtZSI6Im5nb2MiLCJmaXJzdE5hbWUiOiJuZ3V5ZW4iLCJkYXRlT2ZCaXJ0aCI6IjEyLzA3LzE5OTgiLCJhZGRyZXNzIjoic2RzYWRzYWRhc3NkIiwidXNlclR5cGUiOjAsInN0YXR1cyI6MSwiYXBwcm92ZVN0YXR1cyI6MSwiZW5hYmxlMmZhIjoxLCJlbWFpbFZlcmlmaWVkIjp0cnVlLCJpYXQiOjE1OTUxODUzODUsImV4cCI6MTU5NTE4ODk4NX0.2mib0Y7yTy7TZaNSh_cu6VTNMd3892QJ2WppPRgooxk"
 }
+
+
+các lỗi có thể xảy ra:
+
+{ code: 'LOGIN_INVALID', message: 'Wrong login name or password' }
+
+{ code: 'VERIFYCODE_INVALID', message: 'Invalid or wrong verifyCode' }

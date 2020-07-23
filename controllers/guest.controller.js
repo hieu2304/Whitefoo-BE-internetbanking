@@ -11,13 +11,14 @@ module.exports.postUpdateInfo = asyncHandler(async function(req, res, next) {
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
-	
+
 	//kiểm tra và update
-	const result = await userService.updateInfo(req.body, currentUser);
+	const result = await userService.updateSelfInfo(req.body, currentUser);
+	// trả ra null là ok
 	if (!result) return res.status(200).send({ message: 'OK' });
-	return res.status(400).send({ message: 'Update info failed' });
-	
+	return res.status(400).send(result);
 });
+//sẽ tạm thời ko dùng hàm này, khi người dùng sử dụng method get, sẽ trả ra như api/getinfo
 module.exports.getUpdateInfo = asyncHandler(async function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 });
@@ -36,7 +37,7 @@ module.exports.postRate = asyncHandler(async function(req, res, next) {
 //step 1 - send request forgot password to generate code and send via email
 module.exports.postForgotPassword = asyncHandler(async function(req, res, next) {
 	const result = await userService.ForgotPasswordStepOne(req.body);
-	if (!result) return res.status(403).send({ message: 'User not exists or not verify email yet' });
+	if (!result) return res.status(403).send({ message: 'User not exists' });
 	return res.status(200).send({ message: 'OK' });
 });
 
@@ -87,7 +88,7 @@ module.exports.getRegister = function(req, res) {
 module.exports.postRegister = asyncHandler(async function(req, res, next) {
 	const errors = validateHelper.validateErrorHandle(req);
 	if (errors) {
-		return res.status(400).json(errors);// lỗi validation
+		return res.status(400).json(errors); // lỗi validation
 	}
 
 	const newUser = await userService.createNewUser(req.body);
@@ -211,4 +212,18 @@ module.exports.postUpdateIdCard = asyncHandler(async function(req, res, next) {
 
 	if (!result) return res.status(200).send({ message: 'OK' });
 	return res.status(400).send(result);
+});
+
+//user yêu cầu gửi lại mã xác nhận email (activeCode)
+
+module.exports.postResend = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.resendEmailActiveCode(currentUser);
+	if (!result) return res.status(400).send({ message: 'User verified Email' });
+
+	return res.status(200).send({ message: 'OK' });
 });
