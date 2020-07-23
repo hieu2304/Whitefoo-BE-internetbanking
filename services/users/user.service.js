@@ -682,9 +682,13 @@ class User extends Model {
 	//người dùng tự update thông tin cá nhân
 	static async updateInfo(request,currentUser){
 		//tìm người dùng thông qua currentuser
-		const user = await User.findUserNoneExclude(currentUser.email);
+		const user = await User.findUserByPKNoneExclude(currentUser.id);
 		if (!user) return null;
 
+		//tạo newActiveCode dùng cho Email
+		const newActiveCode = await User.getUniqueRandomCode();
+
+		//kiểm tra điều kiện trùng password user trong DB
 		const verifyOldPassword = await User.verifyPassword(request.currentPassword, user.password);
 		if (!verifyOldPassword) return null;
 
@@ -699,6 +703,10 @@ class User extends Model {
 
 		var newEnable2fa = request.enable2fa;
 		if (!newEnable2fa) newEnable2fa = user.enable2fa;
+		else {
+			newEnable2fa = parseInt(request.enable2fa);
+			if (newEnable2fa !== 1 && newEnable2fa !== 0) newEnable2fa = user.enable2fa;
+		}
 
 		//format lại cho đúng với PostgreSql
 		var newDateOfBirth = request.dateOfBirth;
@@ -748,8 +756,10 @@ class User extends Model {
 		//gọi hàm updateIdCard để update CMND
 		await User.updateIdCard(request,currentUser);
 
+		
+
 		const newResult = await User.update(
-			{
+		{
 				email:newEmail,
 				address:newAddress,
 				lastName:newLastName,
@@ -758,14 +768,35 @@ class User extends Model {
 				dateOfBirth:newDateOfBirth,
 				username:newUsername,
 				phoneNumber:newPhoneNumber,
+				activeCode:newActiveCode,
 				password: await User.hashPassword(request.password)
 			},
 			{
 				where: {
-					email: currentUser.email
+					id: user.id
 				}
 			}
 		);
+		
+		//send email active code here
+		if (newResult) {
+			makeMessageHelper.verifyEmailMessage(
+				newResult.email,
+				newResult.lastName,
+				newResult.firstName,
+				newActiveCode,
+				function(response) {
+					emailHelper.send(
+						newResult.email,
+						'Kích hoạt tài khoản',
+						response.content,
+						response.html,
+						response.attachments
+					);
+				}
+			);
+		}
+	
 		return null;
 	}
 	//nhân viên update người dùng
@@ -794,6 +825,14 @@ class User extends Model {
 
 		var newAddress = request.address;
 		if (!newAddress) newAddress = user.address;
+
+		// chỉ nhận 2 trạng thái 0 = login normal 1 = login 2fa
+		var newEnable2fa = request.enable2fa;
+		if (!newEnable2fa) newEnable2fa = user.enable2fa;
+		else {
+			newEnable2fa = parseInt(request.enable2fa);
+			if (newEnable2fa !== 1 && newEnable2fa !== 0) newEnable2fa = user.enable2fa;
+		}
 
 		//1 = OK, 0 = Locked, chỉ nhận 2 dạng tình trạng tài khoản
 		var newStatus = request.status;
@@ -890,7 +929,8 @@ class User extends Model {
 				phoneNumber: newPhoneNumber,
 				username: newUsername,
 				citizenIdentificationId: newCitizenIdentificationId,
-				approveStatus: newApprove
+				approveStatus: newApprove,
+				enable2fa:newEnable2fa	// chỉ nhận 0 và 1
 			},
 			{
 				where: { userId: userId }
