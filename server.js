@@ -3,15 +3,11 @@ if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
 
-//expire or logout token
-const blackListToken = [];
-global.blackListToken = blackListToken;
-
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
-const cors = require('cors')
+const cors = require('cors');
 const db = require('./services/db');
 const errorHandler = require('./helpers/error.helper');
 const port = process.env.PORT || 3000;

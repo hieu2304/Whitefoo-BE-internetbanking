@@ -224,7 +224,8 @@ module.exports.postResend = asyncHandler(async function(req, res, next) {
 	}
 
 	const result = await userService.resendEmailActiveCode(currentUser);
-	if (!result) return res.status(400).send({ message: 'User verified Email' });
+	//{ message: 'User verified Email' }
+	if (result) return res.status(400).send(result);
 
 	return res.status(200).send({ message: 'OK' });
 });

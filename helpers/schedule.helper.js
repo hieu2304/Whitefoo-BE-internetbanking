@@ -1,16 +1,19 @@
 const initHelper = require('../helpers/init.helper');
 const currencyService = require('../services/currency/exchange_currency.service');
 const accountService = require('../services/accounts/account.service');
+const system_logService = require('../services/system/system_log.service');
 const asyncHandler = require('express-async-handler');
 const updateExchangeThread = require('node-cron');
 const updateDayAndTermThread = require('node-cron');
 
 updateExchangeRate = asyncHandler(async function() {
 	await currencyService.updateExchangeRateUSDAndVND();
+	await system_logService.pushSystemLogAutoUpdateExchange();
 });
 
 updateDaysAndTermPassed = asyncHandler(async function() {
 	await accountService.updateDaysAndTermsPassedForAccumulated();
+	await system_logService.pushSystemLogAutoUpdateAccumulated();
 	console.log('\nServer updated days&terms for accumulated accounts...\n');
 });
 

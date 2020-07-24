@@ -73,7 +73,6 @@ module.exports.authToken = function(req, res, next) {
 	const token = req.headers['token'];
 	if (!token) return res.status(401).send({ message: 'User not logged in' });
 
-	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
 		if (err) {
 			return res.status(401).send({ message: 'Invalid Token' });
@@ -94,8 +93,6 @@ module.exports.authAll = asyncHandler(async function(req, res, next) {
 		//khi cố truy cập vào các trang cần login mà lỗi (chưa login) sẽ trả ra 401
 		return res.status(401).send({ message: 'User not logged in' });
 	}
-
-	if (checkIsBlackList(token)) return res.status(401).send({ message: 'Invalid Token' });
 
 	var errTemp;
 	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, user) {
@@ -122,8 +119,3 @@ module.exports.authAll = asyncHandler(async function(req, res, next) {
 	//if user passed all verify actions -> success
 	return next();
 });
-
-function checkIsBlackList(token) {
-	if (blackListToken.includes(token)) return true;
-	return false;
-}

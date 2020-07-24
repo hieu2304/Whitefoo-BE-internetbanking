@@ -12,11 +12,6 @@ module.exports.getAuthLogin = function(req, res, next) {
 
 //khi logout
 module.exports.getAuthLogout = function(req, res, next) {
-	const token = req.headers['token'];
-
-	//nếu chưa có trong blacklist thì push vào
-	if (!blackListToken.includes(token)) blackListToken.push(token);
-
 	return res.status(200).send({ message: 'OK' });
 };
 

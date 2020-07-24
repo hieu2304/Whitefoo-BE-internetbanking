@@ -14,6 +14,7 @@ const fee_paymentService = require('../accounts/fee_payment.service');
 const Decimal = require('decimal.js');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 const audit_logService = require('../users/audit_log.service');
+const system_logService = require('../system/system_log.service');
 const requestService = require('request');
 
 class User extends Model {
@@ -403,10 +404,56 @@ class User extends Model {
 
 	//kiểm tra user gọi api resend email đã verify chưa, verify rồi thì không send
 	static async resendEmailActiveCode(currentUser) {
+		const resendEmailActiveCodeErrors = errorListConstant.userErrorsConstant;
+		const ErrorsList = [];
 		const foundUser = await User.findUserByPKNoneExclude(currentUser.id);
-		if (foundUser.activeCode === '') return null;
+		if (foundUser.activeCode === '') {
+			ErrorsList.push(resendEmailActiveCodeErrors.EMAIl_VERIFIED);
+			return ErrorsList;
+		}
+
+		//kiểm tra qua 5p chưa
+		const historySendActive = await system_logService.findOne({
+			where: {
+				userId: currentUser.id,
+				action: 'send active'
+			},
+			order: [ [ 'time', 'DESC' ] ]
+		});
+
+		var historyItem = historySendActive.dataValues;
+		//historyItem.hours = moment(historyItem.time).hours();
+		//historyItem.minutes = moment(historyItem.time).minutes();
+		historyItem.day = moment(historyItem.time).dates();
+		historyItem.month = moment(historyItem.time).months() + 1;
+		historyItem.year = moment(historyItem.time).years();
+
+		const now = new moment();
+		//historyItem.hoursNow = moment(now).hours();
+		//historyItem.minutesNow = moment(now).minutes();
+		//ko dùng days và day vì nó đếm ngày trong tuần (ví dụ friday sẽ trả ra 5)
+		historyItem.dayNow = moment(now).dates();
+		//dùng months sẽ phải +1 và theo moment: tháng đếm từ 0
+		historyItem.monthNow = moment(now).months() + 1;
+		historyItem.yearNow = moment(now).years();
+
+		//cùng ngày + tháng + năm + giờ và chỉ cách nhau dưới 5p sẽ trả ra lỗi
+		if (
+			historyItem.yearNow === historyItem.year &&
+			historyItem.monthNow === historyItem.month &&
+			historyItem.dayNow === historyItem.day
+		) {
+			const millisecondsPassed = now.diff(historyItem.time);
+			const minutesPassed = moment.duration(millisecondsPassed).asMinutes();
+			if (minutesPassed < 5.0) {
+				ErrorsList.push(resendEmailActiveCodeErrors.ACTIVE_SENT);
+				return ErrorsList;
+			}
+		}
+
 		await User.sendActive(currentUser);
-		return foundUser;
+
+		return null;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -481,6 +528,10 @@ class User extends Model {
 				);
 			}
 		);
+
+		await system_logService.pushSystemLog(foundUser.id, 'send active', 'send active');
+
+		return null;
 	}
 
 	//cần tạo mã 2 bước gọi hàm này (verifyCode)
@@ -524,6 +575,8 @@ class User extends Model {
 				);
 			}
 		);
+
+		await system_logService.pushSystemLog(foundUser.id, 'send verify', 'send verify');
 
 		return null;
 	}
@@ -570,6 +623,8 @@ class User extends Model {
 				}
 			);
 		}
+
+		await system_logService.pushSystemLog(forgotPasswordUser.id, 'send forgot', 'send forgot');
 
 		//return result
 		return newForgotCode;

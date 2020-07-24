@@ -179,5 +179,15 @@ module.exports.userErrorsConstant = {
 	LOGIN_INVALID: {
 		code: 'LOGIN_INVALID',
 		message: 'Wrong login name or password'
+	},
+
+	EMAIl_VERIFIED: {
+		code: 'EMAIl_VERIFIED',
+		message: 'User already verified email'
+	},
+
+	ACTIVE_SENT: {
+		code: 'ACTIVE_SENT',
+		message: 'Email has been sent to your inbox, please wait 5 minutes to use resend again'
 	}
 };
