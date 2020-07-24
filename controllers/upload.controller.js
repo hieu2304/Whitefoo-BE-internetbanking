@@ -31,8 +31,8 @@ async function getBlobList(req, res) {
 			.status(403)
 			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
 	}
-	const containerName = req.body.container;
-	const userId = req.body.userId;
+	const containerName = req.query.container;
+	const userId = req.query.userId;
 	const blobs = await Storage.findAllBlobsByUserId(containerName, userId);
 	if (!blobs) {
 		return res.status(404).send({ message: 'This user has 0 file.' });
@@ -73,7 +73,7 @@ async function getIdCard(req, res) {
 			.status(403)
 			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
 	}
-	const blob = await Storage.findOneBlob(idCardContainer, req.body.id);
+	const blob = await Storage.findOneBlob(idCardContainer, req.query.id);
 	if (!blob) {
 		return res.status(404).send({ message: 'File not found.' });
 	}
@@ -93,7 +93,7 @@ async function getIdCards(req, res) {
 			.status(403)
 			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
 	}
-	const userId = req.body.userId;
+	const userId = req.query.userId;
 	const blobs = await Storage.findAllBlobsByUserId(idCardContainer, userId);
 	if (!blobs) {
 		return res.status(404).send({ message: 'Result for idcards: empty.' });

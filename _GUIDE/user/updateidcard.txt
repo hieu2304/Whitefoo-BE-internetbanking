@@ -1,4 +1,11 @@
-mô tả: khi user up ảnh để xác nhận cmnd, gọi 1 api bên up ảnh và api này, api là cho user nhập cmnd, chuyển tình trạng sang trạng thái approveStatus chờ duyệt
+mô tả: khi user up ảnh để xác nhận cmnd, gọi 1 api bên up ảnh và api này, api là cho user nhập cmnd, chuyển tình trạng sang trạng thái approveStatus = 2chờ duyệt
+
+- trường hợp nhân viên tự update chính mình thì mặc định approveStatus là 1 và ko quan trọng vụ kiểm tra ảnh trong storage
+
+- trường hợp người dùng tự update chính mình thì approveStatus là 2, và trước khi cho request api này query vào DB, api này sẽ kiểm tra người dùng này đã upload ảnh chưa (trong table storage), nếu thỏa các tính chất sau thì API trả về OK, còn ko sẽ trả ra lỗi, các tính chất yêu cầu:
+        + userId là id của người dùng đang request
+        + container là 'idcards'
+        + quality là 'original'
 
 
 nếu có lỗi (nhập cmnd trống rỗng, trùng thì trả về lỗi)

@@ -1,25 +1,5 @@
-module.exports.BaseJWTErrorsList = {
-	401: 'Invalid Token',
-	conflict: 'conflict error: input values is conflict with existed values'
-};
-
-module.exports.defaultPhoneNumberList = {
-	0: '113',
-	1: '114',
-	2: '911'
-};
-
-module.exports.transferErrorValidate = {
-	VERIFYCODE_EMPTY: {
-		code: 'VERIFYCODE_EMPTY',
-		message: 'verifyCode must not empty'
-	},
-
-	VERIFYCODE_INVALID: {
-		code: 'VERIFYCODE_INVALID',
-		message: 'Invalid or wrong verifyCode'
-	},
-
+//các lỗi xảy ra liên quan tài khoản ngân hàng hoặc các sự kiên có liên quan
+module.exports.accountErrorsConstant = {
 	ACCOUNTID_EMPTY: {
 		code: 'ACCOUNTID_EMPTY',
 		message: 'accountId must not empty'
@@ -96,7 +76,8 @@ module.exports.transferErrorValidate = {
 	}
 };
 
-module.exports.registerErrorValidate = {
+//các lỗi xảy ra ở bảng user hoặc có liên quan người dùng
+module.exports.userErrorsConstant = {
 	WRONG_PASSWORD: { code: 'WRONG_PASSWORD', message: 'current Password is wrong' },
 
 	EMAIL_CONFLICT: { code: 'EMAIL_CONFLICT', message: 'Email already used by other people' },
@@ -180,8 +161,23 @@ module.exports.registerErrorValidate = {
 		message: 'Invalid forgotCode'
 	},
 
+	VERIFYCODE_INVALID: {
+		code: 'VERIFYCODE_INVALID',
+		message: 'Invalid or wrong verifyCode'
+	},
+
 	USER_NOT_FOUND: {
 		code: 'USER_NOT_FOUND',
 		message: 'User not exists'
+	},
+
+	USER_NOT_UPLOAD_ID: {
+		code: 'USER_NOT_UPLOAD_ID',
+		message: 'User not upload image(s) of id card yet!'
+	},
+
+	LOGIN_INVALID: {
+		code: 'LOGIN_INVALID',
+		message: 'Wrong login name or password'
 	}
 };

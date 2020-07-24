@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const userService = require('../services/users/user.service');
+const storageService = require('../services/files/storage.service');
 const validateHelper = require('../helpers/validate.helper');
 const jwtHelper = require('../helpers/jwt.helper');
 const exchange_currencyService = require('../services/currency/exchange_currency.service');
@@ -208,7 +209,7 @@ module.exports.postUpdateIdCard = asyncHandler(async function(req, res, next) {
 		return res.status(400).json(errors);
 	}
 
-	const result = await userService.updateIdCard(req.body, currentUser);
+	const result = await storageService.updateIdCard(req.body, currentUser);
 
 	if (!result) return res.status(200).send({ message: 'OK' });
 	return res.status(400).send(result);

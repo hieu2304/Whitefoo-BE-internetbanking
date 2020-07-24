@@ -2,8 +2,7 @@ const { check, validationResult, body } = require('express-validator');
 const moment = require('moment');
 const regexConstant = require('../constants/regex.constants');
 const asyncHandler = require('express-async-handler');
-const errorConstant = require('../constants/errorsList.constant').registerErrorValidate;
-const errorConstantTransfer = require('../constants/errorsList.constant').transferErrorValidate;
+const errorListConstant = require('../constants/errorsList.constant');
 
 module.exports.validateErrorHandle = function(req) {
 	var isThereAnyErrors = validationResult(req);
@@ -22,6 +21,7 @@ function isNumber(n) {
 
 module.exports.isNumber = isNumber;
 module.exports.validateRegisterInformation = function() {
+	const errorConstant = errorListConstant.userErrorsConstant;
 	var internalConfirmPassword = '';
 	return [
 		body('confirmPassword').custom(function(inputConfirmPassword) {
@@ -84,6 +84,7 @@ module.exports.validateRegisterInformation = function() {
 
 module.exports.validateUpdateNewPassword = function() {
 	var internalConfirmPassword = '';
+	const errorConstant = errorListConstant.userErrorsConstant;
 	return [
 		body('confirmPassword').custom(function(inputConfirmPassword) {
 			internalConfirmPassword = inputConfirmPassword;
@@ -100,12 +101,15 @@ module.exports.validateUpdateNewPassword = function() {
 };
 
 module.exports.validateUpdateIdCard = function() {
+	const errorConstant = errorListConstant.userErrorsConstant;
 	return [ check('citizenIdentificationId', errorConstant.CITIZENIDENTIFICATIONID_TOO_SHORT).isLength({ min: 5 }) ];
 };
 
 module.exports.validateTransfer = function() {
+	const errorConstant = errorListConstant.userErrorsConstant;
+	const errorConstantTransfer = errorListConstant.accountErrorsConstant;
 	return [
-		check('verifyCode', errorConstantTransfer.VERIFYCODE_EMPTY).isLength({ min: 1 }),
+		check('verifyCode', errorConstant.VERIFYCODE_INVALID).isLength({ min: 1 }),
 		check('accountId', errorConstantTransfer.ACCOUNTID_EMPTY).isLength({ min: 1 }),
 		check('requestAccountId', errorConstantTransfer.REQUESTACCOUNTID_EMPTY).isLength({ min: 1 }),
 		check('money', errorConstantTransfer.MONEY_EMPTY).isLength({ min: 1 })
@@ -113,7 +117,6 @@ module.exports.validateTransfer = function() {
 };
 
 module.exports.validateWithdraw = function() {
-	return [ check('verifyCode', errorConstantTransfer.VERIFYCODE_EMPTY).isLength({ min: 1 }) ];
+	const errorConstant = errorListConstant.userErrorsConstant;
+	return [ check('verifyCode', errorConstant.VERIFYCODE_INVALID).isLength({ min: 1 }) ];
 };
-
-module.exports.validateLoginInformation = function(request) {};

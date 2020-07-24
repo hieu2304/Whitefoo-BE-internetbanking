@@ -72,11 +72,10 @@ router.post('/requeststaff', authMiddleware.authToken, authMiddleware.verifyEmai
 //user update CMND của mình để chờ nhân viên duyệt
 //yêu đã xác nhận email, ko cần đã xác nhận cmnd
 //phải có validate check cmnd
-router.get('/updateidcard', authMiddleware.authToken, authMiddleware.verifyEmailRequired, controller.getUpdateIdCard);
+router.get('/updateidcard', authMiddleware.authToken, controller.getUpdateIdCard);
 router.post(
 	'/updateidcard',
 	authMiddleware.authToken,
-	authMiddleware.verifyEmailRequired,
 	validateHelper.validateUpdateIdCard(),
 	controller.postUpdateIdCard
 );

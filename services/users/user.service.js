@@ -215,30 +215,30 @@ class User extends Model {
 		const errorList = [];
 
 		//ở đây ta sẽ dùng lỗi của phần đăng nhập được khai báo từ trước
-		const registerErrors = errorListConstant.registerErrorValidate;
+		const checkConflictUserErrors = errorListConstant.userErrorsConstant;
 
 		//Kiểm tra Email trùng
 		if (typeof request.email !== 'undefined' && request.email != null) {
 			var isConflictEmail = await User.checkConflictEmail(request.email);
-			if (isConflictEmail) errorList.push(registerErrors.EMAIL_CONFLICT);
+			if (isConflictEmail) errorList.push(checkConflictUserErrors.EMAIL_CONFLICT);
 		} else {
-			errorList.push(registerErrors.EMAIL_TOO_SHORT);
+			errorList.push(checkConflictUserErrors.EMAIL_TOO_SHORT);
 		}
 
 		//Kiểm tra username trùng
 		if (typeof request.username !== 'undefined' && request.username != null) {
 			var isConflictUserName = await User.checkConflictUserName(request.username);
-			if (isConflictUserName) errorList.push(registerErrors.USERNAME_CONFLICT);
+			if (isConflictUserName) errorList.push(checkConflictUserErrors.USERNAME_CONFLICT);
 		} else {
-			errorList.push(registerErrors.USERNAME_TOO_SHORT);
+			errorList.push(checkConflictUserErrors.USERNAME_TOO_SHORT);
 		}
 
 		//Kiểm tra phoneNumber trùng
 		if (typeof request.phoneNumber !== 'undefined' && request.phoneNumber != null) {
 			var isConflictPhoneNumber = await User.checkConflictPhoneNumber(request.phoneNumber);
-			if (isConflictPhoneNumber) errorList.push(registerErrors.PHONENUMBER_CONFLICT);
+			if (isConflictPhoneNumber) errorList.push(checkConflictUserErrors.PHONENUMBER_CONFLICT);
 		} else {
-			errorList.push(registerErrors.PHONENUMBER_TOO_SHORT);
+			errorList.push(checkConflictUserErrors.PHONENUMBER_TOO_SHORT);
 		}
 
 		//nếu danh sách lỗi có ít nhất 1 thì trả ra cho bên create, bên create trả cho controller
@@ -446,11 +446,11 @@ class User extends Model {
 	static async sendActive(currentUser) {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
 		const ErrorsList = [];
-		const errorListTransfer = errorListConstant.registerErrorValidate;
+		const sendActiveErrors = errorListConstant.userErrorsConstant;
 		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
 
 		if (!foundUser) {
-			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
+			ErrorsList.push(sendActiveErrors.USER_NOT_FOUND);
 			return errorList;
 		}
 
@@ -487,11 +487,11 @@ class User extends Model {
 	static async sendVerify(currentUser) {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
 		const ErrorsList = [];
-		const errorListTransfer = errorListConstant.registerErrorValidate;
+		const sendVerifyErrors = errorListConstant.userErrorsConstant;
 		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
 
 		if (!foundUser) {
-			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
+			ErrorsList.push(sendVerifyErrors.USER_NOT_FOUND);
 			return errorList;
 		}
 
@@ -655,40 +655,6 @@ class User extends Model {
 		return isExist;
 	}
 
-	//user tự update CMND và chờ duyệt
-	static async updateIdCard(request, currentUser) {
-		const ErrorsList = [];
-		const errorListTransfer = errorListConstant.registerErrorValidate;
-		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
-		if (!foundUser) {
-			ErrorsList.push(errorListTransfer.USER_NOT_FOUND);
-			return errorList;
-		}
-
-		var newCitizenIdentificationId = request.citizenIdentificationId;
-		if (newCitizenIdentificationId && newCitizenIdentificationId != foundUser.citizenIdentificationId) {
-			//Kiểm tra CMND trùng
-			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
-			if (isConflict) {
-				errorList.push(registerErrors.CITIZENIDENTIFICATIONID_CONFLICT);
-				return errorList;
-			}
-
-			await User.update(
-				{
-					citizenIdentificationId: newCitizenIdentificationId,
-					approveStatus: 2
-				},
-				{
-					where: {
-						id: foundUser.id
-					}
-				}
-			);
-		}
-		return null;
-	}
-
 	//nhân viên duyệt cmnd user (update approveStatus)
 	static async verifyIdCard(request, currentUser) {
 		// 0 là từ chối, 1 là duyệt, 2 là chờ
@@ -716,11 +682,11 @@ class User extends Model {
 	//người dùng tự update thông tin cá nhân
 	static async updateSelfInfo(request, currentUser) {
 		const errorList = [];
-		const registerErrors = errorListConstant.registerErrorValidate;
+		const updateSelfInfoErrors = errorListConstant.userErrorsConstant;
 
 		const user = await User.findUserByPKNoneExclude(currentUser.id);
 		if (!user) {
-			errorList.push(registerErrors.USER_NOT_FOUND);
+			errorList.push(updateSelfInfoErrors.USER_NOT_FOUND);
 			return errorList;
 		}
 
@@ -758,7 +724,7 @@ class User extends Model {
 			//Kiểm tra SDT trùng
 			var isConflict = await User.checkConflictPhoneNumber(newPhoneNumber);
 			if (isConflict) {
-				errorList.push(registerErrors.PHONENUMBER_CONFLICT);
+				errorList.push(updateSelfInfoErrors.PHONENUMBER_CONFLICT);
 			}
 		} else {
 			newPhoneNumber = user.phoneNumber;
@@ -769,7 +735,7 @@ class User extends Model {
 			//Kiểm tra username trùng với ai khác
 			var isConflict = await User.checkConflictUserName(newUsername);
 			if (isConflict) {
-				errorList.push(registerErrors.USERNAME_CONFLICT);
+				errorList.push(updateSelfInfoErrors.USERNAME_CONFLICT);
 			}
 		} else {
 			newUsername = user.username;
@@ -783,7 +749,7 @@ class User extends Model {
 			//Kiểm tra trùng email
 			var isConflict = await User.checkConflictEmail(newEmail);
 			if (isConflict) {
-				errorList.push(registerErrors.EMAIL_CONFLICT);
+				errorList.push(updateSelfInfoErrors.EMAIL_CONFLICT);
 			} else {
 				newActiveCode = await User.getUniqueRandomCode();
 			}
@@ -822,9 +788,9 @@ class User extends Model {
 			const confirmPassword = request.confirmPassword;
 			if (await User.verifyPassword(request.currentPassword, user.password)) {
 				if (newPassword !== confirmPassword) {
-					errorList.push(registerErrors.PASSWORD_NOT_EQUAL);
+					errorList.push(updateSelfInfoErrors.PASSWORD_NOT_EQUAL);
 				} else if (newPassword.length < 8) {
-					errorList.push(registerErrors.PASSWORD_TOO_SHORT);
+					errorList.push(updateSelfInfoErrors.PASSWORD_TOO_SHORT);
 				} else {
 					await User.update(
 						{
@@ -838,7 +804,7 @@ class User extends Model {
 					);
 				}
 			} else {
-				errorList.push(registerErrors.WRONG_PASSWORD);
+				errorList.push(updateSelfInfoErrors.WRONG_PASSWORD);
 			}
 		}
 
@@ -870,17 +836,17 @@ class User extends Model {
 	static async updateUserInfo(request, currentUser) {
 		const errorList = [];
 
-		const registerErrors = errorListConstant.registerErrorValidate;
+		const updateUserInfoErrors = errorListConstant.userErrorsConstant;
 
 		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
 		if (!userId) {
-			errorList.push(registerErrors.USER_NOT_FOUND);
+			errorList.push(updateUserInfoErrors.USER_NOT_FOUND);
 			return errorList;
 		}
 
 		const user = await User.findUserByPKUsingExclude(userId);
 		if (!user) {
-			errorList.push(registerErrors.USER_NOT_FOUND);
+			errorList.push(updateUserInfoErrors.USER_NOT_FOUND);
 			return errorList;
 		}
 
@@ -941,7 +907,7 @@ class User extends Model {
 			//Kiểm tra trùng với ng khác
 			var isConflict = await User.checkConflictEmail(newEmail);
 			if (isConflict) {
-				errorList.push(registerErrors.EMAIL_CONFLICT);
+				errorList.push(updateUserInfoErrors.EMAIL_CONFLICT);
 			}
 			//Regular Expresion...type: Email
 		} else {
@@ -954,7 +920,7 @@ class User extends Model {
 			//Kiểm tra trùng với ai khác
 			var isConflict = await User.checkConflictUserName(newUsername);
 			if (isConflict) {
-				errorList.push(registerErrors.USERNAME_CONFLICT);
+				errorList.push(updateUserInfoErrors.USERNAME_CONFLICT);
 			}
 		} else {
 			newUsername = user.username;
@@ -965,7 +931,7 @@ class User extends Model {
 			//Kiểm tra SDT trùng
 			var isConflict = await User.checkConflictPhoneNumber(newPhoneNumber);
 			if (isConflict) {
-				errorList.push(registerErrors.PHONENUMBER_CONFLICT);
+				errorList.push(updateUserInfoErrors.PHONENUMBER_CONFLICT);
 			}
 		} else {
 			newPhoneNumber = user.phoneNumber;
@@ -976,7 +942,7 @@ class User extends Model {
 			//Kiểm tra CMND trùng
 			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
 			if (isConflict) {
-				errorList.push(registerErrors.CITIZENIDENTIFICATIONID_CONFLICT);
+				errorList.push(updateUserInfoErrors.CITIZENIDENTIFICATIONID_CONFLICT);
 			}
 		} else {
 			newCitizenIdentificationId = user.newCitizenIdentificationId;
@@ -1076,7 +1042,8 @@ class User extends Model {
 		var message = request.message;
 		if (!message || message == ' ' || message == '') message = 'Không có tin nhắn kèm theo!';
 		const ErrorsList = [];
-		const errorListTransfer = errorListConstant.transferErrorValidate;
+		const errorListTransfer = errorListConstant.accountErrorsConstant;
+		const userTransferErrors = errorListConstant.userErrorsConstant;
 		const requestAccountId = request.requestAccountId; //currentUser's accountId
 		const accountId = request.accountId; //Destination accountId
 		var money = new Decimal(request.money); //tiền để tính toán ở bên gửi
@@ -1137,7 +1104,7 @@ class User extends Model {
 		const checkingUser = await User.activeVerifyCode(request.verifyCode);
 
 		if (!checkingUser) {
-			ErrorsList.push(errorListTransfer.VERIFYCODE_INVALID);
+			ErrorsList.push(userTransferErrors.VERIFYCODE_INVALID);
 			return ErrorsList;
 		}
 
@@ -1284,19 +1251,19 @@ class User extends Model {
 	//rút tiền
 	static async withdrawStepTwo(request, currentUser) {
 		const ErrorsList = [];
-		const errorListTransfer = errorListConstant.transferErrorValidate;
+		const withdrawStepTwoErrors = errorListConstant.accountErrorsConstant;
 
 		//xác thực verifyCode...
 		const checkingUser = await User.activeVerifyCode(request.verifyCode);
 
 		if (!checkingUser) {
-			ErrorsList.push(errorListTransfer.VERIFYCODE_INVALID);
+			ErrorsList.push(withdrawStepTwoErrors.VERIFYCODE_INVALID);
 			return ErrorsList;
 		}
 
 		//Nếu thằng đang đăng nhập không sở hữu tài khoản thì xóa mã verify rồi cút nó ra
 		if (checkingUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
-			ErrorsList.push(errorListTransfer.NOT_BELONG);
+			ErrorsList.push(withdrawStepTwoErrors.NOT_BELONG);
 			return ErrorsList;
 		}
 
