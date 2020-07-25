@@ -1446,30 +1446,30 @@ class User extends Model {
 			return ErrorsList;
 		}
 
-		makeMessageHelper.withdrawMessage(
-			'timchideyeu1998@gmail.com',
-			'Nguyễn',
-			'Ngọc',
-			6500000,
-			50000,
-			'0123456789',
-			360,
-			1,
-			12,
-			'14/7/2020',
-			0,
-			'USD',
-			'không em, thích thì rút',
-			function(response) {
-				emailHelper.send(
-					'timchideyeu1998@gmail.com',
-					'Rút tiền thành công',
-					response.content,
-					response.html,
-					response.attachments
-				);
-			}
-		);
+		// makeMessageHelper.withdrawMessageAccumulated(
+		// 	'timchideyeu1998@gmail.com',
+		// 	'Nguyễn',
+		// 	'Ngọc',
+		// 	6500000,
+		// 	50000,
+		// 	'0123456789',
+		// 	360,
+		// 	1,
+		// 	12,
+		// 	'14/7/2020',
+		// 	0,
+		// 	'USD',
+		// 	'không em, thích thì rút',
+		// 	function(response) {
+		// 		emailHelper.send(
+		// 			'timchideyeu1998@gmail.com',
+		// 			'Rút tiền thành công',
+		// 			response.content,
+		// 			response.html,
+		// 			response.attachments
+		// 		);
+		// 	}
+		// );
 		return null;
 	}
 

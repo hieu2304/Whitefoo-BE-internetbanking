@@ -41,4 +41,4 @@ Run `npm run dev` to start the dev server. Navigate to `http://localhost:3000/`.
 
 Api get exchange rate: [freeforexapi](https://www.freeforexapi.com/Home/Api)
 
-[Google reCAPTCHA v2](https://www.google.com/recaptcha/)
+Google reCAPTCHA: [reCAPTCHA v2](https://www.google.com/recaptcha/)

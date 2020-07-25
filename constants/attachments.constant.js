@@ -42,3 +42,12 @@ module.exports.verifyAttachments = [
 		cid: 'verify'
 	}
 ];
+
+//liên quan thông tin cá nhân người dùng
+module.exports.infoAttachments = [
+	{
+		filename: 'info.png',
+		path: './constants/pattern/images/info.png',
+		cid: 'info'
+	}
+];

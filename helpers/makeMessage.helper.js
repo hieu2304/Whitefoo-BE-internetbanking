@@ -338,8 +338,8 @@ module.exports.transferVerifyMessage = function(email, lastName, firstName, veri
 	});
 };
 
-//tin nhắn gửi khi rút tiền
-module.exports.withdrawMessage = function(
+//tin nhắn gửi khi rút tiền tài khoản tiết kiệm
+module.exports.withdrawMessageAccumulated = function(
 	email, //email client
 	lastName, //tên của client
 	firstName, //họ của client
@@ -418,6 +418,57 @@ module.exports.withdrawMessage = function(
 				message
 		);
 
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.receiveAttachments;
+
+		return callback({ content, html, attachments });
+	});
+};
+
+//tin nhắn rút tiền tài khoản thanh toán
+module.exports.withdrawMessagePayment = function(
+	lastName,
+	firstName,
+	accountId,
+	value,
+	currencyIn,
+	valueLeft,
+	callback
+) {
+	const currency = ' ' + currencyIn;
+	const content =
+		'Bạn đã rút tiền từ STK: ' + accountId + '\nĐã rút: ' + value + currency + '\nCòn lại: ' + valueLeft + currency;
+
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
+
+		html = html.replace('{Re_Image}', 'b');
+		html = html.replace('{Re_Title}', 'Rút tiền thành công');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa thực hiện rút tiền thành công, chi tiết:'
+		);
+
+		html = html.replace(
+			'{Re_Content_2}',
+			'STK: ' +
+				accountId +
+				'<br>Số tiền đã rút: ' +
+				value +
+				currency +
+				'<br>Số dư còn lại: ' +
+				valueLeft +
+				currency
+		);
 		html = html.replace('{Re_Thanks_Message}', thankMessage);
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
@@ -512,7 +563,7 @@ module.exports.approvedCitizenIdMessage = function(lastName, firstName, citizenI
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'email');
+		html = html.replace('{Re_Image}', 'info');
 		html = html.replace('{Re_Title}', 'Đã duyệt CMND/CCCD');
 
 		html = html.replace(
@@ -530,7 +581,7 @@ module.exports.approvedCitizenIdMessage = function(lastName, firstName, citizenI
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.emailAttachments;
+		const attachments = getAttachments.infoAttachments;
 
 		return callback({ content, html, attachments });
 	});
