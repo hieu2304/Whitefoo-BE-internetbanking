@@ -4,6 +4,14 @@ const Model = Sequelize.Model;
 const moment = require('moment');
 
 class citizen extends Model {
+	static async findCitizenByCitizenId(citizenIdentificationId) {
+		return citizen.findOne({
+			where: {
+				citizenIdentificationId
+			}
+		});
+	}
+
 	static async createOrUpdateCitizen(citizenIdentificationId, identificationType, issueDateUnformatted) {
 		const issueDateFormatted = moment(issueDateUnformatted, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
 		const foundCitizen = await citizen.findOne({
@@ -52,7 +60,7 @@ citizen.init(
 			type: Sequelize.DATEONLY,
 			allowNull: false,
 			get: function() {
-				return moment.utc(this.getDataValue('time')).format('DD/MM/YYYY');
+				return moment.utc(this.getDataValue('issueDate')).format('DD/MM/YYYY');
 			}
 		}
 	},

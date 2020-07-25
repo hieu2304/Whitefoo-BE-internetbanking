@@ -15,6 +15,7 @@ const Decimal = require('decimal.js');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 const audit_logService = require('../users/audit_log.service');
 const system_logService = require('../system/system_log.service');
+const citizenService = require('./citizen.service');
 const requestService = require('request');
 
 class User extends Model {
@@ -94,7 +95,16 @@ class User extends Model {
 
 		const result = [];
 		for (var i = 0; i < list.length; i++) {
-			result.push(await User.findUserByPKUsingExclude(list[i].id));
+			const itemUser = await User.findUserByPKUsingExclude(list[i].id);
+			itemUser.identificationType = '';
+			itemUser.issueDate = '';
+			const citizenInfo = await citizenService.findCitizenByCitizenId(itemUser.citizenIdentificationId);
+			if (citizenInfo) {
+				itemUser.identificationType = citizenInfo.identificationType;
+				itemUser.issueDate = citizenInfo.issueDate;
+			}
+
+			result.push(itemUser);
 		}
 
 		return result;
@@ -261,6 +271,40 @@ class User extends Model {
 		return count;
 	}
 
+	//user lấy thông tin của mình
+	static async getInfoByUser(currentUser, detailsType) {
+		const result = await User.findUserByPKUsingExclude(currentUser.id);
+
+		if (detailsType === 'details') {
+			result.identificationType = '';
+			result.issueDate = '';
+			const citizenInfo = await citizenService.findCitizenByCitizenId(result.citizenIdentificationId);
+			if (citizenInfo) {
+				result.identificationType = citizenInfo.identificationType;
+				result.issueDate = citizenInfo.issueDate;
+			}
+		}
+
+		return result;
+	}
+
+	//nhân viên lấy thông tin của 1 user nhất định
+	static async getUserInfoByStaff(id) {
+		const result = await User.findUserByPKUsingExclude(id);
+		if (!result) return null;
+		result.identificationType = '';
+		result.issueDate = '';
+
+		const citizenInfo = await citizenService.findCitizenByCitizenId(result.citizenIdentificationId);
+		if (citizenInfo);
+		{
+			result.identificationType = citizenInfo.identificationType;
+			result.issueDate = citizenInfo.issueDate;
+		}
+
+		return result;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	//						CÁC HÀM TÌM KIẾM RỒI XÁC THỰC, XÁC THỰC
 	////////////////////////////////////////////////////////////////////////////////
@@ -383,7 +427,7 @@ class User extends Model {
 
 		const token = jwtHelper.generateToken(result);
 
-		result.message = 'OK';
+		//sẽ trả thêm result
 		result.token = token;
 		return result;
 	}
@@ -655,7 +699,8 @@ class User extends Model {
 		const result = await User.update(
 			{
 				userType: 0,
-				approveStatus: 1
+				approveStatus: 1,
+				activeCode: ''
 			},
 			{
 				where: {

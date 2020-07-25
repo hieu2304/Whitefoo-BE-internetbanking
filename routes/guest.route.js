@@ -11,7 +11,7 @@ const validateHelper = require('../helpers/validate.helper');
 
 //api updateinfo for user(method GET: return value same as /getinfo)
 router.get('/updateinfo', authMiddleware.authToken, controller.getGetInfo);
-router.post('/updateinfo', authMiddleware.authToken, controller.postUpdateInfo);
+router.post('/updateinfo', authMiddleware.authToken, validateHelper.validateUpdateInfo(), controller.postUpdateInfo);
 
 //api xem tỷ lệ USD VND cho FE
 router.get('/rate', controller.getRate);

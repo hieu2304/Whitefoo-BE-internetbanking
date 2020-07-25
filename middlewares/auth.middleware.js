@@ -67,7 +67,7 @@ module.exports.authSecret = function(req, res, next) {
 	const secretKey = req.headers['secretkey'];
 
 	if (clientId != secret[0] || secretKey != secret[1]) {
-		return res.status(400).send({ message: 'Invalid secret code' });
+		return res.status(403).send({ message: 'Invalid secret code' });
 	}
 	return next();
 };

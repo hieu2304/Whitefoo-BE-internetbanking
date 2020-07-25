@@ -2,32 +2,29 @@ mô tả: nhân viên ngân hàng, xem mọi thông tin của user, còn user th
 
 
 /api/getuserinfo
-method: POST
+method: POST hoặc GET
 
 params:
 id: 1  (id của user cần xem thông tin, bản thân id nhân viên cũng dc)
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
 
 
 response:
 {
-        "dateOfBirth": "12/12/2012",
-        "id": 1,
-        "citizenIdentificationId": "12345",
-        "email": "1760120@student.hcmus.edu.vn",
-        "phoneNumber": "0909090909",
-        "username": "1760120",
-        "lastName": "tester",
-        "firstName": "bug bug",
-        "address": "192 hàm tử, HCM, Việt Nam",
-        "userType": 0,
-        "status": 1,
-        "approveStatus": 1,
-        "password": "$2b$10$jTRMJVe73SWSSpYio5E.iurlOg8W8petX2jkiWTXM50OmSXoT.dl.",
-        "verifyCode": "",
-        "forgotCode": "",
-        "activeCode": "",
-        "createdAt": "2020-07-18T07:12:47.311Z",
-        "updatedAt": "2020-07-18T07:48:42.660Z"
-    }
+    "id": 1,
+    "citizenIdentificationId": "1234569990",
+    "email": "timchideyeu1998@gmail.com",
+    "phoneNumber": "1234567",
+    "username": "ngoc",
+    "lastName": "Ngoc123",
+    "firstName": "Nguyen123",
+    "dateOfBirth": "31/07/1865",
+    "address": "basubasa",
+    "userType": 0,
+    "status": 1,
+    "approveStatus": 1,
+    "enable2fa": 0,
+    "emailVerified": 1,
+    "identificationType": "CCCD",
+    "issueDate": "31/12/1990"
+}

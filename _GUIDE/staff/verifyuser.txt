@@ -1,9 +1,11 @@
-mô tả: nhân viên gọi để duyệt hoặc từ chối thằng user đang cần xác nhận CMND
+mô tả: 
+POST: nhân viên gọi để duyệt hoặc từ chối thằng user đang cần xác nhận CMND
+GET: nhân viên lấy danh sách user chưa được duyệt CMND
 
 khi từ chối thì ko xóa cmnd của thằng user trong DB
 
 
-mô tả: nhân viên lấy danh sách user chưa được duyệt CMND
+
 
 /api/verifyuser
 

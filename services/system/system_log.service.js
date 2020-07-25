@@ -5,10 +5,10 @@ const moment = require('moment');
 
 class system_log extends Model {
 	static async pushSystemLogAutoUpdateExchange() {
-		await system_log.pushSystemLog(-1, 'update exchange rate', 'update each 3h');
+		await system_log.pushSystemLog(-1, 'update exchange rate', 'system update each 3h');
 	}
 	static async pushSystemLogAutoUpdateAccumulated() {
-		await system_log.pushSystemLog(-1, 'update accumulated', 'update daily');
+		await system_log.pushSystemLog(-1, 'update accumulated', 'system update daily');
 	}
 
 	static async pushSystemLog(userId, action, description) {

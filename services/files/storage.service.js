@@ -3,6 +3,7 @@ const db = require('../db');
 const User = require('../users/user.service');
 const errorListConstant = require('../../constants/errorsList.constant');
 const Model = Sequelize.Model;
+const citizenService = require('../users/citizen.service');
 
 class Storage extends Model {
 	//user tự update CMND và chờ duyệt
@@ -33,8 +34,8 @@ class Storage extends Model {
 			//Kiểm tra CMND trùng
 			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
 			if (isConflict) {
-				errorList.push(updateIdCardErrors.CITIZENIDENTIFICATIONID_CONFLICT);
-				return errorList;
+				ErrorsList.push(updateIdCardErrors.CITIZENIDENTIFICATIONID_CONFLICT);
+				return ErrorsList;
 			}
 
 			await User.update(
@@ -48,7 +49,14 @@ class Storage extends Model {
 					}
 				}
 			);
+
+			await citizenService.createOrUpdateCitizen(
+				newCitizenIdentificationId,
+				request.identificationType,
+				request.issueDate
+			);
 		}
+
 		return null;
 	}
 

@@ -13,6 +13,11 @@ module.exports.postUpdateInfo = asyncHandler(async function(req, res, next) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 
+	const errors = validateHelper.validateErrorHandle(req);
+	if (errors) {
+		return res.status(400).json(errors);
+	}
+
 	//kiểm tra và update
 	const result = await userService.updateSelfInfo(req.body, currentUser);
 	// trả ra null là ok
@@ -109,8 +114,8 @@ module.exports.postGetInfo = asyncHandler(async function(req, res, next) {
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
-
-	const result = await userService.findUserByPKUsingExclude(currentUser.id);
+	const detailsType = req.body.type;
+	const result = await userService.getInfoByUser(currentUser, detailsType);
 
 	return res.status(200).send(result);
 });
@@ -121,7 +126,8 @@ module.exports.getGetInfo = asyncHandler(async function(req, res, next) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 
-	const result = await userService.findUserByPKUsingExclude(currentUser.id);
+	const detailsType = req.query.type;
+	const result = await userService.getInfoByUser(currentUser, detailsType);
 
 	return res.status(200).send(result);
 });

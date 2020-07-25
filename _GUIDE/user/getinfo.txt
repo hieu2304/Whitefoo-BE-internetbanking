@@ -5,22 +5,45 @@ mô tả: người dùng tự lấy các thông tin cá nhân cơ bản
 method: POST và GET đều như nhau
 điều kiện: đã login, CHƯA xác nhận email, CHƯA kích hoạt CMND
 
-params: không có gì thêm
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+params: type
+    type:
+        +basic hoặc để trống: trả ra cơ bản (không gồm loại CMND và ngày cấp)
+        +details : hiện thêm loại CMND và ngày cấp
 
-response:
+basic response:
 {
     "id": 1,
-    "citizenIdentificationId": "12345",
-    "email": "abc@123.com",
-    "phoneNumber": "0909090909",
-    "username": "1760120",
-    "lastName": "tester",
-    "firstName": "bug bug",
-    "dateOfBirth": "12/12/2012",
-    "address": "192 hàm tử, HCM, Việt Nam",
+    "citizenIdentificationId": "1234569990",
+    "email": "timchideyeu1998@gmail.com",
+    "phoneNumber": "1234567",
+    "username": "ngoc",
+    "lastName": "Ngoc123",
+    "firstName": "Nguyen123",
+    "dateOfBirth": "31/07/1865",
+    "address": "basubasa",
     "userType": 0,
+    "status": 1,
     "approveStatus": 1,
+    "enable2fa": 0,
     "emailVerified": 1
+}
+
+details response:
+{
+    "id": 1,
+    "citizenIdentificationId": "1234569990",
+    "email": "timchideyeu1998@gmail.com",
+    "phoneNumber": "1234567",
+    "username": "ngoc",
+    "lastName": "Ngoc123",
+    "firstName": "Nguyen123",
+    "dateOfBirth": "31/07/1865",
+    "address": "basubasa",
+    "userType": 0,
+    "status": 1,
+    "approveStatus": 1,
+    "enable2fa": 0,
+    "emailVerified": 1,
+    "identificationType": "CCCD",
+    "issueDate": "31/12/1990"
 }

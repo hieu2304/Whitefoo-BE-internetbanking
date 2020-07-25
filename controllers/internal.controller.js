@@ -38,20 +38,20 @@ module.exports.postSearchKeyword = asyncHandler(async function(req, res, next) {
 });
 
 // getuserinfo
-//nhân viên lấy thông tin cá nhân của ai đó + các STK của người đó
+//nhân viên lấy thông tin cá nhân của ai đó
 module.exports.getGetUserInfo = asyncHandler(async function(req, res, next) {
 	const userId = typeof req.query.userId !== 'undefined' ? req.query.userId : req.query.id;
 	if (!userId) return res.status(400).send({ message: 'User not found' });
 
-	const result = await userService.findUserByPKNoneExclude(userId);
+	const result = await userService.getUserInfoByStaff(userId);
 	if (!result) return res.status(400).send({ message: 'User not found' });
 	return res.status(200).send(result);
 });
 module.exports.postGetUserInfo = asyncHandler(async function(req, res, next) {
 	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
-	if (!userId) return res.status(400).send({ message: 'User not exist' });
+	if (!userId) return res.status(400).send({ message: 'User not found' });
 
-	const result = await userService.findUserByPKNoneExclude(userId);
+	const result = await userService.getUserInfoByStaff(userId);
 	if (!result) return res.status(400).send({ message: 'User not found' });
 	return res.status(200).send(result);
 });

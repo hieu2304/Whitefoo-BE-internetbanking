@@ -148,7 +148,7 @@ module.exports.userErrorsConstant = {
 
 	DATEOFBIRTH_INVALID: {
 		code: 'DATEOFBIRTH_INVALID',
-		message: 'invalid dateOfBirth, can only DD/MM/YYYY'
+		message: 'Invalid dateOfBirth, can only DD/MM/YYYY'
 	},
 
 	ACTIVECODE_INVALID: {
@@ -189,5 +189,20 @@ module.exports.userErrorsConstant = {
 	ACTIVE_SENT: {
 		code: 'ACTIVE_SENT',
 		message: 'Email has been sent to your inbox, please wait 5 minutes to use resend again'
+	},
+
+	ISSUEDATE_INVALID: {
+		code: 'ISSUEDATE_INVALID',
+		message: 'Invalid issueDate, can only DD/MM/YYYY'
+	},
+
+	IDENTIFICATIONTYPE_INVALID: {
+		code: 'IDENTIFICATIONTYPE_INVALID',
+		message: 'Invalid identificationType, can only be CMND or CCCD'
+	},
+
+	ENABLE2FA_INVALID: {
+		code: 'ENABLE2FA_INVALID',
+		message: 'Invalid enable2fa, can only be 0 or 1'
 	}
 };

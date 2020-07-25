@@ -25,5 +25,5 @@ giải thích: tránh user mò mẫm phá, nếu sau này user muốn update cmn
 
 params:
 citizenIdentificationId:123456
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+issueDate:31/12/1999
+identificationType:CMND (chỉ nhận CMND hoặc CCCD)

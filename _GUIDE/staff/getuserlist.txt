@@ -1,0 +1,16 @@
+mô tả: lấy danh sách người dùng có phân trang, nếu có params thì trả ra theo tiêu chí params, ngược lại thì trả ra toàn bộ.
+
+lọc mặc định: ko trả ra loại CMND, ngày cấp
+các thông tin cần lấy: như getinfo mức basic
+các params truyền vào:
+    - start và limit để phân trang
+
+    - type để lọc theo tiêu chí (có thể  để trống => trả ra toàn bộ user không phải nhân viên):
+
+        + pending: danh sách những user đang chờ duyệt
+        + approved: danh sách những user đã được duyệt
+        + blocked: danh sách những user bị khóa tài khoản
+        + manager/staff: danh sách nhân viên ngân hàng
+
+
+method GET (req.query):
