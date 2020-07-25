@@ -408,7 +408,7 @@ class User extends Model {
 		const ErrorsList = [];
 		const foundUser = await User.findUserByPKNoneExclude(currentUser.id);
 		if (foundUser.activeCode === '') {
-			ErrorsList.push(resendEmailActiveCodeErrors.EMAIl_VERIFIED);
+			ErrorsList.push(resendEmailActiveCodeErrors.EMAIL_VERIFIED);
 			return ErrorsList;
 		}
 

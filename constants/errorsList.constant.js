@@ -181,8 +181,8 @@ module.exports.userErrorsConstant = {
 		message: 'Wrong login name or password'
 	},
 
-	EMAIl_VERIFIED: {
-		code: 'EMAIl_VERIFIED',
+	EMAIL_VERIFIED: {
+		code: 'EMAIL_VERIFIED',
 		message: 'User already verified email'
 	},
 
