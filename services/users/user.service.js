@@ -305,6 +305,61 @@ class User extends Model {
 		return result;
 	}
 
+	//nhân viên lấy danh sách theo tiêu chí
+	static async getUserListByStaff(request) {
+		var limit = request.limit;
+		var start = request.start;
+
+		//nếu không truyền hoặc ko phải số thì gán giá trị mặc định
+		if (typeof limit === 'undefined' || !await User.isNumber(limit)) {
+			limit = 3;
+		}
+		if (typeof start === 'undefined' || !await User.isNumber(start)) {
+			start = 0;
+		}
+
+		start = start * limit;
+
+		const result = [];
+
+		const detailsType = typeof request.type !== 'undefined' ? request.type : 'none';
+
+		//các tiêu chí duyệt mặc định:
+		//trình trạng duyệt cmnd sẽ là tất cả
+		var approveStatusArr = [ 0, 1, 2 ];
+		//tình trạng user mặc định là tất cả
+		var statusArr = [ 0, 1 ];
+		//tình trạng loại người dụng mặc định là CHỈ NGƯỜI DÙNG
+		var userTypeArr = [ 1 ];
+
+		if (detailsType === 'pending') {
+			approveStatusArr = [ 2 ];
+		} else if (detailsType === 'approved') {
+			approveStatusArr = [ 1 ];
+		} else if (detailsType === 'blocked' || detailsType === 'locked') {
+			statusArr = [ 0 ];
+		} else if (detailsType === 'manager' || detailsType === 'staff') {
+			userTypeArr = [ 0 ];
+		}
+
+		const list = await User.findAll({
+			where: {
+				approveStatus: approveStatusArr,
+				status: statusArr,
+				userType: userTypeArr
+			},
+			offset: Number(start),
+			limit: Number(limit),
+			order: [ [ 'id', 'ASC' ] ]
+		});
+
+		for (var i = 0; i < list.length; i++) {
+			result.push(await User.findUserByPKUsingExclude(list[i].id));
+		}
+
+		return result;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	//						CÁC HÀM TÌM KIẾM RỒI XÁC THỰC, XÁC THỰC
 	////////////////////////////////////////////////////////////////////////////////
@@ -1444,6 +1499,11 @@ class User extends Model {
 	}
 	static verifyPassword(passwordsUnHashed, passwordsHashed) {
 		return bcrypt.compareSync(passwordsUnHashed, passwordsHashed);
+	}
+
+	//kiểm tra có phải số
+	static isNumber(n) {
+		return !isNaN(parseFloat(n)) && !isNaN(n - 0);
 	}
 }
 

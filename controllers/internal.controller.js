@@ -154,3 +154,9 @@ module.exports.postVerifyUser = asyncHandler(async function(req, res, next) {
 
 	return res.status(200).send({ message: 'OK' });
 });
+
+//nhan viên lấy list theo tiêu chí
+module.exports.getGetUserList = asyncHandler(async function(req, res, next) {
+	const result = await userService.getUserListByStaff(req.query);
+	return res.status(200).send(result);
+});

@@ -3,14 +3,80 @@ mô tả: lấy danh sách người dùng có phân trang, nếu có params thì
 lọc mặc định: ko trả ra loại CMND, ngày cấp
 các thông tin cần lấy: như getinfo mức basic
 các params truyền vào:
-    - start và limit để phân trang
+    - start và limit để phân trang:
+        + start bắt đầu từ 0, không truyền hoặc truyền ký tự thì mặc định là 0
+        + limit bắt đầu từ 1, không truyền hoặc truyền ký tự thì mặc định lả 3
 
     - type để lọc theo tiêu chí (có thể  để trống => trả ra toàn bộ user không phải nhân viên):
 
-        + pending: danh sách những user đang chờ duyệt
-        + approved: danh sách những user đã được duyệt
-        + blocked: danh sách những user bị khóa tài khoản
-        + manager/staff: danh sách nhân viên ngân hàng
+        + pending: danh sách những user đang chờ duyệt (approveStatus = 2)
+        + approved: danh sách những user đã được duyệt  (approveStatus = 1)
+        + blocked/locked: danh sách những user bị khóa tài khoản (status = 0)
+        + manager/staff: danh sách nhân viên ngân hàng (userType = 0)
 
 
 method GET (req.query):
+
+{URL}/api/getuserlist?start= trang bắt đầu &limit=Số user muốn giới hạn &type=phân loại theo tiêu chí
+
+localhost:3000/api/getuserlist?start=0&limit=3
+
+response:
+[
+    {
+        "id": 2,
+        "citizenIdentificationId": "012210012",
+        "email": "1760120@student.hcmus.edu.vn",
+        "phoneNumber": "123321",
+        "username": "1760120",
+        "lastName": "sinhvien",
+        "firstName": "mssv1760120",
+        "dateOfBirth": "30/12/1968",
+        "address": "Việt Nam",
+        "userType": 1,
+        "status": 1,
+        "approveStatus": 2,
+        "enable2fa": 0,
+        "emailVerified": 1
+    },
+    {
+        "id": 3,
+        "citizenIdentificationId": "333",
+        "email": "123@123",
+        "phoneNumber": "333",
+        "username": "user3",
+        "lastName": "threee",
+        "firstName": "number",
+        "dateOfBirth": "12/12/1750",
+        "address": "VN",
+        "userType": 1,
+        "status": 1,
+        "approveStatus": 2,
+        "enable2fa": 0,
+        "emailVerified": 1
+    },
+    {
+        "id": 4,
+        "citizenIdentificationId": "444",
+        "email": "abc@abc",
+        "phoneNumber": "444",
+        "username": "user4",
+        "lastName": "four",
+        "firstName": "number",
+        "dateOfBirth": "10/12/1950",
+        "address": "VNN",
+        "userType": 1,
+        "status": 1,
+        "approveStatus": 1,
+        "enable2fa": 0,
+        "emailVerified": 1
+    }
+]
+
+các mẫu khác
+
+localhost:3000/api/getuserlist?start=0&limit=3&type=pending
+localhost:3000/api/getuserlist?start=0&limit=3&type=approved
+localhost:3000/api/getuserlist?start=0&limit=3&type=staff
+localhost:3000/api/getuserlist?start=0&limit=3&type=manager
+localhost:3000/api/getuserlist?start=0&limit=3&type=block

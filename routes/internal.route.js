@@ -42,4 +42,7 @@ router.post('/updateaccount', controller.postUpdateAccount);
 router.get('/verifyuser', controller.getVerifyUser);
 router.post('/verifyuser', controller.postVerifyUser);
 
+//nhân viên lấy list user theo tiêu chí, có phân trang
+router.get('/getuserlist', controller.getGetUserList);
+
 module.exports = router;
