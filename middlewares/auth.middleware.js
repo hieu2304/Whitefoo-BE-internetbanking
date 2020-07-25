@@ -63,7 +63,7 @@ module.exports.loginRequired = loginRequired;
 module.exports.authSecret = function(req, res, next) {
 	const secret = middlewareHelper.getSecret();
 	if (req.body.clientId != secret[0] || req.body.secretKey != secret[1]) {
-		return res.status(403).send({ message: 'Invalid secret code' });
+		return res.status(400).send({ message: 'Invalid secret code' });
 	}
 	return next();
 };
