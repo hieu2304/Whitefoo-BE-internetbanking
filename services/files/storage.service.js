@@ -22,12 +22,13 @@ class Storage extends Model {
 		//nếu là người dùng bình thường
 		if (foundUser.userType == 1) {
 			newApproveStatus = 2;
-			//nếu chưa upload ảnh thì trả về lỗi
-			const checkUpload = await Storage.checkUserUploadIdCard(foundUser.id);
-			if (!checkUpload) {
-				ErrorsList.push(updateIdCardErrors.USER_NOT_UPLOAD_ID);
-				return ErrorsList;
-			}
+
+			////nếu chưa upload ảnh thì trả về lỗi
+			// const checkUpload = await Storage.checkUserUploadIdCard(foundUser.id);
+			// if (!checkUpload) {
+			// 	ErrorsList.push(updateIdCardErrors.USER_NOT_UPLOAD_ID);
+			// 	return ErrorsList;
+			// }
 		}
 
 		if (newCitizenIdentificationId && newCitizenIdentificationId != foundUser.citizenIdentificationId) {

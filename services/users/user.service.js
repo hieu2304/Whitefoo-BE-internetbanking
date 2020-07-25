@@ -1507,23 +1507,16 @@ class User extends Model {
 	//hàm này đảm bảo code random được tạo ra là độc nhất, đang không tồn tại trong DB
 	static async getUniqueRandomCode() {
 		var randomCode = randomHelper.getRandomString(15);
-		while (
-			(await User.checkIfExistVerifyCode(randomCode)) ||
-			(await User.checkIfExistForgotCode(randomCode)) ||
-			(await User.checkIfExistActiveCode(randomCode))
-		) {
+		while ((await User.checkIfExistForgotCode(randomCode)) || (await User.checkIfExistActiveCode(randomCode))) {
 			randomCode = randomHelper.getRandomString(15);
 		}
 		return randomCode;
 	}
 
+	//hàm lấy mã verify random unique
 	static async getUniqueRandomVerifyCode() {
 		var randomCode = randomHelper.getRandomNumber(6);
-		while (
-			(await User.checkIfExistVerifyCode(randomCode)) ||
-			(await User.checkIfExistForgotCode(randomCode)) ||
-			(await User.checkIfExistActiveCode(randomCode))
-		) {
+		while (await User.checkIfExistVerifyCode(randomCode)) {
 			randomCode = randomHelper.getRandomNumber(15);
 		}
 		return randomCode;
