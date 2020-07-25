@@ -491,7 +491,7 @@ module.exports.changeEmailMessageOldEmail = function(lastName, firstName, oldEma
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'verify');
+		html = html.replace('{Re_Image}', 'email2');
 		html = html.replace('{Re_Title}', 'Thay đổi Email');
 
 		html = html.replace(
@@ -509,7 +509,7 @@ module.exports.changeEmailMessageOldEmail = function(lastName, firstName, oldEma
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.verifyAttachments;
+		const attachments = getAttachments.email2Attachments;
 
 		return callback({ content, html, attachments });
 	});

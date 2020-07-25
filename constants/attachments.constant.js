@@ -1,9 +1,18 @@
-//xác minh email
+//xác minh email hoặc có liên quan email, ảnh cơ bản
 module.exports.emailAttachments = [
 	{
 		filename: 'email.png',
 		path: './constants/pattern/images/email.png',
 		cid: 'email'
+	}
+];
+
+//liên quan email nhưng ảnh khác
+module.exports.email2Attachments = [
+	{
+		filename: 'email2.png',
+		path: './constants/pattern/images/email2.png',
+		cid: 'email2'
 	}
 ];
 

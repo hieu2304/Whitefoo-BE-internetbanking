@@ -1,7 +1,10 @@
 mô tả:
 - user được quyền tự update thông tin cho user
-- nếu field nào user không điền hoặc gửi giá trị cũ, hệ thống sẽ hiểu là không update field đó
+
 - trường hợp update email -> sẽ có mail gửi đến email cũ thông báo đổi email, và gửi mail kích hoạt tới email mới
+
+- toàn bộ fields phải có dữ liệu trừ 3 fields mật khẩu có thể bỏ trống : currentPassword, newPassword, confirmPassword
+
 - riêng mật khẩu sẽ có 3 field: currentPassword, newPassword, confirmPassword
     + nếu người dùng bỏ trống currentPassword  -> sẽ ko update password mới gì cả, bỏ qua check 2 field còn lại
     + nếu người dùng nhập currentPassword sai -> báo sai pass hiện tại
