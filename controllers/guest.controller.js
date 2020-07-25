@@ -195,7 +195,7 @@ module.exports.postRequestStaff = asyncHandler(async function(req, res, next) {
 	const result = await userService.requestStaff(currentUser);
 
 	//nếu có lỗi
-	if (result) return res.status(401).send({ message: result });
+	if (result) return res.status(403).send({ message: result });
 	//nếu ok
 	return res.status(200).send({ message: 'OK' });
 });
