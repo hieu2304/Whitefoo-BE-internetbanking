@@ -8,6 +8,7 @@ const thankMessage = 'Cảm ơn bạn đã tin tưởng và sử dụng WhiteFoo
 const signature = 'whitefooBank © 2020';
 const signatureHTML = '<br><p>Trân trọng, ' + signature + '</p>';
 
+//tin nhắn kích hoạt email
 module.exports.verifyEmailMessage = function(email, lastName, firstName, activeCode, callback) {
 	//${HOST_URL}/activate?token=qwerty
 
@@ -41,7 +42,7 @@ module.exports.verifyEmailMessage = function(email, lastName, firstName, activeC
 		return callback({ content, html, attachments });
 	});
 };
-
+//test
 module.exports.resendVerifyEmailMessage = function(email, lastName, firstName, activeCode) {
 	const linkDirect = process.env.HOST_URL + '/activate?token=' + activeCode;
 	const content = 'link kích hoạt tài khoản: ' + linkDirect;
@@ -63,6 +64,7 @@ module.exports.resendVerifyEmailMessage = function(email, lastName, firstName, a
 	return { content, html };
 };
 
+//tin nhắn dc gửi khi nạp tiền thành công
 module.exports.loadUpSuccessMessage = function(
 	email,
 	accountId,
@@ -112,6 +114,7 @@ module.exports.loadUpSuccessMessage = function(
 		html = html.replace('{Re_Thanks_Message}', thankMessage);
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
 
 		//replace all
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
@@ -187,6 +190,7 @@ module.exports.transferSuccessMessage = function(
 		html = html.replace('{Re_Thanks_Message}', thankMessage);
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
 
 		//replace all
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
@@ -256,6 +260,7 @@ module.exports.transferSuccessMessageDes = function(
 		html = html.replace('{Re_Thanks_Message}', thankMessage);
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
 
 		//replace all
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
@@ -317,7 +322,8 @@ module.exports.transferVerifyMessage = function(email, lastName, firstName, veri
 			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa yêu cầu lấy mã xác minh 2 bước, mã của bạn là:'
 		);
 
-		html = html.replace('{Re_Content_2}', verifyCode);
+		html = html.replace('{Re_Content_2}', '');
+		html = html.replace('{Re_Code}', verifyCode);
 		html = html.replace('{Re_Thanks_Message}', thankMessage);
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
@@ -415,6 +421,7 @@ module.exports.withdrawMessage = function(
 		html = html.replace('{Re_Thanks_Message}', thankMessage);
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
 
 		//replace all
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
@@ -445,6 +452,7 @@ module.exports.changeEmailMessageOldEmail = function(lastName, firstName, oldEma
 		html = html.replace('{Re_Thanks_Message}', thankMessage);
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
 
 		//replace all
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
@@ -480,6 +488,43 @@ module.exports.changeEmailMessageNewEmail = function(email, lastName, firstName,
 		html = html.replace('{Re_Button_URl}', linkDirect);
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
+
+		//replace all
+		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+
+		const attachments = getAttachments.emailAttachments;
+
+		return callback({ content, html, attachments });
+	});
+};
+
+//tin nhắn khi được duyệt CMNND
+module.exports.approvedCitizenIdMessage = function(lastName, firstName, citizenIdentificationId, callback) {
+	const content = 'Bạn đã được duyệt CMND/CCCD';
+	const idLength = citizenIdentificationId.length;
+	var citizenIdentificationIdCensored = citizenIdentificationId;
+	if (idLength > 3) {
+		citizenIdentificationIdCensored = citizenIdentificationIdCensored.substring(0, idLength - 3);
+		citizenIdentificationIdCensored += '***';
+	}
+
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
+
+		html = html.replace('{Re_Image}', 'email');
+		html = html.replace('{Re_Title}', 'Đã duyệt CMND/CCCD');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa được phê duyệt CMND/CCCD, chi tiết:'
+		);
+
+		html = html.replace('{Re_Content_2}', 'CMND/CCCD được duyệt: ' + citizenIdentificationIdCensored);
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
 
 		//replace all
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');

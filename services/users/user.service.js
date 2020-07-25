@@ -646,7 +646,7 @@ class User extends Model {
 		}
 
 		//nếu vượt qua kiểm tra thì bắt đầu quá trình send mã
-		const newVerifyCode = await User.getUniqueRandomCode();
+		const newVerifyCode = await User.getUniqueRandomVerifyCode();
 
 		//update DB
 		await User.update(
@@ -814,8 +814,14 @@ class User extends Model {
 	static async verifyIdCard(request, currentUser) {
 		// 0 là từ chối, 1 là duyệt, 2 là chờ
 		var newApprove = request.approveStatus;
+		if (typeof newApprove === 'undefined' || !await User.isNumber(newApprove)) {
+			newApprove = 0;
+		}
 		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
-		if (newApprove && userId) {
+		const foundUser = await User.findUserByPKNoneExclude(userId);
+		if (!foundUser) return null;
+
+		if (foundUser.approveStatus !== 1) {
 			newApprove = parseInt(newApprove);
 
 			//update
@@ -831,7 +837,25 @@ class User extends Model {
 			);
 			//push audit log
 			await audit_logService.pushAuditLog(currentUser.id, userId, 'approve', 'approveStatus: ' + newApprove);
+
+			//send email
+			makeMessageHelper.approvedCitizenIdMessage(
+				foundUser.lastName,
+				foundUser.firstName,
+				foundUser.citizenIdentificationId,
+				function(response) {
+					emailHelper.send(
+						foundUser.email,
+						'Đã duyệt CMND/CCCD',
+						response.content,
+						response.html,
+						response.attachments
+					);
+				}
+			);
 		}
+
+		return foundUser;
 	}
 
 	//người dùng tự update thông tin cá nhân
@@ -1489,6 +1513,18 @@ class User extends Model {
 			(await User.checkIfExistActiveCode(randomCode))
 		) {
 			randomCode = randomHelper.getRandomString(15);
+		}
+		return randomCode;
+	}
+
+	static async getUniqueRandomVerifyCode() {
+		var randomCode = randomHelper.getRandomNumber(6);
+		while (
+			(await User.checkIfExistVerifyCode(randomCode)) ||
+			(await User.checkIfExistForgotCode(randomCode)) ||
+			(await User.checkIfExistActiveCode(randomCode))
+		) {
+			randomCode = randomHelper.getRandomNumber(15);
 		}
 		return randomCode;
 	}
