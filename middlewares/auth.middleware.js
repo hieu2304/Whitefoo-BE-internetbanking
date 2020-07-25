@@ -62,8 +62,10 @@ module.exports.loginRequired = loginRequired;
 // yêu cầu có kèm 2 secret theo(trong ENV)
 module.exports.authSecret = function(req, res, next) {
 	const secret = middlewareHelper.getSecret();
-	const clientId = req.headers['clientId'];
-	const secretKey = req.headers['secretKey'];
+	//header ko có viết hoa
+	const clientId = req.headers['clientid'];
+	const secretKey = req.headers['secretkey'];
+
 	if (clientId != secret[0] || secretKey != secret[1]) {
 		return res.status(400).send({ message: 'Invalid secret code' });
 	}
