@@ -6,29 +6,18 @@ method: POST và GET đều như nhau
 điều kiện: đã login, CHƯA xác nhận email, CHƯA kích hoạt CMND
 
 params: type
-    type:
-        +basic hoặc để trống: trả ra cơ bản (không gồm loại CMND và ngày cấp)
-        +details : hiện thêm loại CMND và ngày cấp
+    type có các loại sau:   
 
-basic response:
-{
-    "id": 1,
-    "citizenIdentificationId": "1234569990",
-    "email": "timchideyeu1998@gmail.com",
-    "phoneNumber": "1234567",
-    "username": "ngoc",
-    "lastName": "Ngoc123",
-    "firstName": "Nguyen123",
-    "dateOfBirth": "31/07/1865",
-    "address": "basubasa",
-    "userType": 0,
-    "status": 1,
-    "approveStatus": 1,
-    "enable2fa": 0,
-    "emailVerified": 1
-}
+        +all/full: lấy toàn bộ thông tin có thể xem ở mức user
 
-details response:
+        +details/detail : như all nhưng loại bỏ thông tin kích hoạt email, CMND
+
+        +basic hoặc để trống: id, email, lastName, firstName, userType, status
+        
+        +status: chỉ hiện id, tình trạng kích hoạt email, CMND
+        
+
+all/full response:
 {
     "id": 1,
     "citizenIdentificationId": "1234569990",
@@ -46,4 +35,41 @@ details response:
     "emailVerified": 1,
     "identificationType": "CCCD",
     "issueDate": "31/12/1990"
+}
+
+details/detail response:
+{
+    "id": 1,
+    "citizenIdentificationId": "1234569990",
+    "email": "timchideyeu1998@gmail.com",
+    "phoneNumber": "1234567",
+    "username": "ngoc",
+    "lastName": "Ngoc123",
+    "firstName": "Nguyen123",
+    "dateOfBirth": "31/07/1865",
+    "address": "basubasa",
+    "userType": 0,
+    "status": 1,
+    "enable2fa": 0,
+    "identificationType": "CCCD",
+    "issueDate": "31/12/1990"
+}
+
+basic response:
+{
+    "id": 1,
+    "email": "timchideyeu1998@gmail.com",
+    "lastName": "Ngoc123",
+    "firstName": "Nguyen123",
+    "userType": 0,
+    "status": 1,
+}
+
+status response:
+{
+    "id": 1,
+    "citizenIdentificationId": "1234569990",
+    "email": "timchideyeu1998@gmail.com",
+    "approveStatus": 1,
+    "emailVerified": 1,
 }

@@ -273,17 +273,42 @@ class User extends Model {
 
 	//user lấy thông tin của mình
 	static async getInfoByUser(currentUser, detailsType) {
-		const result = await User.findUserByPKUsingExclude(currentUser.id);
+		const result = {};
 
-		if (detailsType === 'details') {
-			result.identificationType = '';
-			result.issueDate = '';
-			const citizenInfo = await citizenService.findCitizenByCitizenId(result.citizenIdentificationId);
-			if (citizenInfo) {
-				result.identificationType = citizenInfo.identificationType;
-				result.issueDate = citizenInfo.issueDate;
-			}
+		const foundUser = await User.findUserByPKUsingExclude(currentUser.id);
+
+		foundUser.identificationType = '';
+		foundUser.issueDate = '';
+
+		const citizenInfo = await citizenService.findCitizenByCitizenId(foundUser.citizenIdentificationId);
+		if (citizenInfo) {
+			foundUser.identificationType = citizenInfo.identificationType;
+			foundUser.issueDate = citizenInfo.issueDate;
 		}
+
+		if (detailsType === 'all' || detailsType === 'full') return foundUser;
+		else if (detailsType === 'details' || detailsType === 'detail') {
+			delete foundUser.approveStatus;
+			delete foundUser.emailVerified;
+
+			return foundUser;
+		} else if (detailsType === 'status') {
+			result.id = foundUser.id;
+			result.citizenIdentificationId = foundUser.citizenIdentificationId;
+			result.email = foundUser.email;
+			result.approveStatus = foundUser.approveStatus;
+			result.emailVerified = foundUser.emailVerified;
+
+			return result;
+		}
+
+		//basic hoặc để trống
+		result.id = foundUser.id;
+		result.email = foundUser.email;
+		result.lastName = foundUser.lastName;
+		result.firstName = foundUser.firstName;
+		result.userType = foundUser.userType;
+		result.status = foundUser.status;
 
 		return result;
 	}
@@ -775,7 +800,7 @@ class User extends Model {
 		const verifyOldPassword = await User.verifyPassword(request.currentPassword, result.password);
 		if (!verifyOldPassword) return null;
 
-		const newResult = await User.update(
+		await User.update(
 			{
 				password: await User.hashPassword(request.newPassword)
 			},
@@ -838,7 +863,8 @@ class User extends Model {
 			//push audit log
 			await audit_logService.pushAuditLog(currentUser.id, userId, 'approve', 'approveStatus: ' + newApprove);
 
-			//send email
+			//chỉ send email khi duyệt = 1
+			if (newApprove !== 1) return foundUser;
 			makeMessageHelper.approvedCitizenIdMessage(
 				foundUser.lastName,
 				foundUser.firstName,
