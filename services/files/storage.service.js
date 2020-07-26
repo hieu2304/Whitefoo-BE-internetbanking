@@ -16,6 +16,10 @@ class Storage extends Model {
 			ErrorsList.push(updateIdCardErrors.USER_NOT_FOUND);
 			return ErrorsList;
 		}
+		if (foundUser.approveStatus === 2) {
+			ErrorsList.push(updateIdCardErrors.PENDING);
+			return ErrorsList;
+		}
 		var newApproveStatus = 1; //mặc định là 1
 		var newCitizenIdentificationId = request.citizenIdentificationId;
 

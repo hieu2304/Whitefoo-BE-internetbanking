@@ -204,5 +204,10 @@ module.exports.userErrorsConstant = {
 	ENABLE2FA_INVALID: {
 		code: 'ENABLE2FA_INVALID',
 		message: 'Invalid enable2fa, can only be 0 or 1'
+	},
+
+	PENDING: {
+		code: 'PENDING',
+		message: 'Please wait for the staff approve your citizenIdentificationId'
 	}
 };
