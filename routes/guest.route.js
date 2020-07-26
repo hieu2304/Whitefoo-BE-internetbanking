@@ -66,7 +66,7 @@ router.post(
 
 //User xin làm nhân viên, thằng nào xin trước thằng đó làm
 //yêu đã xác nhận email, ko cần đã xác nhận cmnd
-router.get('/requeststaff', authMiddleware.authToken, authMiddleware.verifyEmailRequired, controller.getRequestStaff);
+router.get('/requeststaff', authMiddleware.authToken, controller.getRequestStaff);
 router.post('/requeststaff', authMiddleware.authToken, authMiddleware.verifyEmailRequired, controller.postRequestStaff);
 
 //user update CMND của mình để chờ nhân viên duyệt
