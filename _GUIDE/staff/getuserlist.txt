@@ -7,12 +7,13 @@ các params truyền vào:
         + start bắt đầu từ 0, không truyền hoặc truyền ký tự thì mặc định là 0
         + limit bắt đầu từ 1, không truyền hoặc truyền ký tự thì mặc định lả 3
 
-    - type để lọc theo tiêu chí (có thể  để trống => trả ra toàn bộ user không phải nhân viên):
+    - type để lọc theo tiêu chí (có thể  để trống => trả ra toàn bộ user bao gồm nhân viên và cả người dùng):
 
         + pending: danh sách những user đang chờ duyệt (approveStatus = 2)
         + approved: danh sách những user đã được duyệt  (approveStatus = 1)
         + blocked/locked: danh sách những user bị khóa tài khoản (status = 0)
-        + manager/staff: danh sách nhân viên ngân hàng (userType = 0)
+        + manager/staff: chỉ danh sách là nhân viên ngân hàng (userType = 0)
+        + user: chỉ danh sách là người dùng (userType = 1 )
 
 
 method GET (req.query):

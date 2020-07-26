@@ -354,8 +354,8 @@ class User extends Model {
 		var approveStatusArr = [ 0, 1, 2 ];
 		//tình trạng user mặc định là tất cả
 		var statusArr = [ 0, 1 ];
-		//tình trạng loại người dụng mặc định là CHỈ NGƯỜI DÙNG
-		var userTypeArr = [ 1 ];
+		//tình trạng loại người dụng mặc định là tất cả
+		var userTypeArr = [ 0, 1 ];
 
 		if (detailsType === 'pending') {
 			approveStatusArr = [ 2 ];
@@ -365,6 +365,8 @@ class User extends Model {
 			statusArr = [ 0 ];
 		} else if (detailsType === 'manager' || detailsType === 'staff') {
 			userTypeArr = [ 0 ];
+		} else if (detailsType === 'user') {
+			userTypeArr = [ 1 ];
 		}
 
 		const list = await User.findAll({
