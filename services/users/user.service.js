@@ -387,23 +387,29 @@ class User extends Model {
 		return result;
 	}
 
-	//hàm hỗ trợ searchUserByStaff số 1
-	static async searchUserByStaffSupportOne(request) {
+	//nhân viên lấy danh sách theo keyword, lọc theo tiêu chí, có phân trang
+	//API này gộp từ 2 API cũ và trả ra count: searchkeyword và getuserlist
+	static async searchUserByStaff(request) {
 		var limit = request.limit;
 		var start = request.start;
 		var keyword = request.keyword;
-		if (!keyword || keyword === '' || keyword === ' ') keyword = '';
+
+		//nếu không truyền thì gán giá trị mặc định
+		if (!keyword || keyword === ' ') keyword = '';
 		keyword = keyword.toLowerCase();
 
-		//nếu không truyền hoặc ko phải số thì gán giá trị mặc định
-		if (typeof limit === 'undefined' || !await User.isNumber(limit)) {
+		if (!limit || !await User.isNumber(limit)) {
 			limit = 3;
 		}
-		if (typeof start === 'undefined' || !await User.isNumber(start)) {
+		if (!start || !await User.isNumber(start)) {
 			start = 0;
 		}
+
+		//ví dụ start = 3, limit là 3
+		//thì bắt đầu từ 9 (là phần tử thứ 10 và kết thúc phần tử thứ 12 - trang 4)
 		start = start * limit;
 
+		//type truyền vào, dùng để đặt tiêu chí tìm kiếm
 		const detailsType = typeof request.type !== 'undefined' ? request.type : 'none';
 
 		//các tiêu chí duyệt mặc định:
@@ -411,7 +417,7 @@ class User extends Model {
 		var approveStatusArr = [ 0, 1, 2 ];
 		//tình trạng user mặc định là tất cả
 		var statusArr = [ 0, 1 ];
-		//tình trạng loại người dụng mặc định là tất cả
+		//tình trạng loại người dụng (quyền) mặc định là tất cả
 		var userTypeArr = [ 0, 1 ];
 
 		if (detailsType === 'pending') {
@@ -426,13 +432,14 @@ class User extends Model {
 			userTypeArr = [ 1 ];
 		}
 
-		const list = await User.findAll({
+		const totalList = await User.findAndCountAll({
 			where: {
-				//tiêu chí từ api getuserlist
+				//tiêu chí tìm kiếm từ api getuserlist
 				approveStatus: approveStatusArr,
 				status: statusArr,
 				userType: userTypeArr,
-				//keyword từ api searchkeyword
+
+				//keyword để tìm kiếm tương đối từ api searchkeyword
 				[Op.or]: [
 					Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), { [Op.like]: '%' + keyword + '%' }),
 					Sequelize.where(Sequelize.fn('lower', Sequelize.col('citizenIdentificationId')), {
@@ -451,11 +458,22 @@ class User extends Model {
 						[Op.like]: '%' + keyword + '%'
 					}),
 
-					//Họ + ' ' + Tên
+					//Tên + ' ' + Họ
 					Sequelize.where(
 						Sequelize.fn(
 							'lower',
 							Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName'))
+						),
+						{
+							[Op.like]: '%' + keyword + '%'
+						}
+					),
+
+					//Họ + ' ' + Tên
+					Sequelize.where(
+						Sequelize.fn(
+							'lower',
+							Sequelize.fn('concat', Sequelize.col('firstName'), ' ', Sequelize.col('lastName'))
 						),
 						{
 							[Op.like]: '%' + keyword + '%'
@@ -463,101 +481,30 @@ class User extends Model {
 					)
 				]
 			},
+
 			offset: Number(start),
 			limit: Number(limit),
 			order: [ [ 'id', 'ASC' ] ]
 		});
 
-		const result = [];
+		const usersArr = totalList.rows;
+		const count = totalList.count; //count trả ra ko bị ảnh hưởng bởi limit và start
+		const list = [];
 
-		for (var i = 0; i < list.length; i++) {
+		for (var i = 0; i < usersArr.length; i++) {
 			var temp = {};
-			temp.id = list[i].id;
-			temp.email = list[i].email;
-			temp.lastName = list[i].lastName;
-			temp.firstName = list[i].firstName;
-			temp.address = list[i].address;
-			temp.approveStatus = list[i].approveStatus;
+			temp.id = usersArr[i].id;
+			temp.email = usersArr[i].email;
+			temp.lastName = usersArr[i].lastName;
+			temp.firstName = usersArr[i].firstName;
+			temp.address = usersArr[i].address;
+			temp.status = usersArr[i].status;
+			temp.approveStatus = usersArr[i].approveStatus;
 			temp.emailVerified = 0;
-			if (list[i].activeCode === '') temp.emailVerified = 1;
-			temp.status = list[i].status;
+			if (usersArr[i].activeCode === '') temp.emailVerified = 1;
 
-			result.push(temp);
+			list.push(temp);
 		}
-
-		return result;
-	}
-	static async searchUserByStaffSupportTwo(request) {
-		var keyword = request.keyword;
-		if (!keyword || keyword === '' || keyword === ' ') keyword = '';
-		keyword = keyword.toLowerCase();
-
-		const detailsType = typeof request.type !== 'undefined' ? request.type : 'none';
-
-		//các tiêu chí duyệt mặc định:
-		//trình trạng duyệt cmnd sẽ là tất cả
-		var approveStatusArr = [ 0, 1, 2 ];
-		//tình trạng user mặc định là tất cả
-		var statusArr = [ 0, 1 ];
-		//tình trạng loại người dụng mặc định là tất cả
-		var userTypeArr = [ 0, 1 ];
-
-		if (detailsType === 'pending') {
-			approveStatusArr = [ 2 ];
-		} else if (detailsType === 'approved') {
-			approveStatusArr = [ 1 ];
-		} else if (detailsType === 'blocked' || detailsType === 'locked') {
-			statusArr = [ 0 ];
-		} else if (detailsType === 'manager' || detailsType === 'staff') {
-			userTypeArr = [ 0 ];
-		} else if (detailsType === 'user') {
-			userTypeArr = [ 1 ];
-		}
-
-		const result = await User.findAndCountAll({
-			where: {
-				approveStatus: approveStatusArr,
-				status: statusArr,
-				userType: userTypeArr,
-				[Op.or]: [
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), { [Op.like]: '%' + keyword + '%' }),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('citizenIdentificationId')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('phoneNumber')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstName')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastName')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-
-					//Họ + ' ' + Tên
-					Sequelize.where(
-						Sequelize.fn(
-							'lower',
-							Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName'))
-						),
-						{
-							[Op.like]: '%' + keyword + '%'
-						}
-					)
-				]
-			}
-		});
-
-		return result.count;
-	}
-	//nhân viên lấy danh sách theo keyword, lọc theo tiêu chí, có phân trang
-	//api này gộp từ 2 API cũ: searchkeyword và getuserlist
-	static async searchUserByStaff(request) {
-		const list = await User.searchUserByStaffSupportOne(request);
-		const count = await User.searchUserByStaffSupportTwo(request);
 
 		return { count, list };
 	}
