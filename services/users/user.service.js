@@ -477,6 +477,10 @@ class User extends Model {
 			temp.lastName = list[i].lastName;
 			temp.firstName = list[i].firstName;
 			temp.address = list[i].address;
+			temp.approveStatus = list[i].approveStatus;
+			temp.emailVerified = 0;
+			if (list[i].activeCode === '') temp.emailVerified = 1;
+			temp.status = list[i].status;
 
 			result.push(temp);
 		}
