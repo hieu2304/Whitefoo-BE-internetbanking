@@ -7,12 +7,6 @@ const authMiddleware = require('../middlewares/auth.middleware');
 router.get('/createaccount', controller.getCreateAccount);
 router.post('/createaccount', controller.postCreateAccount);
 
-//tìm kiếm thông tin dựa vào keyword bất kỳ
-//trả ra list thông tin cá nhân của các user liên quan keyword
-//search Unique information by keyword
-router.get('/searchkeyword', controller.getSearchKeyword);
-router.post('/searchkeyword', controller.postSearchKeyword);
-
 //nhân viên lấy thông tin cá nhân của ai đó
 router.get('/getuserinfo', controller.getGetUserInfo);
 router.post('/getuserinfo', controller.postGetUserInfo);
@@ -41,9 +35,6 @@ router.post('/updateaccount', controller.postUpdateAccount);
 //get là lấy list đang chờ duyệt, post là phê duyệt
 router.get('/verifyuser', controller.getVerifyUser);
 router.post('/verifyuser', controller.postVerifyUser);
-
-//nhân viên lấy list user theo tiêu chí, có phân trang
-router.get('/getuserlist', controller.getGetUserList);
 
 //nhân viên search và lọc theo tiêu chí, có phân trang
 router.get('/search', controller.getSearch);

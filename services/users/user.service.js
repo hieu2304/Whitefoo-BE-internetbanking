@@ -110,61 +110,6 @@ class User extends Model {
 		return result;
 	}
 
-	//hàm nhân viên tìm kiếm trả về list user theo keyword
-	static async searchByKeyword(request) {
-		const keyword = request.keyword.toLowerCase();
-		const listNumberOne = await User.findAll({
-			where: {
-				[Op.or]: [
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), { [Op.like]: '%' + keyword + '%' }),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('citizenIdentificationId')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('phoneNumber')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstName')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-					Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastName')), {
-						[Op.like]: '%' + keyword + '%'
-					}),
-
-					//Họ + ' ' + Tên
-					Sequelize.where(
-						Sequelize.fn(
-							'lower',
-							Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName'))
-						),
-						{
-							[Op.like]: '%' + keyword + '%'
-						}
-					)
-				],
-				userType: 1
-			},
-			attributes: {
-				exclude: [ 'password', 'createdAt', 'updatedAt', 'verifyCode', 'forgotCode', 'activeCode' ]
-			}
-		});
-
-		const result = [];
-		for (var i = 0; i < listNumberOne.length; i++) {
-			result.push(listNumberOne[i].dataValues);
-			result[i].dateOfBirth = listNumberOne[i].dateOfBirth;
-			result[i].emailVerified = 1;
-			const checkUser = await User.findUserByPKNoneExclude(result[i].id);
-			if (checkUser.activeCode !== '') {
-				result[i].emailVerified = 0;
-			}
-		}
-
-		return result;
-	}
-
 	//hàm nhân viên lấy danh sách STK của 1 user
 	static async getUserAccount(request) {
 		const user = await User.findUserByPKNoneExclude(request.id);
@@ -325,63 +270,6 @@ class User extends Model {
 		{
 			result.identificationType = citizenInfo.identificationType;
 			result.issueDate = citizenInfo.issueDate;
-		}
-
-		return result;
-	}
-
-	//nhân viên lấy danh sách theo tiêu chí
-	static async getUserListByStaff(request) {
-		var limit = request.limit;
-		var start = request.start;
-
-		//nếu không truyền hoặc ko phải số thì gán giá trị mặc định
-		if (typeof limit === 'undefined' || !await User.isNumber(limit)) {
-			limit = 3;
-		}
-		if (typeof start === 'undefined' || !await User.isNumber(start)) {
-			start = 0;
-		}
-
-		start = start * limit;
-
-		const result = [];
-
-		const detailsType = typeof request.type !== 'undefined' ? request.type : 'none';
-
-		//các tiêu chí duyệt mặc định:
-		//trình trạng duyệt cmnd sẽ là tất cả
-		var approveStatusArr = [ 0, 1, 2 ];
-		//tình trạng user mặc định là tất cả
-		var statusArr = [ 0, 1 ];
-		//tình trạng loại người dụng mặc định là tất cả
-		var userTypeArr = [ 0, 1 ];
-
-		if (detailsType === 'pending') {
-			approveStatusArr = [ 2 ];
-		} else if (detailsType === 'approved') {
-			approveStatusArr = [ 1 ];
-		} else if (detailsType === 'blocked' || detailsType === 'locked') {
-			statusArr = [ 0 ];
-		} else if (detailsType === 'manager' || detailsType === 'staff') {
-			userTypeArr = [ 0 ];
-		} else if (detailsType === 'user') {
-			userTypeArr = [ 1 ];
-		}
-
-		const list = await User.findAll({
-			where: {
-				approveStatus: approveStatusArr,
-				status: statusArr,
-				userType: userTypeArr
-			},
-			offset: Number(start),
-			limit: Number(limit),
-			order: [ [ 'id', 'ASC' ] ]
-		});
-
-		for (var i = 0; i < list.length; i++) {
-			result.push(await User.findUserByPKUsingExclude(list[i].id));
 		}
 
 		return result;
