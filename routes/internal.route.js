@@ -45,4 +45,8 @@ router.post('/verifyuser', controller.postVerifyUser);
 //nhân viên lấy list user theo tiêu chí, có phân trang
 router.get('/getuserlist', controller.getGetUserList);
 
+//nhân viên search và lọc theo tiêu chí, có phân trang
+router.get('/search', controller.getSearch);
+router.post('/search', controller.postSearch);
+
 module.exports = router;

@@ -31,7 +31,7 @@ module.exports.getSearchKeyword = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
 };
 module.exports.postSearchKeyword = asyncHandler(async function(req, res, next) {
-	if (!req.body.keyword) return res.status(400).send({ message: 'keyword must not empty' });
+	// if (!req.body.keyword) return res.status(400).send({ message: 'keyword must not empty' });
 
 	const list = await userService.searchByKeyword(req.body);
 	return res.status(200).send(list);
@@ -158,5 +158,15 @@ module.exports.postVerifyUser = asyncHandler(async function(req, res, next) {
 //nhan viên lấy list theo tiêu chí
 module.exports.getGetUserList = asyncHandler(async function(req, res, next) {
 	const result = await userService.getUserListByStaff(req.query);
+	return res.status(200).send(result);
+});
+
+//nhân viên lấy list user dựa vào tiêu chí, keyword và có phân trang
+module.exports.getSearch = asyncHandler(async function(req, res, next) {
+	const result = await userService.searchUserByStaff(req.query);
+	return res.status(200).send(result);
+});
+module.exports.postSearch = asyncHandler(async function(req, res, next) {
+	const result = await userService.searchUserByStaff(req.body);
 	return res.status(200).send(result);
 });

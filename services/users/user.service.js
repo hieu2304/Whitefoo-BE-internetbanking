@@ -387,6 +387,177 @@ class User extends Model {
 		return result;
 	}
 
+	//hàm hỗ trợ searchUserByStaff số 1
+	static async searchUserByStaffSupportOne(request) {
+		var limit = request.limit;
+		var start = request.start;
+		var keyword = request.keyword;
+		if (!keyword || keyword === '' || keyword === ' ') keyword = '';
+		keyword = keyword.toLowerCase();
+
+		//nếu không truyền hoặc ko phải số thì gán giá trị mặc định
+		if (typeof limit === 'undefined' || !await User.isNumber(limit)) {
+			limit = 3;
+		}
+		if (typeof start === 'undefined' || !await User.isNumber(start)) {
+			start = 0;
+		}
+		start = start * limit;
+
+		const detailsType = typeof request.type !== 'undefined' ? request.type : 'none';
+
+		//các tiêu chí duyệt mặc định:
+		//trình trạng duyệt cmnd sẽ là tất cả
+		var approveStatusArr = [ 0, 1, 2 ];
+		//tình trạng user mặc định là tất cả
+		var statusArr = [ 0, 1 ];
+		//tình trạng loại người dụng mặc định là tất cả
+		var userTypeArr = [ 0, 1 ];
+
+		if (detailsType === 'pending') {
+			approveStatusArr = [ 2 ];
+		} else if (detailsType === 'approved') {
+			approveStatusArr = [ 1 ];
+		} else if (detailsType === 'blocked' || detailsType === 'locked') {
+			statusArr = [ 0 ];
+		} else if (detailsType === 'manager' || detailsType === 'staff') {
+			userTypeArr = [ 0 ];
+		} else if (detailsType === 'user') {
+			userTypeArr = [ 1 ];
+		}
+
+		const list = await User.findAll({
+			where: {
+				//tiêu chí từ api getuserlist
+				approveStatus: approveStatusArr,
+				status: statusArr,
+				userType: userTypeArr,
+				//keyword từ api searchkeyword
+				[Op.or]: [
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), { [Op.like]: '%' + keyword + '%' }),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('citizenIdentificationId')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('phoneNumber')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstName')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastName')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+
+					//Họ + ' ' + Tên
+					Sequelize.where(
+						Sequelize.fn(
+							'lower',
+							Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName'))
+						),
+						{
+							[Op.like]: '%' + keyword + '%'
+						}
+					)
+				]
+			},
+			offset: Number(start),
+			limit: Number(limit),
+			order: [ [ 'id', 'ASC' ] ]
+		});
+
+		const result = [];
+
+		for (var i = 0; i < list.length; i++) {
+			var temp = {};
+			temp.id = list[i].id;
+			temp.email = list[i].email;
+			temp.lastName = list[i].lastName;
+			temp.firstName = list[i].firstName;
+			temp.address = list[i].address;
+
+			result.push(temp);
+		}
+
+		return result;
+	}
+	static async searchUserByStaffSupportTwo(request) {
+		var keyword = request.keyword;
+		if (!keyword || keyword === '' || keyword === ' ') keyword = '';
+		keyword = keyword.toLowerCase();
+
+		const detailsType = typeof request.type !== 'undefined' ? request.type : 'none';
+
+		//các tiêu chí duyệt mặc định:
+		//trình trạng duyệt cmnd sẽ là tất cả
+		var approveStatusArr = [ 0, 1, 2 ];
+		//tình trạng user mặc định là tất cả
+		var statusArr = [ 0, 1 ];
+		//tình trạng loại người dụng mặc định là tất cả
+		var userTypeArr = [ 0, 1 ];
+
+		if (detailsType === 'pending') {
+			approveStatusArr = [ 2 ];
+		} else if (detailsType === 'approved') {
+			approveStatusArr = [ 1 ];
+		} else if (detailsType === 'blocked' || detailsType === 'locked') {
+			statusArr = [ 0 ];
+		} else if (detailsType === 'manager' || detailsType === 'staff') {
+			userTypeArr = [ 0 ];
+		} else if (detailsType === 'user') {
+			userTypeArr = [ 1 ];
+		}
+
+		const result = await User.findAndCountAll({
+			where: {
+				approveStatus: approveStatusArr,
+				status: statusArr,
+				userType: userTypeArr,
+				[Op.or]: [
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), { [Op.like]: '%' + keyword + '%' }),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('citizenIdentificationId')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('phoneNumber')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstName')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastName')), {
+						[Op.like]: '%' + keyword + '%'
+					}),
+
+					//Họ + ' ' + Tên
+					Sequelize.where(
+						Sequelize.fn(
+							'lower',
+							Sequelize.fn('concat', Sequelize.col('lastName'), ' ', Sequelize.col('firstName'))
+						),
+						{
+							[Op.like]: '%' + keyword + '%'
+						}
+					)
+				]
+			}
+		});
+
+		return result.count;
+	}
+	//nhân viên lấy danh sách theo keyword, lọc theo tiêu chí, có phân trang
+	//api này gộp từ 2 API cũ: searchkeyword và getuserlist
+	static async searchUserByStaff(request) {
+		const list = await User.searchUserByStaffSupportOne(request);
+		const count = await User.searchUserByStaffSupportTwo(request);
+
+		return { count, list };
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	//						CÁC HÀM TÌM KIẾM RỒI XÁC THỰC, XÁC THỰC
 	////////////////////////////////////////////////////////////////////////////////

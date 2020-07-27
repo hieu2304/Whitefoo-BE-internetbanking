@@ -1,0 +1,23 @@
+mô tả:
+
+- method cho sử dụng: GET và POST (GET sử dụng query, POST sử dụng body)
+- tìm kiếm danh sách người dùng theo keyword và tiêu chí
+- các input vào:
+    + keyword: có thể để trống (từ khóa để tìm tương đối theo các unique value hoặc họ tên)
+
+    + type: search phân theo tiêu chí, để trống là lấy toàn bộ, các loại hiện có:
+        * pending: danh sách những user đang chờ duyệt (approveStatus = 2)
+
+        * approved: danh sách những user đã được duyệt  (approveStatus = 1)
+
+        * blocked/locked: danh sách những user bị khóa tài khoản (status = 0)
+
+        * manager/staff: chỉ danh sách là nhân viên ngân hàng (userType = 0)
+        
+        * user: chỉ danh sách là người dùng (userType = 1 )
+
+    + start và limit để phân trang:
+        * start bắt đầu từ 0, không truyền hoặc truyền ký tự thì mặc định là 0
+        * limit bắt đầu từ 1, không truyền hoặc truyền ký tự thì mặc định lả 3
+        
+- API này được merge từ 2 API cũ: searchkeyword và API getuserlist
