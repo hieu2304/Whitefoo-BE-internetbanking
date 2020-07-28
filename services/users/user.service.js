@@ -625,6 +625,16 @@ class User extends Model {
 		return null;
 	}
 
+	// nhân viên tạo tài khoản cho người dùng
+	static async loadupCreateAccount(request,currentUser){
+		const result = await accountService.createNewAccount(request, currentUser);
+		if (!result) return null;
+		const loadForUser = await User.findUserByPKNoneExclude(request.userId);
+		
+		await audit_logService.pushAuditLog_CreateAccount(currentUser,loadForUser,result.newAccountId);
+		return result;
+	}
+
 	//send mã xác nhận email(activeCode)
 	static async sendActive(currentUser) {
 		//dựa vào accountId, tìm Email rồi gửi mã xác nhận
@@ -1220,7 +1230,8 @@ class User extends Model {
 				);
 			}
 		);
-
+		
+		await audit_logService.pushAuditLog_AddBalance(currentUser,loadForUser,result.newBalance);
 		return result;
 	}
 

@@ -155,7 +155,6 @@ class account extends Model {
 		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
 		const accountType = typeof request.accountType !== 'undefined' ? request.accountType : request.type;
 		const currencyType = typeof request.currencyType !== 'undefined' ? request.currencyType : request.currency;
-
 		const newAccountId = await account.getUniqueRandomAccountId();
 
 		//nếu tài khoản thanh toán thì chỉ thêm bảng account
@@ -180,7 +179,6 @@ class account extends Model {
 
 		//trả về STK và các thông tin cơ bản cho nhân viên thấy
 		const result = await account.getAccountUsingExclude(newAccount.accountId);
-
 		return result;
 	}
 

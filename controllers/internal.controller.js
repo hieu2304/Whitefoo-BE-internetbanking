@@ -16,7 +16,7 @@ module.exports.postCreateAccount = asyncHandler(async function(req, res, next) {
 	const checkUser = await userService.findByPk(userId);
 	if (!checkUser) return res.status(400).send({ message: 'user not exist' });
 
-	const result = await accountService.createNewAccount(req.body, currentUser);
+	const result = await userService.loadupCreateAccount(req.body, currentUser);
 
 	if (!result) return res.status(400).send({ message: 'Create fail' });
 	return res.status(201).send(result);

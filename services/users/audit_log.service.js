@@ -6,7 +6,29 @@ const moment = require('moment');
 class audit_log extends Model {
 	static async getAuditLog(request) {
 		//add filter here
-		const list = await audit_log.findAll();
+		//if(request.type ='denied')
+		var limit = request.limit;
+		var start = request.start;
+
+		if (!limit || !await User.isNumber(limit)) {
+			limit = 5;
+		}
+		if (!start || !await User.isNumber(start)) {
+			start = 0;
+		}
+
+		start = start * limit;
+		const filterAction = 'approve';
+		//type truyền vào, dùng để đặt tiêu chí tìm kiếm
+		const detailsType = typeof request.type !== 'undefined' ? request.type : 'none';
+		
+		const list = await audit_log.findAll({
+			where:{
+				action:detailsType			
+			},
+			offset: Number(start),
+			limit: Number(limit)
+		});
 		const result = [];
 
 		for (var i = 0; i < list.length; i++) {
@@ -27,6 +49,19 @@ class audit_log extends Model {
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
 
+	static async pushAuditLog_CreateAccount(internalUser,user,accountID){
+		var filterAction = 'create account';
+		var action = 'Tạo tài khoản:' + accountID;
+		
+		await audit_log.pushAuditLog(internalUser,user,action,filterAction);
+	}
+	
+	static async pushAuditLog_AddBalance(internalUser,user,newAddbalance){
+		var filterAction = 'add balance';
+		var action ='Nạp tiền'+ newAddbalance;
+
+		await audit_log.pushAuditLog(internalUser,user,action,filterAction);
+	}
 	static async pushAuditLog(internalUser, user, action, filterAction) {
 		const newDetail = {};
 		const theTimeTotal = new moment();
