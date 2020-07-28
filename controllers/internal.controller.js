@@ -1,6 +1,7 @@
 const accountService = require('../services/accounts/account.service');
 const asyncHandler = require('express-async-handler');
 const userService = require('../services/users/user.service');
+const audit_logService = require('../services/users/audit_log.service');
 const jwtHelper = require('../helpers/jwt.helper');
 
 // Nhân viên tạo tài khoản ngân hàng cho user
@@ -151,5 +152,15 @@ module.exports.getSearch = asyncHandler(async function(req, res, next) {
 });
 module.exports.postSearch = asyncHandler(async function(req, res, next) {
 	const result = await userService.searchUserByStaff(req.body);
+	return res.status(200).send(result);
+});
+
+//nhân viên lấy audit log
+module.exports.getGetAudit = asyncHandler(async function(req, res, next) {
+	const result = await audit_logService.getAuditLog(req.query);
+	return res.status(200).send(result);
+});
+module.exports.postGetAudit = asyncHandler(async function(req, res, next) {
+	const result = await audit_logService.getAuditLog(req.body);
 	return res.status(200).send(result);
 });

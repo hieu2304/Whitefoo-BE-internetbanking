@@ -178,16 +178,6 @@ class account extends Model {
 			);
 		}
 
-		//sau khi thêm xog thì push log
-		if (newAccount) {
-			await audit_log.pushAuditLog(
-				currentUser.id,
-				userId,
-				'create account',
-				'create account type ' + accountType
-			);
-		}
-
 		//trả về STK và các thông tin cơ bản cho nhân viên thấy
 		const result = await account.getAccountUsingExclude(newAccount.accountId);
 
@@ -231,12 +221,6 @@ class account extends Model {
 			}
 		);
 		if (result) {
-			await audit_log.pushAuditLog(
-				currentUser.id,
-				theChosenAccount.userId,
-				'add balance',
-				'id: ' + accountId + ', add:' + request.balance + theChosenAccount.currencyType
-			);
 			return { result, newBalance };
 		}
 		return null;
@@ -292,12 +276,6 @@ class account extends Model {
 		);
 		// push xuống log
 		if (result) {
-			await audit_log.pushAuditLog(
-				currentUser.id,
-				theChosenAccount.userId,
-				'update account',
-				'id: ' + accountId + ', update:'
-			);
 			return { result, newStatus };
 		}
 		return null;

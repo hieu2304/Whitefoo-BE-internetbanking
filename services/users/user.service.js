@@ -872,25 +872,25 @@ class User extends Model {
 					}
 				}
 			);
-			//push audit log
-			await audit_logService.pushAuditLog(currentUser.id, userId, 'approve', 'approveStatus: ' + newApprove);
+
+			await audit_logService.pushAuditLog_ApproveIdCard(currentUser, foundUser, newApprove);
 
 			//chỉ send email khi duyệt = 1
 			if (newApprove !== 1) return foundUser;
-			makeMessageHelper.approvedCitizenIdMessage(
-				foundUser.lastName,
-				foundUser.firstName,
-				foundUser.citizenIdentificationId,
-				function(response) {
-					emailHelper.send(
-						foundUser.email,
-						'Đã duyệt CMND/CCCD',
-						response.content,
-						response.html,
-						response.attachments
-					);
-				}
-			);
+			// makeMessageHelper.approvedCitizenIdMessage(
+			// 	foundUser.lastName,
+			// 	foundUser.firstName,
+			// 	foundUser.citizenIdentificationId,
+			// 	function(response) {
+			// 		emailHelper.send(
+			// 			foundUser.email,
+			// 			'Đã duyệt CMND/CCCD',
+			// 			response.content,
+			// 			response.html,
+			// 			response.attachments
+			// 		);
+			// 	}
+			// );
 		}
 
 		return foundUser;
@@ -1187,36 +1187,6 @@ class User extends Model {
 				where: { id: userId }
 			}
 		);
-
-		//push xuống log
-		const result = await User.findUserByPKNoneExclude(userId);
-		if (resultupdate) {
-			await audit_logService.pushAuditLog(
-				currentUser.id,
-				userId,
-				'update info',
-				'update ' +
-					userId +
-					': ' +
-					newLastName +
-					',' +
-					newFirstName +
-					',' +
-					newAddress +
-					',' +
-					newDateOfBirth +
-					',' +
-					newStatus +
-					',' +
-					newCitizenIdentificationId +
-					',' +
-					newPhoneNumber +
-					',' +
-					newUsername +
-					',' +
-					newEmail
-			);
-		}
 
 		//send email ở đây
 		return null;

@@ -40,4 +40,8 @@ router.post('/verifyuser', controller.postVerifyUser);
 router.get('/search', controller.getSearch);
 router.post('/search', controller.postSearch);
 
+//lấy audit log
+router.get('/getaudit', controller.getGetAudit);
+router.post('/getaudit', controller.postGetAudit);
+
 module.exports = router;

@@ -18,8 +18,8 @@ module.exports.validateErrorHandle = function(req) {
 function isNumber(n) {
 	return !isNaN(parseFloat(n)) && !isNaN(n - 0);
 }
-
 module.exports.isNumber = isNumber;
+
 module.exports.validateRegisterInformation = function() {
 	const errorConstant = errorListConstant.userErrorsConstant;
 	var internalConfirmPassword = '';
@@ -44,13 +44,13 @@ module.exports.validateRegisterInformation = function() {
 			return false;
 		}),
 
-		check('lastName', errorConstant.LASTNAME_TOO_SHORT).isLength({ min: 3 }),
+		check('lastName', errorConstant.LASTNAME_TOO_SHORT).isLength({ min: 1 }),
 		check('lastName', errorConstant.LASTNAME_TOO_LONG).isLength({ max: 20 }),
 		check('lastName', errorConstant.LASTNAME_INVALID).matches(
 			'^[' + regexConstant.vietnameseUnicode + ']+[0-9 ' + regexConstant.vietnameseUnicode + '.]+$'
 		),
 
-		check('firstName', errorConstant.FIRSTNAME_TOO_SHORT).isLength({ min: 3 }),
+		check('firstName', errorConstant.FIRSTNAME_TOO_SHORT).isLength({ min: 1 }),
 		check('firstName', errorConstant.FIRSTNAME_TOO_LONG).isLength({ max: 20 }),
 		check('firstName', errorConstant.FIRSTNAME_INVALID).matches(
 			'^[' + regexConstant.vietnameseUnicode + ']+[0-9 ' + regexConstant.vietnameseUnicode + '.]+$'
@@ -119,13 +119,13 @@ module.exports.validateUpdateIdCard = function() {
 module.exports.validateUpdateInfo = function() {
 	const errorConstant = errorListConstant.userErrorsConstant;
 	return [
-		check('lastName', errorConstant.LASTNAME_TOO_SHORT).isLength({ min: 3 }),
+		check('lastName', errorConstant.LASTNAME_TOO_SHORT).isLength({ min: 1 }),
 		check('lastName', errorConstant.LASTNAME_TOO_LONG).isLength({ max: 20 }),
 		check('lastName', errorConstant.LASTNAME_INVALID).matches(
 			'^[' + regexConstant.vietnameseUnicode + ']+[0-9 ' + regexConstant.vietnameseUnicode + '.]+$'
 		),
 
-		check('firstName', errorConstant.FIRSTNAME_TOO_SHORT).isLength({ min: 3 }),
+		check('firstName', errorConstant.FIRSTNAME_TOO_SHORT).isLength({ min: 1 }),
 		check('firstName', errorConstant.FIRSTNAME_TOO_LONG).isLength({ max: 20 }),
 		check('firstName', errorConstant.FIRSTNAME_INVALID).matches(
 			'^[' + regexConstant.vietnameseUnicode + ']+[0-9 ' + regexConstant.vietnameseUnicode + '.]+$'
