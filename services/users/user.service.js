@@ -30,9 +30,11 @@ class User extends Model {
 
 		const result = user.dataValues;
 		result.dateOfBirth = user.dateOfBirth;
+
 		result.emailVerified = 1;
 		if (user.activeCode !== '') result.emailVerified = 0;
 
+		result.createdAt = moment(user.createdAt).format('DD/MM/YYYY hh:mm:ss');
 		return result;
 	}
 	static async findUserByPKUsingExclude(id) {
@@ -40,7 +42,7 @@ class User extends Model {
 		if (!result) return null;
 
 		delete result.password;
-		delete result.createdAt;
+		//delete result.createdAt;
 		delete result.updatedAt;
 		delete result.verifyCode;
 		delete result.forgotCode;
@@ -66,8 +68,11 @@ class User extends Model {
 
 		const result = user.dataValues;
 		result.dateOfBirth = user.dateOfBirth;
+
 		result.emailVerified = 1;
 		if (user.activeCode !== '') result.emailVerified = 0;
+
+		result.createdAt = moment(user.createdAt).format('DD/MM/YYYY hh:mm:ss');
 
 		return result;
 	}
@@ -76,7 +81,7 @@ class User extends Model {
 		if (!result) return null;
 
 		delete result.password;
-		delete result.createdAt;
+		//delete result.createdAt;
 		delete result.updatedAt;
 		delete result.verifyCode;
 		delete result.forgotCode;
@@ -98,8 +103,9 @@ class User extends Model {
 			const itemUser = await User.findUserByPKUsingExclude(list[i].id);
 			itemUser.identificationType = '';
 			itemUser.issueDate = '';
+
 			const citizenInfo = await citizenService.findCitizenByCitizenId(itemUser.citizenIdentificationId);
-			if (citizenInfo) {
+			if (citizenInfo && typeof citizenInfo !== 'undefined') {
 				itemUser.identificationType = citizenInfo.identificationType;
 				itemUser.issueDate = citizenInfo.issueDate;
 			}
@@ -226,7 +232,7 @@ class User extends Model {
 		foundUser.issueDate = '';
 
 		const citizenInfo = await citizenService.findCitizenByCitizenId(foundUser.citizenIdentificationId);
-		if (citizenInfo) {
+		if (citizenInfo && typeof citizenInfo !== 'undefined') {
 			foundUser.identificationType = citizenInfo.identificationType;
 			foundUser.issueDate = citizenInfo.issueDate;
 		}
@@ -266,8 +272,8 @@ class User extends Model {
 		result.issueDate = '';
 
 		const citizenInfo = await citizenService.findCitizenByCitizenId(result.citizenIdentificationId);
-		if (citizenInfo);
-		{
+
+		if (citizenInfo && typeof citizenInfo !== 'undefined') {
 			result.identificationType = citizenInfo.identificationType;
 			result.issueDate = citizenInfo.issueDate;
 		}
@@ -626,12 +632,12 @@ class User extends Model {
 	}
 
 	// nhân viên tạo tài khoản cho người dùng
-	static async loadupCreateAccount(request,currentUser){
+	static async loadupCreateAccount(request, currentUser) {
 		const result = await accountService.createNewAccount(request, currentUser);
 		if (!result) return null;
 		const loadForUser = await User.findUserByPKNoneExclude(request.userId);
-		
-		await audit_logService.pushAuditLog_CreateAccount(currentUser,loadForUser,result.newAccountId);
+
+		await audit_logService.pushAuditLog_CreateAccount(currentUser, loadForUser, result.newAccountId);
 		return result;
 	}
 
@@ -1230,8 +1236,8 @@ class User extends Model {
 				);
 			}
 		);
-		
-		await audit_logService.pushAuditLog_AddBalance(currentUser,loadForUser,result.newBalance);
+
+		await audit_logService.pushAuditLog_AddBalance(currentUser, loadForUser, result.newBalance);
 		return result;
 	}
 

@@ -14,7 +14,7 @@ class citizen extends Model {
 
 	static async createOrUpdateCitizen(citizenIdentificationId, identificationType, issueDateUnformatted) {
 		const issueDateFormatted = moment(issueDateUnformatted, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
-		
+
 		const foundCitizen = await citizen.findOne({
 			where: {
 				citizenIdentificationId

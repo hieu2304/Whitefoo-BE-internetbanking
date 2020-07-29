@@ -11,10 +11,17 @@ const Decimal = require('decimal.js');
 
 /*
 
-READ THE API FROM THE THIRD SERVER:
+READ THE API-A FROM THE THIRD SERVER:
 https://www.freeforexapi.com/Home/Api
 
-SPECIAL THANKS TO FREEFOREXAPI
+
+
+READ THE API-B FROM:
+http://www.floatrates.com/
+
+
+READ THE API-C FROM:
+https://www.currencyconverterapi.com/docs
 
 */
 
@@ -59,50 +66,97 @@ class exchange_currency extends Model {
 		return result;
 	}
 
-	//cập nhật tỷ giá tiền tệ từ 1 USD = ? VND
+	//hàm này sẽ được gọi khi server ta call 1 API bên thứ 3 và khi call có data trả về
+	static async updateRateFromDataAPI(USDtoVND_rate) {
+		await exchange_currency.update(
+			{
+				rate: USDtoVND_rate
+			},
+			{
+				where: {
+					unitA: 'USD',
+					unitB: 'VND'
+				}
+			}
+		);
+
+		//VND to USD
+		await exchange_currency.update(
+			{
+				rate: 1 / USDtoVND_rate
+			},
+			{
+				where: {
+					unitA: 'VND',
+					unitB: 'USD'
+				}
+			}
+		);
+
+		console.log(
+			'\nServer updated exchange rate USD and VND at ' + moment(new Date()).format('DD/MM/YYYY hh:mm:ss')
+		);
+		console.log('Current rate: 1 USD = ' + USDtoVND_rate + ' VND\n');
+	}
+
+	//API C: currconv
+	static async getRateFromCurrconv() {
+		const MyURL = 'https://free.currconv.com/api/v7/convert?q=USD_VND&compact=ultra&apiKey=d193d78dc13089ff2112';
+
+		requestService(
+			MyURL,
+			asyncHandler(async function(err, response, body) {
+				const allData = JSON.parse(body);
+
+				if (typeof allData.USD_VND !== 'undefined') {
+					const data = allData.USD_VND;
+					await exchange_currency.updateRateFromDataAPI(data);
+				} else {
+					console.log('\nFailed to get data from currconv, Server will try again later');
+				}
+			})
+		);
+	}
+
+	//API B: floatrates
+	static async getRateFromFloatRates() {
+		const MyURL = 'http://www.floatrates.com/daily/vnd.json';
+
+		requestService(
+			MyURL,
+			asyncHandler(async function(err, response, body) {
+				const allData = JSON.parse(body);
+
+				if (allData.usd && typeof allData.usd.inverseRate !== 'undefined') {
+					const data = allData.usd.inverseRate;
+					await exchange_currency.updateRateFromDataAPI(data);
+				} else {
+					console.log('\nFailed to get data from floatrates, trying another API...');
+					await exchange_currency.getRateFromCurrconv();
+				}
+			})
+		);
+	}
+
+	//cập nhật tỷ giá tiền tệ từ 1 USD = ? VND theo thứ tự API (Phòng TH api dead)
+	//API A: api từ FreeForExAPI
 	static async updateExchangeRateUSDAndVND() {
 		console.log('\nServer is trying to get new Exchange Rate data...');
 		var result = null;
-		const myurl = 'https://www.freeforexapi.com/api/live?pairs=USDVND';
+		const MyURL = 'https://www.freeforexapi.com/api/live?pairs=USDVND';
 
 		requestService(
-			myurl,
+			MyURL,
 			asyncHandler(async function(err, response, body) {
 				body = JSON.parse(body);
-				const data = body.rates.USDVND;
-				var mydate = new Date(data.timestamp * 1000);
-				var newDate = moment(mydate).format('DD-MM-YYYY hh:mm:ss');
 
-				result = { rate: data.rate, time: newDate };
-
-				if (result) {
-					console.log('Server updated exchange rate USD and VND at ' + result.time);
-					console.log('Current rate: 1 USD = ' + result.rate + ' VND\n');
-					//USD to VND
-					await exchange_currency.update(
-						{
-							rate: result.rate
-						},
-						{
-							where: {
-								unitA: 'USD',
-								unitB: 'VND'
-							}
-						}
-					);
-
-					//VND to USD
-					await exchange_currency.update(
-						{
-							rate: 1 / result.rate
-						},
-						{
-							where: {
-								unitA: 'VND',
-								unitB: 'USD'
-							}
-						}
-					);
+				if (body.rates && typeof body.rates.USDVND !== 'undefined') {
+					const data = body.rates.USDVND;
+					await exchange_currency.updateRateFromDataAPI(data);
+				} else {
+					console.log('\nFailed to get data from freeforexapi, trying another API...');
+					//call API B
+					await exchange_currency.getRateFromFloatRates();
 				}
 			})
 		);
