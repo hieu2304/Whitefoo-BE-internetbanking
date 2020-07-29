@@ -36,7 +36,7 @@ class audit_log extends Model {
 			actionArr = [ 'approve idCard' ];
 		} else if (type === 'deny') {
 			actionArr = [ 'denied idCard' ];
-		} else if (type === 'verifyUser') {
+		} else if (type === 'verifyuser') {
 			actionArr = [ 'approve idCard', 'denied idCard' ];
 		} else if (type === 'addbalance' || type === 'loadup') {
 			actionArr = [ 'add balance' ];

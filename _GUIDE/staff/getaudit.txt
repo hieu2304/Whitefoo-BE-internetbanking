@@ -10,7 +10,7 @@ mô tả:
 
         * deny: từ chối chấp nhận CMND/CCCD của user
 
-        * verifyUser: xem cả log phê duyệt và từ chối CMND
+        * verifyuser: xem cả log phê duyệt và từ chối CMND
 
         * addbalance/loadup: xem log nạp tiền
 

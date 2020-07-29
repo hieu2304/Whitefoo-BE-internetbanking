@@ -1231,25 +1231,25 @@ class User extends Model {
 		const loadForUser = await User.findUserByPKNoneExclude(parseInt(loadForAccount.userId));
 
 		//gửi email
-		// makeMessageHelper.loadUpSuccessMessage(
-		// 	loadForUser.email,
-		// 	request.accountId,
-		// 	loadForUser.lastName,
-		// 	loadForUser.firstName,
-		// 	request.balance,
-		// 	request.currency,
-		// 	loadForAccount.currencyType,
-		// 	result.newBalance,
-		// 	function(response) {
-		// 		emailHelper.send(
-		// 			loadForUser.email,
-		// 			'Nạp tiền thành công',
-		// 			response.content,
-		// 			response.html,
-		// 			response.attachments
-		// 		);
-		// 	}
-		// );
+		makeMessageHelper.loadUpSuccessMessage(
+			loadForUser.email,
+			request.accountId,
+			loadForUser.lastName,
+			loadForUser.firstName,
+			request.balance,
+			request.currency,
+			loadForAccount.currencyType,
+			result.newBalance,
+			function(response) {
+				emailHelper.send(
+					loadForUser.email,
+					'Nạp tiền thành công',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
+		);
 
 		await audit_logService.pushAuditLog_AddBalance(currentUser, loadForUser, result.newBalance, loadForAccount);
 		return result;
