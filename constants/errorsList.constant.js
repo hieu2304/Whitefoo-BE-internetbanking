@@ -209,5 +209,10 @@ module.exports.userErrorsConstant = {
 	PENDING: {
 		code: 'PENDING',
 		message: 'Please wait for the staff approve your citizenIdentificationId'
+	},
+
+	USER_BLOCKED: {
+		code: 'USER_BLOCKED',
+		message: 'Your account has been blocked, please contact the staff for more info'
 	}
 };

@@ -497,11 +497,16 @@ class User extends Model {
 
 	//login step one
 	static async authenticationLoginAIO({ username, password }) {
+		const LoginErrors = errorListConstant.userErrorsConstant;
+
 		const authUser = await User.findUserNoneExclude(username);
-		if (!authUser) return null;
-		if (!await User.verifyPassword(password, authUser.password)) return null;
+
+		if (!authUser) return LoginErrors.LOGIN_INVALID;
+		if (!await User.verifyPassword(password, authUser.password)) return LoginErrors.LOGIN_INVALID;
 
 		const result = await User.findUserByPKUsingExclude(authUser.id);
+
+		if (authUser.status === 0) return LoginErrors.USER_BLOCKED;
 
 		//nếu có kích hoạt 2 lớp thì send mail và qua bước 2
 		if (authUser.enable2fa === 1) {
