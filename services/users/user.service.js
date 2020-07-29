@@ -637,7 +637,7 @@ class User extends Model {
 	}
 
 	// nhân viên tạo tài khoản cho người dùng
-	static async loadupCreateAccount(request, currentUser) {
+	static async createAccountForUser(request, currentUser) {
 		const result = await accountService.createNewAccount(request, currentUser);
 		if (!result) return null;
 		const loadForUser = await User.findUserByPKNoneExclude(request.userId);
@@ -898,20 +898,20 @@ class User extends Model {
 
 			//chỉ send email khi duyệt = 1
 			if (newApprove !== 1) return foundUser;
-			// makeMessageHelper.approvedCitizenIdMessage(
-			// 	foundUser.lastName,
-			// 	foundUser.firstName,
-			// 	foundUser.citizenIdentificationId,
-			// 	function(response) {
-			// 		emailHelper.send(
-			// 			foundUser.email,
-			// 			'Đã duyệt CMND/CCCD',
-			// 			response.content,
-			// 			response.html,
-			// 			response.attachments
-			// 		);
-			// 	}
-			// );
+			makeMessageHelper.approvedCitizenIdMessage(
+				foundUser.lastName,
+				foundUser.firstName,
+				foundUser.citizenIdentificationId,
+				function(response) {
+					emailHelper.send(
+						foundUser.email,
+						'Đã duyệt CMND/CCCD',
+						response.content,
+						response.html,
+						response.attachments
+					);
+				}
+			);
 		}
 
 		return foundUser;

@@ -16,7 +16,7 @@ module.exports.postCreateAccount = asyncHandler(async function(req, res, next) {
 	const checkUser = await userService.findByPk(userId);
 	if (!checkUser) return res.status(400).send({ message: 'user not exist' });
 
-	const result = await userService.loadupCreateAccount(req.body, currentUser);
+	const result = await userService.createAccountForUser(req.body, currentUser);
 
 	if (!result) return res.status(400).send({ message: 'Create fail' });
 	return res.status(201).send(result);
@@ -162,5 +162,10 @@ module.exports.getGetAudit = asyncHandler(async function(req, res, next) {
 });
 module.exports.postGetAudit = asyncHandler(async function(req, res, next) {
 	const result = await audit_logService.getAuditLog(req.body);
+	return res.status(200).send(result);
+});
+
+module.exports.postGetProfit = asyncHandler(async function(req, res, next) {
+	const result = await accountService.profitCalculateForAccumulated(req.body);
 	return res.status(200).send(result);
 });

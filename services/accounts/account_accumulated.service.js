@@ -3,8 +3,75 @@ const db = require('../db');
 const moment = require('moment');
 const Model = Sequelize.Model;
 const law_accumulatedService = require('../accounts/law_accumulated.service');
+// https://github.com/MikeMcl/decimal.js/
+const Decimal = require('decimal.js');
 
 class account_accumulated extends Model {
+	static async profitCalculate(account) {
+		const result = await account_accumulated.findOne({
+			where: {
+				accountId: account.accountId
+			}
+		});
+
+		if (!result) return null;
+
+		const allInterest = await law_accumulatedService.getInterestByTerm(result.term);
+		if (!allInterest) return null;
+
+		//lãi sẽ trả ra
+		var profit = new Decimal(account.balance);
+
+		//các thông số để tính toán
+		var daysPassed = result.daysPassed;
+		var quarterYearPassed = await account_accumulated.quarterYearPassedCalculate(daysPassed);
+		const termsPassed = result.termsPassed;
+		const term = result.term; //kỳ hạn tài khoản này đăg ký
+
+		//TH1: đủ kỳ hạn
+		if (termsPassed > 0) {
+			profit = new Decimal(profit).mul(allInterest.interestTerm);
+			console.log('TH passed term');
+		} else if (termsPassed === 0 && quarterYearPassed > 0 && term > 3) {
+			//TH2: kỳ hạn đăng ký ko phải 3 tháng và đã qua 1 quý
+			//(((%lãiQuý/360)* Số quý *90) + ((%lãiTháng/360)*số ngày))*vốn
+
+			//tính lại ngày vì phải trừ quý ra = tổng ngày qua - (số quý qua*90)
+			daysPassed = daysPassed - quarterYearPassed * 90;
+
+			// (%lãiQuý/360)*số quý*90
+			const quarterInterest = new Decimal(allInterest.interestQuarterYear).div(360);
+			const profit_1 = new Decimal(quarterYearPassed * 90).mul(quarterInterest);
+
+			// (%lãiTháng/360)*số ngày
+			const monthInterest = new Decimal(allInterest.interestMonth).div(360);
+			const profit_2 = new Decimal(daysPassed).mul(monthInterest);
+
+			//(tỷ lãi 1 + tỷ lãi 2) * vốn
+			const totalInterest = new Decimal(profit_1).plus(profit_2);
+			profit = new Decimal(profit).mul(totalInterest);
+		} else {
+			//TH3: chưa tới quý hoặc chưa tới kỳ hạn
+			console.log('TH passed months');
+			// (%lãiTháng/360)*số ngày*vốn
+			const monthInterest = new Decimal(allInterest.interestMonth).div(360);
+			profit = new Decimal(profit).mul(daysPassed);
+			profit = new Decimal(profit).mul(monthInterest);
+		}
+
+		return { accountId: result.accountId, term, daysPassed, quarterYearPassed, termsPassed, profit };
+	}
+
+	static async quarterYearPassedCalculate(daysPassed) {
+		var result = 0;
+		if (daysPassed < 90) return 0;
+		while (daysPassed > 89) {
+			result += 1;
+			daysPassed -= 90;
+		}
+
+		return result;
+	}
 	static async getAccountAccumulatedById(accountId) {
 		const result = await account_accumulated.findOne({
 			where: {
@@ -40,7 +107,7 @@ class account_accumulated extends Model {
 
 		//nếu đã qua đúng kỳ hạn 1 ngày mà chưa rút thì update termsPassed
 		if (await account_accumulated.checkIfAccountPassedTerm(found.term, currentDaysPassed)) {
-			const newFound = await account_accumulated.updateTermPassed(accountId, currentTermsPassed);
+			const newFound = await account_accumulated.updatetermsPassed(accountId, currentTermsPassed);
 			currentDaysPassed = parseInt(newFound.daysPassed); //thường = 0
 			currentTermsPassed = parseInt(newFound.termsPassed); // thường  > 0
 		}
@@ -58,7 +125,7 @@ class account_accumulated extends Model {
 		return true;
 	}
 
-	static async updateTermPassed(accountId, termsPassed) {
+	static async updatetermsPassed(accountId, termsPassed) {
 		await account_accumulated.update(
 			{
 				daysPassed: 0,
@@ -79,6 +146,9 @@ class account_accumulated extends Model {
 	}
 
 	static checkIfAccountPassedTerm(term, daysPassed) {
+		//1 tháng 30 ngày
+		//1 quý 90 ngày
+		//1 năm 360 ngày
 		if (term == 3) {
 			if (daysPassed == 90) return true;
 			return false;

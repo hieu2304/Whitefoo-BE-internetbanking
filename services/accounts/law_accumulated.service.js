@@ -4,6 +4,14 @@ const initConstant = require('../../constants/init.constants');
 const Model = Sequelize.Model;
 
 class law_accumulated extends Model {
+	static async getInterestByTerm(term) {
+		return law_accumulated.findOne({
+			where: {
+				term
+			}
+		});
+	}
+
 	static async initBaseValueLaw_Accumulated() {
 		//xóa dữ liệu cũ
 		await law_accumulated.destroy({

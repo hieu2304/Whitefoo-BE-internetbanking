@@ -44,4 +44,7 @@ router.post('/search', controller.postSearch);
 router.get('/getaudit', controller.getGetAudit);
 router.post('/getaudit', controller.postGetAudit);
 
+//tính lãi
+router.post('/profit', controller.postGetProfit);
+
 module.exports = router;

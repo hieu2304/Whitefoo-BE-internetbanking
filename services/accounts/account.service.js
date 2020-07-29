@@ -4,7 +4,6 @@ const Model = Sequelize.Model;
 const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
 const moment = require('moment');
-const audit_log = require('../users/audit_log.service');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 
 // https://github.com/MikeMcl/decimal.js/
@@ -278,6 +277,8 @@ class account extends Model {
 		}
 		return null;
 	}
+
+	//hàm sẽ chạy mỗi tối
 	static async updateDaysAndTermsPassedForAccumulated() {
 		//lấy danh sách các tài khoản là tài khoản tiết kiệm
 		//và đang tình trạng ok
@@ -292,6 +293,18 @@ class account extends Model {
 		for (var i = 0; i < list.length; i++) {
 			await account_accumulatedService.updateDaysAndTermsPassed(list[i].dataValues.accountId);
 		}
+	}
+
+	//hàm tính tiền
+	static async profitCalculateForAccumulated(request) {
+		const foundAccount = await account.findOne({
+			where: {
+				accountId: request.accountId
+			}
+		});
+		if (!foundAccount) return 'ko thay';
+		const result = await account_accumulatedService.profitCalculate(foundAccount);
+		return result;
 	}
 }
 
