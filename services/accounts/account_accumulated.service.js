@@ -30,8 +30,8 @@ class account_accumulated extends Model {
 
 		//TH1: đủ kỳ hạn
 		if (termsPassed > 0) {
+			// (0.05/360)*số kỳ hạn*360*vốn
 			profit = new Decimal(profit).mul(allInterest.interestTerm);
-			console.log('TH passed term');
 		} else if (termsPassed === 0 && quarterYearPassed > 0 && term > 3) {
 			//TH2: kỳ hạn đăng ký ko phải 3 tháng và đã qua 1 quý
 			//(((%lãiQuý/360)* Số quý *90) + ((%lãiTháng/360)*số ngày))*vốn
@@ -52,7 +52,7 @@ class account_accumulated extends Model {
 			profit = new Decimal(profit).mul(totalInterest);
 		} else {
 			//TH3: chưa tới quý hoặc chưa tới kỳ hạn
-			console.log('TH passed months');
+
 			// (%lãiTháng/360)*số ngày*vốn
 			const monthInterest = new Decimal(allInterest.interestMonth).div(360);
 			profit = new Decimal(profit).mul(daysPassed);
@@ -72,6 +72,7 @@ class account_accumulated extends Model {
 
 		return result;
 	}
+
 	static async getAccountAccumulatedById(accountId) {
 		const result = await account_accumulated.findOne({
 			where: {
@@ -91,7 +92,9 @@ class account_accumulated extends Model {
 		return result;
 	}
 
-	//hàm update daysPassed và termsPassed
+	//hàm này sẽ được gọi mỗi ngày 1 lần:
+	// - để update ngày đã qua, kỳ hạn đã qua...
+	// - chỉ update kỳ hạn khi và chỉ khi đạt số ngày kỳ hạn
 	static async updateDaysAndTermsPassed(accountId) {
 		const found = await account_accumulated.findOne({
 			where: {
@@ -99,16 +102,20 @@ class account_accumulated extends Model {
 			}
 		});
 
+		//ko tìm thấy hoặc ko nằm trong loại TK tiết kiệm sẽ ko tính ngày
 		if (!found) return false;
+
+		//những tài khoản khi đã đạt 1 kỳ hạn, sẽ vào trạng thái chờ rút, ko tính ngày nữa
 		if (parseInt(found.termsPassed) > 0) return false;
 
 		var currentDaysPassed = parseInt(found.daysPassed);
 		var currentTermsPassed = parseInt(found.termsPassed);
 
 		//nếu đã qua đúng kỳ hạn 1 ngày mà chưa rút thì update termsPassed
-		if (await account_accumulated.checkIfAccountPassedTerm(found.term, currentDaysPassed)) {
-			const newFound = await account_accumulated.updatetermsPassed(accountId, currentTermsPassed);
-			currentDaysPassed = parseInt(newFound.daysPassed); //thường = 0
+		//và set daysPassed = 0 (vì bên dưới +1 nên TH này -1 trước`)
+		if (await account_accumulated.checkIfAccountPassedTerm(found.term, currentDaysPassed + 1)) {
+			const newFound = await account_accumulated.updateTermsPassed(accountId, currentTermsPassed);
+			currentDaysPassed = parseInt(newFound.daysPassed) - 1; //thường = 0 -1
 			currentTermsPassed = parseInt(newFound.termsPassed); // thường  > 0
 		}
 
@@ -125,7 +132,8 @@ class account_accumulated extends Model {
 		return true;
 	}
 
-	static async updatetermsPassed(accountId, termsPassed) {
+	//hàm này chỉ gọi khi và chỉ khi 1 tài khoản đạt 1 kỳ hạn
+	static async updateTermsPassed(accountId, termsPassed) {
 		await account_accumulated.update(
 			{
 				daysPassed: 0,
@@ -145,6 +153,7 @@ class account_accumulated extends Model {
 		return result;
 	}
 
+	//hàm kiểm tra tài khoản đã đạt qua kỳ hạn chưa
 	static checkIfAccountPassedTerm(term, daysPassed) {
 		//1 tháng 30 ngày
 		//1 quý 90 ngày
