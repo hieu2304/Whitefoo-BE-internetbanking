@@ -8,9 +8,13 @@ mô tả:
 
         * approve: xem các log phê duyệt chấp nhận CMND/CCCD user
 
-        * denied: từ chối chấp nhận CMND/CCCD của user
+        * deny: từ chối chấp nhận CMND/CCCD của user
 
-        * .... (tương lai sẽ bổ sung thêm)
+        * verifyUser: xem cả log phê duyệt và từ chối CMND
+
+        * addbalance/loadup: xem log nạp tiền
+
+        * createaccount: xem log tạo STK
 
     + by: lọc theo tiêu chí thực hiện bởi nhân viên nào:
 
@@ -20,6 +24,10 @@ mô tả:
         * start bắt đầu từ 0, không truyền hoặc truyền ký tự thì mặc định là 0
         * limit bắt đầu từ 1, không truyền hoặc truyền ký tự thì mặc định lả 3
 
+ví dụ:
+METHOD: GET
+lấy các log từ quản trị viên id 1, type là từ chối CMND...
+URl: localhost:3000/api/getaudit?by=1&type=deny&start=0&limit=22
 
 
 response mong muốn trả ra:

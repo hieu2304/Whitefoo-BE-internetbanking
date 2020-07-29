@@ -403,6 +403,14 @@ class User extends Model {
 		return { count, list };
 	}
 
+	//lấy audit log
+	static async getAuditLogByStaff(request) {
+		const anotherReq = { type: 'manager' };
+		const listStaff = await User.searchUserByStaff(anotherReq);
+		const result = await audit_logService.getAuditLog(request, listStaff.list);
+		return result;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	//						CÁC HÀM TÌM KIẾM RỒI XÁC THỰC, XÁC THỰC
 	////////////////////////////////////////////////////////////////////////////////
@@ -642,7 +650,8 @@ class User extends Model {
 		if (!result) return null;
 		const loadForUser = await User.findUserByPKNoneExclude(request.userId);
 
-		await audit_logService.pushAuditLog_CreateAccount(currentUser, loadForUser, result.newAccountId);
+		await audit_logService.pushAuditLog_CreateAccount(currentUser, loadForUser, result.accountId);
+
 		return result;
 	}
 
@@ -1222,27 +1231,27 @@ class User extends Model {
 		const loadForUser = await User.findUserByPKNoneExclude(parseInt(loadForAccount.userId));
 
 		//gửi email
-		makeMessageHelper.loadUpSuccessMessage(
-			loadForUser.email,
-			request.accountId,
-			loadForUser.lastName,
-			loadForUser.firstName,
-			request.balance,
-			request.currency,
-			loadForAccount.currencyType,
-			result.newBalance,
-			function(response) {
-				emailHelper.send(
-					loadForUser.email,
-					'Nạp tiền thành công',
-					response.content,
-					response.html,
-					response.attachments
-				);
-			}
-		);
+		// makeMessageHelper.loadUpSuccessMessage(
+		// 	loadForUser.email,
+		// 	request.accountId,
+		// 	loadForUser.lastName,
+		// 	loadForUser.firstName,
+		// 	request.balance,
+		// 	request.currency,
+		// 	loadForAccount.currencyType,
+		// 	result.newBalance,
+		// 	function(response) {
+		// 		emailHelper.send(
+		// 			loadForUser.email,
+		// 			'Nạp tiền thành công',
+		// 			response.content,
+		// 			response.html,
+		// 			response.attachments
+		// 		);
+		// 	}
+		// );
 
-		await audit_logService.pushAuditLog_AddBalance(currentUser, loadForUser, result.newBalance);
+		await audit_logService.pushAuditLog_AddBalance(currentUser, loadForUser, result.newBalance, loadForAccount);
 		return result;
 	}
 

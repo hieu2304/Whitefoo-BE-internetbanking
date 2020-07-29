@@ -157,11 +157,11 @@ module.exports.postSearch = asyncHandler(async function(req, res, next) {
 
 //nhân viên lấy audit log
 module.exports.getGetAudit = asyncHandler(async function(req, res, next) {
-	const result = await audit_logService.getAuditLog(req.query);
+	const result = await userService.getAuditLogByStaff(req.query);
 	return res.status(200).send(result);
 });
 module.exports.postGetAudit = asyncHandler(async function(req, res, next) {
-	const result = await audit_logService.getAuditLog(req.body);
+	const result = await userService.getAuditLogByStaff(req.body);
 	return res.status(200).send(result);
 });
 

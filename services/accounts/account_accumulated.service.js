@@ -112,7 +112,7 @@ class account_accumulated extends Model {
 		var currentTermsPassed = parseInt(found.termsPassed);
 
 		//nếu đã qua đúng kỳ hạn 1 ngày mà chưa rút thì update termsPassed
-		//và set daysPassed = 0 (vì bên dưới +1 nên TH này -1 trước`)
+		//và set daysPassed = 0 (vì bên dưới +1 nên TH này -1 trước)
 		if (await account_accumulated.checkIfAccountPassedTerm(found.term, currentDaysPassed + 1)) {
 			const newFound = await account_accumulated.updateTermsPassed(accountId, currentTermsPassed);
 			currentDaysPassed = parseInt(newFound.daysPassed) - 1; //thường = 0 -1

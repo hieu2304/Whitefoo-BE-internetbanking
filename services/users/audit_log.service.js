@@ -4,30 +4,59 @@ const Model = Sequelize.Model;
 const moment = require('moment');
 
 class audit_log extends Model {
-	static async getAuditLog(request) {
-		//add filter here
-		//if(request.type ='denied')
+	static async getAuditLog(request, internalIdList) {
+		//bộ lọc
+		const type = typeof request.type !== 'undefined' ? request.type : 'all';
+		const byUserInternal = typeof request.by !== 'undefined' ? request.by : 'all';
+
+		//phân trang
 		var limit = request.limit;
 		var start = request.start;
 
-		if (!limit || !await User.isNumber(limit)) {
-			limit = 5;
+		if (!limit) {
+			limit = 3;
 		}
-		if (!start || !await User.isNumber(start)) {
+		if (!start) {
 			start = 0;
 		}
-
 		start = start * limit;
-		const filterAction = 'approve';
-		//type truyền vào, dùng để đặt tiêu chí tìm kiếm
-		const detailsType = typeof request.type !== 'undefined' ? request.type : 'none';
-		
+
+		//các tiêu chí lọc mặc định
+		//action mặc định là tất cả
+		var actionArr = [ 'denied idCard', 'approve idCard', 'create account', 'add balance' ];
+
+		//by staff mặc định là toàn bộ staff
+		var internalUserIdArr = [];
+		for (var i = 0; i < internalIdList.length; i++) {
+			internalUserIdArr.push(internalIdList[i].id.toString());
+		}
+
+		//lọc theo yêu cầu
+		if (type === 'approve') {
+			actionArr = [ 'approve idCard' ];
+		} else if (type === 'deny') {
+			actionArr = [ 'denied idCard' ];
+		} else if (type === 'verifyUser') {
+			actionArr = [ 'approve idCard', 'denied idCard' ];
+		} else if (type === 'addbalance' || type === 'loadup') {
+			actionArr = [ 'add balance' ];
+		} else if (type === 'createaccount') {
+			actionArr = [ 'create account' ];
+		}
+
+		if (byUserInternal !== 'all' && internalUserIdArr.includes(byUserInternal.toString())) {
+			internalUserIdArr = [];
+			internalUserIdArr.push(byUserInternal);
+		}
+
 		const list = await audit_log.findAll({
-			where:{
-				action:detailsType			
+			where: {
+				action: actionArr,
+				internalUserId: internalUserIdArr
 			},
 			offset: Number(start),
-			limit: Number(limit)
+			limit: Number(limit),
+			order: [ [ 'createdAt', 'DESC' ] ]
 		});
 		const result = [];
 
@@ -42,26 +71,27 @@ class audit_log extends Model {
 		var filterAction = 'approve idCard';
 		var action = 'Duyệt CMND/CCCD';
 		if (approveStatus === 0) {
-			filterAction = 'denined idCard';
+			filterAction = 'denied idCard';
 			action = 'Từ chối CMND/CCCD';
 		}
 
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
 
-	static async pushAuditLog_CreateAccount(internalUser,user,accountID){
+	static async pushAuditLog_CreateAccount(internalUser, user, accountID) {
 		var filterAction = 'create account';
-		var action = 'Tạo tài khoản:' + accountID;
-		
-		await audit_log.pushAuditLog(internalUser,user,action,filterAction);
-	}
-	
-	static async pushAuditLog_AddBalance(internalUser,user,newAddbalance){
-		var filterAction = 'add balance';
-		var action ='Nạp tiền'+ newAddbalance;
+		var action = 'Tạo STK: ' + accountID;
 
-		await audit_log.pushAuditLog(internalUser,user,action,filterAction);
+		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
+
+	static async pushAuditLog_AddBalance(internalUser, user, newBalance, account) {
+		var filterAction = 'add balance';
+		var action = 'STK ' + account.accountId + ', + ' + newBalance + ' ' + account.currencyType;
+
+		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
+	}
+
 	static async pushAuditLog(internalUser, user, action, filterAction) {
 		const newDetail = {};
 		const theTimeTotal = new moment();
