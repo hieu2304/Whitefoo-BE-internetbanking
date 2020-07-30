@@ -1,9 +1,4 @@
-const {
-	BlobServiceClient,
-	ContainerSASPermissions,
-	generateBlobSASQueryParameters,
-	StorageSharedKeyCredential
-} = require('@azure/storage-blob');
+const { BlobServiceClient, ContainerSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const uuid = require('uuid');
 const intoStream = require('into-stream');
 const sharp = require('sharp');
@@ -27,9 +22,7 @@ async function getBlobList(req, res) {
 	}
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== 0) {
-		return res
-			.status(403)
-			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
 	}
 	const containerName = req.query.container;
 	const userId = req.query.userId;
@@ -48,12 +41,10 @@ async function deleteBlobList(req, res) {
 	}
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== 0) {
-		return res
-			.status(403)
-			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
 	}
-	const containerName = req.body.container;
-	const userId = req.body.userId;
+	const containerName = req.query.container;
+	const userId = req.query.userId;
 	const blobs = await Storage.findAllBlobsByUserId(containerName, userId);
 	if (!blobs) {
 		return res.status(404).send({ message: 'There is no file.' });
@@ -69,9 +60,7 @@ async function getIdCard(req, res) {
 	}
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== 0) {
-		return res
-			.status(403)
-			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
 	}
 	const blob = await Storage.findOneBlob(idCardContainer, req.query.id);
 	if (!blob) {
@@ -180,7 +169,7 @@ async function deleteIdCard(req, res) {
 			.status(403)
 			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete this file.' });
 	}
-	const blob = await Storage.findByPk(req.body.id);
+	const blob = await Storage.findByPk(req.query.id);
 	if (!blob) {
 		return res.status(404).send({ message: 'File not found.' });
 	} else if (await blobDeleteAsync(blob.id, blob.container, blob.uuid, blob.quality, blob.blobName)) {
@@ -201,7 +190,7 @@ async function deleteIdCards(req, res) {
 			.status(403)
 			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
 	}
-	const userId = req.body.userId;
+	const userId = req.query.userId;
 	const blobs = await Storage.findAllBlobsByUserId(idCardContainer, userId);
 	if (!blobs) {
 		return res.status(404).send({ message: 'There is nothing.' });
