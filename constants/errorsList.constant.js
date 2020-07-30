@@ -124,7 +124,7 @@ module.exports.userErrorsConstant = {
 
 	ADDRESS_TOO_SHORT: { code: 'ADDRESS_TOO_SHORT', message: 'address to short, min is 6' },
 
-	ADDRESS_TOO_LONG: { code: 'ADDRESS_TOO_LONG', message: 'address to long, max is 60' },
+	ADDRESS_TOO_LONG: { code: 'ADDRESS_TOO_LONG', message: 'address to long, max is 100' },
 
 	PHONENUMBER_CONFLICT: { code: 'PHONENUMBER_CONFLICT', message: 'phoneNumber already used by other people' },
 

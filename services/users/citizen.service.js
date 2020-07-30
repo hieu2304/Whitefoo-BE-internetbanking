@@ -12,8 +12,16 @@ class citizen extends Model {
 		});
 	}
 
-	static async createOrUpdateCitizen(citizenIdentificationId, identificationType, issueDateUnformatted) {
-		const issueDateFormatted = moment(issueDateUnformatted, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+	static async createOrUpdateCitizen(
+		citizenIdentificationId,
+		identificationType,
+		issueDateUnformatted,
+		newCitizenIdentificationId
+	) {
+		var issueDateFormatted = moment(issueDateUnformatted, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+		if (!moment(issueDateFormatted).isValid()) {
+			issueDateFormatted = moment();
+		}
 
 		const foundCitizen = await citizen.findOne({
 			where: {
@@ -34,7 +42,8 @@ class citizen extends Model {
 				{
 					citizenIdentificationId,
 					identificationType,
-					issueDate: issueDateFormatted
+					issueDate: issueDateFormatted,
+					citizenIdentificationId: newCitizenIdentificationId
 				},
 				{
 					where: {

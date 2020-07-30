@@ -20,6 +20,7 @@ function isNumber(n) {
 }
 module.exports.isNumber = isNumber;
 
+//sử dụng middleware này cho router đăng ký
 module.exports.validateRegisterInformation = function() {
 	const errorConstant = errorListConstant.userErrorsConstant;
 	var internalConfirmPassword = '';
@@ -57,7 +58,7 @@ module.exports.validateRegisterInformation = function() {
 		),
 
 		check('address', errorConstant.ADDRESS_TOO_SHORT).isLength({ min: 6 }),
-		check('address', errorConstant.LASTNAME_TOO_LONG).isLength({ max: 60 }),
+		check('address', errorConstant.ADDRESS_TOO_LONG).isLength({ max: 100 }),
 
 		check('phoneNumber', errorConstant.PHONENUMBER_TOO_SHORT).isLength({ min: 3 }),
 		check('phoneNumber', errorConstant.PHONENUMBER_TOO_LONG).isLength({ max: 20 }),
@@ -82,6 +83,7 @@ module.exports.validateRegisterInformation = function() {
 	];
 };
 
+//sử dụng middleware này cho các router thay đổi Mật khẩu
 module.exports.validateUpdateNewPassword = function() {
 	var internalConfirmPassword = '';
 	const errorConstant = errorListConstant.userErrorsConstant;
@@ -100,6 +102,7 @@ module.exports.validateUpdateNewPassword = function() {
 	];
 };
 
+//sử dụng middleware này cho router tự update cmnd chờ duyệt
 module.exports.validateUpdateIdCard = function() {
 	const errorConstant = errorListConstant.userErrorsConstant;
 	return [
@@ -116,6 +119,7 @@ module.exports.validateUpdateIdCard = function() {
 	];
 };
 
+//sử dụng middleware này cho router tự cập nhật thông tin cá nhân
 module.exports.validateUpdateInfo = function() {
 	const errorConstant = errorListConstant.userErrorsConstant;
 	return [
@@ -132,7 +136,7 @@ module.exports.validateUpdateInfo = function() {
 		),
 
 		check('address', errorConstant.ADDRESS_TOO_SHORT).isLength({ min: 6 }),
-		check('address', errorConstant.LASTNAME_TOO_LONG).isLength({ max: 60 }),
+		check('address', errorConstant.ADDRESS_TOO_LONG).isLength({ max: 100 }),
 
 		check('dateOfBirth', errorConstant.DATEOFBIRTH_INVALID).custom(function(dateOfBirth) {
 			const dateFormat = [ 'DD/MM/YYYY' ]; // , 'MM/DD/YYYY', 'YYYY/MM/DD'
@@ -164,6 +168,7 @@ module.exports.validateUpdateInfo = function() {
 	];
 };
 
+//sử dụng middleware này cho việc chuyển tiền
 module.exports.validateTransfer = function() {
 	const errorConstant = errorListConstant.userErrorsConstant;
 	const errorConstantTransfer = errorListConstant.accountErrorsConstant;
@@ -175,6 +180,7 @@ module.exports.validateTransfer = function() {
 	];
 };
 
+//sử dụng middleware này cho việc rút tiền
 module.exports.validateWithdraw = function() {
 	const errorConstant = errorListConstant.userErrorsConstant;
 	return [ check('verifyCode', errorConstant.VERIFYCODE_INVALID).isLength({ min: 1 }) ];

@@ -58,7 +58,8 @@ class Storage extends Model {
 			await citizenService.createOrUpdateCitizen(
 				newCitizenIdentificationId,
 				request.identificationType,
-				request.issueDate
+				request.issueDate,
+				newCitizenIdentificationId
 			);
 		}
 

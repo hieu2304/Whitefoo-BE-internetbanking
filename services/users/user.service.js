@@ -1156,7 +1156,6 @@ class User extends Model {
 			if (isConflict) {
 				errorList.push(updateUserInfoErrors.EMAIL_CONFLICT);
 			}
-			//Regular Expresion...type: Email
 		} else {
 			//nếu ng dùng ko nhập email và các TH còn lại
 			newEmail = user.email;
@@ -1185,6 +1184,13 @@ class User extends Model {
 		}
 
 		var newCitizenIdentificationId = request.citizenIdentificationId;
+		var newIssueDate = request.issueDate;
+		if (!newIssueDate) newIssueDate = user.issueDate;
+		var newIdentificationType = request.identificationType;
+		if (!newIdentificationType && newIdentificationType !== 'CMND' && newIdentificationType !== 'CCCD') {
+			newIdentificationType = user.identificationType;
+		}
+
 		if (newCitizenIdentificationId && newCitizenIdentificationId != user.citizenIdentificationId) {
 			//Kiểm tra CMND trùng
 			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
@@ -1197,8 +1203,17 @@ class User extends Model {
 
 		if (errorList.length > 0) return errorList;
 
+		if (user.citizenIdentificationId && user.citizenIdentificationId !== '' && newCitizenIdentificationId) {
+			await citizenService.createOrUpdateCitizen(
+				user.citizenIdentificationId,
+				newIdentificationType,
+				newIssueDate,
+				newCitizenIdentificationId
+			);
+		}
+
 		//update thông tin user
-		const resultupdate = await User.update(
+		await User.update(
 			{
 				lastName: newLastName,
 				firstName: newFirstName,
