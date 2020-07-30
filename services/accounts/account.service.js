@@ -155,13 +155,14 @@ class account extends Model {
 		const accountType = typeof request.accountType !== 'undefined' ? request.accountType : request.type;
 		const currencyType = typeof request.currencyType !== 'undefined' ? request.currencyType : request.currency;
 		const newAccountId = await account.getUniqueRandomAccountId();
+		const newBalance = typeof request.balance !== 'undefined' ? request.balance : request.balance;
 
 		//nếu tài khoản thanh toán thì chỉ thêm bảng account
 		const newAccount = await account.create({
 			accountId: newAccountId,
 			userId: userId,
-			status: 0,
-			balance: 0,
+			status: 1,
+			balance: newBalance,
 			currencyType: currencyType,
 			accountType: accountType,
 			openedDate: moment()
@@ -211,7 +212,8 @@ class account extends Model {
 		//console.log(newBalance);
 		const result = await account.update(
 			{
-				balance: newBalance
+				balance: newBalance,
+				status:1
 			},
 			{
 				where: { accountId: accountId }
