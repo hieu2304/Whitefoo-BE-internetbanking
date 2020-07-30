@@ -98,7 +98,7 @@ module.exports.userErrorsConstant = {
 
 	PASSWORD_TOO_SHORT: { code: 'PASSWORD_TOO_SHORT', message: 'password to short, min is 8' },
 
-	PASSWORD_TOO_LONG: { code: 'PASSWORD_TOO_LONG', message: 'password to long, max is 40' },
+	PASSWORD_TOO_LONG: { code: 'PASSWORD_TOO_LONG', message: 'password to long, max is 128' },
 
 	PASSWORD_INVALID: { code: 'PASSWORD_INVALID', message: 'password must start with alphabetic' },
 

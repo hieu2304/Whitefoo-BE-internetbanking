@@ -38,7 +38,7 @@ module.exports.validateRegisterInformation = function() {
 		check('username', errorConstant.USERNAME_INVALID).matches('^[A-za-z]+[A-Za-z0-9]+$'),
 
 		check('password', errorConstant.PASSWORD_TOO_SHORT).isLength({ min: 8 }),
-		check('password', errorConstant.PASSWORD_TOO_LONG).isLength({ max: 40 }),
+		check('password', errorConstant.PASSWORD_TOO_LONG).isLength({ max: 128 }),
 		check('password', errorConstant.PASSWORD_INVALID).matches('^[A-za-z]'),
 		check('password', errorConstant.PASSWORD_NOT_EQUAL).custom(function(password) {
 			if (password === internalConfirmPassword) return true;
@@ -93,7 +93,7 @@ module.exports.validateUpdateNewPassword = function() {
 			return true;
 		}),
 		check('newPassword', errorConstant.PASSWORD_TOO_SHORT).isLength({ min: 8 }),
-		check('newPassword', errorConstant.PASSWORD_TOO_LONG).isLength({ max: 40 }),
+		check('newPassword', errorConstant.PASSWORD_TOO_LONG).isLength({ max: 128 }),
 		check('newPassword', errorConstant.PASSWORD_INVALID).matches('^[A-za-z]'),
 		check('newPassword', errorConstant.PASSWORD_NOT_EQUAL).custom(function(password) {
 			if (password === internalConfirmPassword) return true;
