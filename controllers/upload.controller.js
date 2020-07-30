@@ -85,9 +85,9 @@ async function getIdCards(req, res) {
 	const userId = req.query.userId;
 	const blobs = await Storage.findAllBlobsByUserId(idCardContainer, userId);
 	if (!blobs) {
-		return res.status(404).send({ message: 'Result for idcards: empty.' });
+		return res.status(404).send({ message: 'Result empty.' });
 	}
-	const blobUris = createUriList(blobs);
+	const blobUris = createImageUriList(blobs);
 	return res.status(200).send(blobUris);
 }
 
@@ -155,7 +155,7 @@ async function postIdCard(req, res) {
 		userId
 	);
 	// Return success message
-	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
+	return res.status(201).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
 }
 
 async function deleteIdCard(req, res) {
@@ -272,7 +272,7 @@ async function postAvatar(req, res) {
 		smallQuality,
 		userId
 	);
-	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
+	return res.status(201).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
 }
 
 async function putAvatar(req, res) {
@@ -402,6 +402,30 @@ function createUriList(blobs) {
 		const blobName = `${blob.uuid}/${blob.quality}/${blob.blobName}`;
 		const blobUri = blobUriGenerator(blob.container, blobName);
 		blobUris.push({ file: blob.blobName, quality: blob.quality, uri: blobUri });
+	}
+	return blobUris;
+}
+
+function createImageUriList(blobs) {
+	const blobUris = [];
+	for (const blob of blobs) {
+		if (blob.quality === originalQuality) {
+			const blobName = `${blob.uuid}/${blob.quality}/${blob.blobName}`;
+			const blobUri = blobUriGenerator(blob.container, blobName);
+			const blobNameNormal = `${blob.uuid}/${normalQuality}/${blob.blobName}`;
+			const blobUriNormal = blobUriGenerator(blob.container, blobNameNormal);
+			const blobNameThumbnail = `${blob.uuid}/${thumbnailQuality}/${blob.blobName}`;
+			const blobUriThumbnail = blobUriGenerator(blob.container, blobNameThumbnail);
+			const blobNameSmall = `${blob.uuid}/${smallQuality}/${blob.blobName}`;
+			const blobUriSmall = blobUriGenerator(blob.container, blobNameSmall);
+			blobUris.push({
+				file: blob.blobName,
+				original: blobUri,
+				normal: blobUriNormal,
+				thumbnail: blobUriThumbnail,
+				small: blobUriSmall
+			});
+		}
 	}
 	return blobUris;
 }
