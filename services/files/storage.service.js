@@ -102,6 +102,17 @@ class Storage extends Model {
 		});
 	}
 
+	static async findQualityBlobsByUserId(container, userId, quality) {
+		return Storage.findAll({
+			attributes: [ 'id', 'container', 'uuid', 'blobName', 'blobSize', 'quality', 'mimeType', 'userId' ],
+			where: {
+				container,
+				userId,
+				quality
+			}
+		});
+	}
+
 	static async findOneBlob(container, id) {
 		return Storage.findOne({
 			where: {
