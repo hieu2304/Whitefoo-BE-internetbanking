@@ -8,6 +8,17 @@ const thankMessage = 'Cảm ơn bạn đã tin tưởng và sử dụng WhiteFoo
 const signature = 'whitefooBank © 2020';
 const signatureHTML = '<br><p>Trân trọng, ' + signature + '</p>';
 
+//hàm được gọi để thay thế các URL cố định
+function replaceConstantURL(html) {
+	//replace all
+	html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
+	html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+	html = html.split('{Re_FAQs_URL}').join(process.env.HOST_URL + '/faq');
+	html = html.split('{Re_Contact_URL}').join(process.env.HOST_URL + '/contact');
+
+	return html;
+}
+
 //tin nhắn kích hoạt email
 module.exports.verifyEmailMessage = function(email, lastName, firstName, activeCode, callback) {
 	//${HOST_URL}/activate?token=qwerty
@@ -33,9 +44,8 @@ module.exports.verifyEmailMessage = function(email, lastName, firstName, activeC
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+		//replace all constant URL
+		html = replaceConstantURL(html);
 
 		const attachments = getAttachments.mainImageAttachments;
 
@@ -116,9 +126,8 @@ module.exports.loadUpSuccessMessage = function(
 		html = html.replace('{Re_FirstName}', firstName);
 		html = html.replace('{Re_Code}', '');
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+		//replace all constant URL
+		html = replaceConstantURL(html);
 
 		const attachments = getAttachments.mainImageAttachments;
 
@@ -192,9 +201,8 @@ module.exports.transferSuccessMessage = function(
 		html = html.replace('{Re_FirstName}', firstName);
 		html = html.replace('{Re_Code}', '');
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+		//replace all constant URL
+		html = replaceConstantURL(html);
 
 		const attachments = getAttachments.mainImageAttachments;
 
@@ -262,9 +270,8 @@ module.exports.transferSuccessMessageDes = function(
 		html = html.replace('{Re_FirstName}', firstName);
 		html = html.replace('{Re_Code}', '');
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+		//replace all constant URL
+		html = replaceConstantURL(html);
 
 		const attachments = getAttachments.mainImageAttachments;
 
@@ -298,9 +305,8 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+		//replace all constant URL
+		html = replaceConstantURL(html);
 
 		const attachments = getAttachments.mainImageAttachments;
 
@@ -328,9 +334,8 @@ module.exports.transferVerifyMessage = function(email, lastName, firstName, veri
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+		//replace all constant URL
+		html = replaceConstantURL(html);
 
 		const attachments = getAttachments.mainImageAttachments;
 
@@ -422,9 +427,8 @@ module.exports.withdrawMessageAccumulated = function(
 		html = html.replace('{Re_FirstName}', firstName);
 		html = html.replace('{Re_Code}', '');
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+		//replace all constant URL
+		html = replaceConstantURL(html);
 
 		const attachments = getAttachments.mainImageAttachments;
 
@@ -476,10 +480,8 @@ module.exports.withdrawMessagePayment = function(
 		html = html.replace('{Re_FirstName}', firstName);
 		html = html.replace('{Re_Code}', '');
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
-
+		//replace all constant URL
+		html = replaceConstantURL(html);
 		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
@@ -507,9 +509,8 @@ module.exports.changeEmailMessageOldEmail = function(lastName, firstName, oldEma
 		html = html.replace('{Re_FirstName}', firstName);
 		html = html.replace('{Re_Code}', '');
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+		//replace all constant URL
+		html = replaceConstantURL(html);
 
 		const attachments = getAttachments.mainImageAttachments;
 
@@ -542,10 +543,8 @@ module.exports.changeEmailMessageNewEmail = function(email, lastName, firstName,
 		html = html.replace('{Re_LastName}', lastName);
 		html = html.replace('{Re_FirstName}', firstName);
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
-
+		//replace all constant URL
+		html = replaceConstantURL(html);
 		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
@@ -579,9 +578,8 @@ module.exports.approvedCitizenIdMessage = function(lastName, firstName, citizenI
 		html = html.replace('{Re_FirstName}', firstName);
 		html = html.replace('{Re_Code}', '');
 
-		//replace all
-		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
-		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
+		//replace all constant URL
+		html = replaceConstantURL(html);
 
 		const attachments = getAttachments.mainImageAttachments;
 
