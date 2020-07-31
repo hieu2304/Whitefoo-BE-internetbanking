@@ -17,11 +17,20 @@ module.exports.reGenerateToken = function(req, res, next) {
 		if (err) return res.status(401).send({ message: 'Invalid token' });
 		const token = this.generateToken({
 			id: user.id,
-			email: user.email,
 			citizenIdentificationId: user.citizenIdentificationId,
+			email: user.email,
+			phoneNumber: user.phoneNumber,
+			username: user.username,
 			lastName: user.lastName,
 			firstName: user.firstName,
-			phoneNumber: user.phoneNumber
+			dateOfBirth: user.dateOfBirth,
+			address: user.address,
+			userType: user.userType,
+			status: user.status,
+			approveStatus: user.approveStatus,
+			enable2fa: user.enable2fa,
+			createdAt: user.createdAt,
+			emailVerified: user.emailVerified
 		});
 
 		return res.json({ token: token });

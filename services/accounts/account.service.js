@@ -211,19 +211,32 @@ class account extends Model {
 		return { result, ErrorsList };
 	}
 
-	static async addBalanceForAccount(request, currentUser) {
+	static async addBalanceForAccount(request) {
+		const ErrorsList = [];
+		const loadUpBalanceErrors = errorListConstant.accountErrorsConstant;
+
 		//lấy accountId
 		const accountId = typeof request.accountId !== 'undefined' ? request.accountId : request.id;
-		if (!accountId) return null;
-		if (typeof request.currency === 'undefined') return null;
-		if (request.currency !== 'VND' && request.currency !== 'USD') return null;
+
+		if (request.currencyType !== 'VND' && request.currencyType !== 'USD') {
+			ErrorsList.push(loadUpBalanceErrors.INVALID_CURRENCY);
+		}
 		//tìm kiếm account này
 		const theChosenAccount = await account.findOne({
 			where: {
 				accountId: accountId
 			}
 		});
-		if (!theChosenAccount) return null;
+		if (!theChosenAccount) {
+			ErrorsList.push(loadUpBalanceErrors.ACCOUNT_NOT_FOUND);
+			return ErrorsList;
+		}
+
+		if (theChosenAccount.accountType === 1 && theChosenAccount.status === 1) {
+			ErrorsList.push(loadUpBalanceErrors.ALREADY_STARTED_ACCUMULATED);
+		}
+
+		if (ErrorsList.length > 0) return ErrorsList;
 
 		//giá trị hiện tại và giá trị sẽ được thêm
 		var newBalance = new Decimal(theChosenAccount.balance);
@@ -231,15 +244,15 @@ class account extends Model {
 
 		//kiểm tra đơn vị tiền tệ, quy đổi nếu khác nhau, rồi mới thêm
 		//exchange_currencyService
-		if (theChosenAccount.currencyType !== request.currency) {
-			const newAddBalance = await exchange_currencyService.exchangeMoney(addBalance, request.currency);
+		if (theChosenAccount.currencyType !== request.currencyType) {
+			const newAddBalance = await exchange_currencyService.exchangeMoney(addBalance, request.currencyType);
 			addBalance = new Decimal(newAddBalance);
 		}
 		//console.log(newBalance);
 		//console.log(addBalance);
 		newBalance = newBalance.plus(addBalance);
 		//console.log(newBalance);
-		const result = await account.update(
+		await account.update(
 			{
 				balance: newBalance,
 				status: 1
@@ -248,9 +261,7 @@ class account extends Model {
 				where: { accountId: accountId }
 			}
 		);
-		if (result) {
-			return { result, newBalance };
-		}
+
 		return null;
 	}
 

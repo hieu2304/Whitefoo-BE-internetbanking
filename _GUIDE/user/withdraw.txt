@@ -1,15 +1,34 @@
 mô tả: api rút tiền bước 2 (bước 1 là /api/sendverify)
 
+- tài khoản tiết kiệm
+		->bấm nút yêu cầu mã 2 bước (gọi api sendverify)
+		-> nhập mã 2 bước -> bấm nút rút (gọi api withdraw)
+		-> mặc định rút lãi + lời -> khóa tài khoản, chờ nạp sẽ kích hoạt lại
+
+	- tài khoản thanh toán
+		-> bấm nút yêu cầu mã 2 bước (gọi api sendverify)
+		-> nhập mã 2 bước và số tiền muốn rút -> bấm nút rút (gọi api withdraw)
+		-> kiểm tra giá trị nhập đủ ko các kiểu... nếu pass -> bước kế
+		-> rút số tiền đã nhập
+
+
+
 /api/withdraw
 
 method: POST
 điều kiện: user đã verify Email, đã được duyệt CMND
 
+- trường hợp tài khoản tiết kiệm:
 params:
-
 verifyCode:mã được gửi qua email (người dùng nhập mã này)
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+- trường hợp tài khoản thanh toán:
+params:
+verifyCode:mã được gửi qua email (người dùng nhập mã này)
+value: tiền muốn rút
+
+
+
 
 response: nếu mã sai thì response lỗi, đúng thì OK kèm gửi mail
 

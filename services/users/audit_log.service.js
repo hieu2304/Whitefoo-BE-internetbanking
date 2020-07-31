@@ -85,9 +85,9 @@ class audit_log extends Model {
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
 
-	static async pushAuditLog_AddBalance(internalUser, user, newBalance, account) {
+	static async pushAuditLog_AddBalance(internalUser, user, addedBalance, currencyType, accountId) {
 		var filterAction = 'add balance';
-		var action = 'STK ' + account.accountId + ', + ' + newBalance + ' ' + account.currencyType;
+		var action = 'STK ' + accountId + ', + ' + addedBalance + ' ' + currencyType;
 
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}

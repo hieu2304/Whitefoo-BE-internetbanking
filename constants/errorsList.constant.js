@@ -93,6 +93,16 @@ module.exports.accountErrorsConstant = {
 	INVALID_ACCOUNT_TYPE: {
 		code: 'INVALID_ACCOUNT_TYPE',
 		message: 'accountType can only 0 or 1'
+	},
+
+	ALREADY_STARTED_ACCUMULATED: {
+		code: 'ALREADY_STARTED_ACCUMULATED',
+		message: 'Can not load up for accumulated account after the term started'
+	},
+
+	ACCOUNT_NOT_FOUND: {
+		code: 'ACCOUNT_NOT_FOUND',
+		message: 'AccountId not exist'
 	}
 };
 

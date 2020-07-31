@@ -1247,25 +1247,26 @@ class User extends Model {
 
 	//nhân viên nạp tiền cho người dùng
 	static async loadUpBalance(request, currentUser) {
-		const result = await accountService.addBalanceForAccount(request, currentUser);
-		if (!result) return null;
+		//có lỗi sẽ trả ra, nếu null là ko có lỗi
+		const result = await accountService.addBalanceForAccount(request);
+		if (result) return result;
 
-		const loadForAccount = await accountService.getAccountNoneExclude(request.accountId);
-		const loadForUser = await User.findUserByPKNoneExclude(parseInt(loadForAccount.userId));
+		const foundAccount = await accountService.getAccountNoneExclude(request.accountId);
+		const foundUser = await User.findUserByPKNoneExclude(foundAccount.userId);
 
 		//gửi email
 		makeMessageHelper.loadUpSuccessMessage(
-			loadForUser.email,
+			foundUser.email,
 			request.accountId,
-			loadForUser.lastName,
-			loadForUser.firstName,
+			foundUser.lastName,
+			foundUser.firstName,
 			request.balance,
-			request.currency,
-			loadForAccount.currencyType,
-			result.newBalance,
+			request.currencyType,
+			foundAccount.currencyType,
+			foundAccount.balance,
 			function(response) {
 				emailHelper.send(
-					loadForUser.email,
+					foundUser.email,
 					'Nạp tiền thành công',
 					response.content,
 					response.html,
@@ -1274,8 +1275,15 @@ class User extends Model {
 			}
 		);
 
-		await audit_logService.pushAuditLog_AddBalance(currentUser, loadForUser, result.newBalance, loadForAccount);
-		return result;
+		await audit_logService.pushAuditLog_AddBalance(
+			currentUser,
+			foundUser,
+			request.balance,
+			request.currencyType,
+			foundAccount.accountId
+		);
+
+		return null;
 	}
 
 	//chuyển tiền nội bộ
