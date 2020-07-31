@@ -510,6 +510,7 @@ class User extends Model {
 		const authUser = await User.findUserNoneExclude(username);
 
 		if (!authUser) return LoginErrors.LOGIN_INVALID;
+		if (!password) return LoginErrors.LOGIN_INVALID;
 		if (!await User.verifyPassword(password, authUser.password)) return LoginErrors.LOGIN_INVALID;
 
 		const result = await User.findUserByPKUsingExclude(authUser.id);
