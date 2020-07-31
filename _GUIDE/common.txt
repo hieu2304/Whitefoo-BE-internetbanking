@@ -51,6 +51,13 @@ console.log(req.query);
         * withdraw0     rút tiền từ TK Thanh toán
         * withdraw1     rút tiền từ Tk tiết kiệm
 
+- Bảng audit_log:
+    + action: các hoạt động (duyệt, từ chối CMND, nạp tiền, mở tài khoản...)
+        * approve idCard        duyệt CMND
+        * denied idCard         từ chối CMND
+        * create account        tạo STK cho user
+        * add balance           nạp tiền cho user
+
 
 #########################
 
