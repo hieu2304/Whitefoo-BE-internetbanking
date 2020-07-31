@@ -1,9 +1,4 @@
-const {
-	BlobServiceClient,
-	ContainerSASPermissions,
-	generateBlobSASQueryParameters,
-	StorageSharedKeyCredential
-} = require('@azure/storage-blob');
+const { BlobServiceClient, ContainerSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const uuid = require('uuid');
 const intoStream = require('into-stream');
 const sharp = require('sharp');
@@ -27,9 +22,7 @@ async function getBlobList(req, res) {
 	}
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== 0) {
-		return res
-			.status(403)
-			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
 	}
 	const containerName = req.query.container;
 	const userId = req.query.userId;
@@ -48,12 +41,10 @@ async function deleteBlobList(req, res) {
 	}
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== 0) {
-		return res
-			.status(403)
-			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
 	}
-	const containerName = req.body.container;
-	const userId = req.body.userId;
+	const containerName = req.query.container;
+	const userId = req.query.userId;
 	const blobs = await Storage.findAllBlobsByUserId(containerName, userId);
 	if (!blobs) {
 		return res.status(404).send({ message: 'There is no file.' });
@@ -69,9 +60,7 @@ async function getIdCard(req, res) {
 	}
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== 0) {
-		return res
-			.status(403)
-			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to view this file.' });
 	}
 	const blob = await Storage.findOneBlob(idCardContainer, req.query.id);
 	if (!blob) {
@@ -89,16 +78,14 @@ async function getIdCards(req, res) {
 	}
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== 0) {
-		return res
-			.status(403)
-			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to index this container.' });
 	}
 	const userId = req.query.userId;
-	const blobs = await Storage.findAllBlobsByUserId(idCardContainer, userId);
+	const blobs = await Storage.findQualityBlobsByUserId(idCardContainer, userId, originalQuality);
 	if (!blobs) {
-		return res.status(404).send({ message: 'Result for idcards: empty.' });
+		return res.status(404).send({ message: 'Result empty.' });
 	}
-	const blobUris = createUriList(blobs);
+	const blobUris = createImageUriList(blobs);
 	return res.status(200).send(blobUris);
 }
 
@@ -119,54 +106,18 @@ async function postIdCard(req, res) {
 	// File name
 	const fileName = req.file.originalname;
 	// Upload the original version
-	const upload = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		req.file.buffer,
-		req.file.buffer.length,
-		req.file.mimetype,
-		originalQuality,
-		userId
-	);
+	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
 	// Upload the resized version at normal level
 	let resizedFile = await imageResize(req.file.buffer, 960, 540);
-	const uploadNormal = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		resizedFile,
-		resizedFile.length,
-		req.file.mimetype,
-		normalQuality,
-		userId
-	);
+	const uploadNormal = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, normalQuality, userId);
 	// Upload the resized version at thumbnail level
 	resizedFile = await imageResize(req.file.buffer, 426, 240);
-	const uploadThumbnail = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		resizedFile,
-		resizedFile.length,
-		req.file.mimetype,
-		thumbnailQuality,
-		userId
-	);
+	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
 	// Upload the resized version at small level
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
-	const uploadSmall = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		resizedFile,
-		resizedFile.length,
-		req.file.mimetype,
-		smallQuality,
-		userId
-	);
+	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
 	// Return success message
-	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
+	return res.status(201).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
 }
 
 async function deleteIdCard(req, res) {
@@ -176,11 +127,9 @@ async function deleteIdCard(req, res) {
 	}
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== 0) {
-		return res
-			.status(403)
-			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete this file.' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete this file.' });
 	}
-	const blob = await Storage.findByPk(req.body.id);
+	const blob = await Storage.findByPk(req.query.id);
 	if (!blob) {
 		return res.status(404).send({ message: 'File not found.' });
 	} else if (await blobDeleteAsync(blob.id, blob.container, blob.uuid, blob.quality, blob.blobName)) {
@@ -197,11 +146,9 @@ async function deleteIdCards(req, res) {
 	}
 	const user = await User.findByPk(currentUser.id);
 	if (user.userType !== 0) {
-		return res
-			.status(403)
-			.send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
+		return res.status(403).send({ code: 'PERMISSION_DENIED', message: 'You do not have permission to delete these file(s).' });
 	}
-	const userId = req.body.userId;
+	const userId = req.query.userId;
 	const blobs = await Storage.findAllBlobsByUserId(idCardContainer, userId);
 	if (!blobs) {
 		return res.status(404).send({ message: 'There is nothing.' });
@@ -240,50 +187,14 @@ async function postAvatar(req, res) {
 	const blobUuid = uuid.v1();
 	const userId = currentUser.id;
 	const fileName = req.file.originalname;
-	const upload = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		req.file.buffer,
-		req.file.buffer.length,
-		req.file.mimetype,
-		originalQuality,
-		userId
-	);
+	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
 	let resizedFile = await imageResize(req.file.buffer, 960, 540);
-	const uploadNormal = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		resizedFile,
-		resizedFile.length,
-		req.file.mimetype,
-		normalQuality,
-		userId
-	);
+	const uploadNormal = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, normalQuality, userId);
 	resizedFile = await imageResize(req.file.buffer, 426, 240);
-	const uploadThumbnail = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		resizedFile,
-		resizedFile.length,
-		req.file.mimetype,
-		thumbnailQuality,
-		userId
-	);
+	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
-	const uploadSmall = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		resizedFile,
-		resizedFile.length,
-		req.file.mimetype,
-		smallQuality,
-		userId
-	);
-	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
+	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
+	return res.status(201).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
 }
 
 async function putAvatar(req, res) {
@@ -304,49 +215,13 @@ async function putAvatar(req, res) {
 	const blobUuid = uuid.v1();
 	const userId = currentUser.id;
 	const fileName = req.file.originalname;
-	const upload = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		req.file.buffer,
-		req.file.buffer.length,
-		req.file.mimetype,
-		originalQuality,
-		userId
-	);
+	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
 	let resizedFile = await imageResize(req.file.buffer, 960, 540);
-	const uploadNormal = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		resizedFile,
-		resizedFile.length,
-		req.file.mimetype,
-		normalQuality,
-		userId
-	);
+	const uploadNormal = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, normalQuality, userId);
 	resizedFile = await imageResize(req.file.buffer, 426, 240);
-	const uploadThumbnail = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		resizedFile,
-		resizedFile.length,
-		req.file.mimetype,
-		thumbnailQuality,
-		userId
-	);
+	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
-	const uploadSmall = await blobUploadAsync(
-		containerName,
-		blobUuid,
-		fileName,
-		resizedFile,
-		resizedFile.length,
-		req.file.mimetype,
-		smallQuality,
-		userId
-	);
+	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
 	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
 }
 
@@ -381,8 +256,12 @@ async function blobUploadAsync(containerName, blobUuid, fileName, fileBuffer, fi
 	}
 	// Get a block blob client
 	const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+	// Create upload options
+	const options = {
+		blobHTTPHeaders: { blobContentType: mimeType }
+	}
 	// Upload data to the blob
-	const uploadBlobResponse = await blockBlobClient.uploadStream(fileStream, fileLength);
+	const uploadBlobResponse = await blockBlobClient.uploadStream(fileStream, fileLength, 5, options);
 	//console.log("Blob was uploaded successfully. requestId: ", uploadBlobResponse.requestId);
 	// Save to storage database
 	const upload = await Storage.create({
@@ -413,6 +292,30 @@ function createUriList(blobs) {
 		const blobName = `${blob.uuid}/${blob.quality}/${blob.blobName}`;
 		const blobUri = blobUriGenerator(blob.container, blobName);
 		blobUris.push({ file: blob.blobName, quality: blob.quality, uri: blobUri });
+	}
+	return blobUris;
+}
+
+function createImageUriList(blobs) {
+	const blobUris = [];
+	for (const blob of blobs) {
+		if (blob.quality === originalQuality) {
+			const blobName = `${blob.uuid}/${blob.quality}/${blob.blobName}`;
+			const blobUri = blobUriGenerator(blob.container, blobName);
+			const blobNameNormal = `${blob.uuid}/${normalQuality}/${blob.blobName}`;
+			const blobUriNormal = blobUriGenerator(blob.container, blobNameNormal);
+			const blobNameThumbnail = `${blob.uuid}/${thumbnailQuality}/${blob.blobName}`;
+			const blobUriThumbnail = blobUriGenerator(blob.container, blobNameThumbnail);
+			const blobNameSmall = `${blob.uuid}/${smallQuality}/${blob.blobName}`;
+			const blobUriSmall = blobUriGenerator(blob.container, blobNameSmall);
+			blobUris.push({
+				file: blob.blobName,
+				original: blobUri,
+				normal: blobUriNormal,
+				thumbnail: blobUriThumbnail,
+				small: blobUriSmall
+			});
+		}
 	}
 	return blobUris;
 }
