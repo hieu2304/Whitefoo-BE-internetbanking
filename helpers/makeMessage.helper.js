@@ -18,7 +18,7 @@ module.exports.verifyEmailMessage = function(email, lastName, firstName, activeC
 
 	getHTMLService.getHTMLPattern(1, function(response) {
 		var html = response;
-		html = html.replace('{Re_Image}', 'email');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Kích hoạt tài khoản');
 
 		html = html.replace(
@@ -37,7 +37,7 @@ module.exports.verifyEmailMessage = function(email, lastName, firstName, activeC
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.emailAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -90,7 +90,7 @@ module.exports.loadUpSuccessMessage = function(
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'loadup');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Nạp tiền thành công');
 
 		html = html.replace(
@@ -120,7 +120,7 @@ module.exports.loadUpSuccessMessage = function(
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.loadUpAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -159,7 +159,7 @@ module.exports.transferSuccessMessage = function(
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'a');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Chuyển tiền thành công');
 
 		html = html.replace(
@@ -196,7 +196,7 @@ module.exports.transferSuccessMessage = function(
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.sendAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -232,7 +232,7 @@ module.exports.transferSuccessMessageDes = function(
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'b');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Nhận tiền thành công');
 
 		html = html.replace(
@@ -266,7 +266,7 @@ module.exports.transferSuccessMessageDes = function(
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.receiveAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -283,7 +283,7 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 	getHTMLService.getHTMLPattern(1, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'verify');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Khôi phục mật khẩu');
 
 		html = html.replace(
@@ -302,7 +302,7 @@ module.exports.forgotPasswordMessage = function(email, lastName, firstName, forg
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.verifyAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -314,7 +314,7 @@ module.exports.transferVerifyMessage = function(email, lastName, firstName, veri
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'verify');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Xác minh 2 bước');
 
 		html = html.replace(
@@ -332,7 +332,7 @@ module.exports.transferVerifyMessage = function(email, lastName, firstName, veri
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.verifyAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -347,7 +347,6 @@ module.exports.withdrawMessageAccumulated = function(
 	profit, //tiền lời
 	accountId, //STK rút
 	dayPassed, //số ngày đã gửi
-	termPassed, //số kỳ hạn đã gửi
 	term, //kỳ hạn mà client đăng ký
 	startTermDate, //ngày bắt đầu tính (gửi)
 	valueLeft, //vốn sau khi rút
@@ -377,20 +376,18 @@ module.exports.withdrawMessageAccumulated = function(
 		moment().format('DD/MM/YYYY') +
 		'\nSố ngày đã gửi: ' +
 		dayPassed +
-		'\nSố kỳ đã gửi: ' +
-		termPassed +
 		'\nTin nhắn: ' +
 		message;
 
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'b');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Rút tiền thành công');
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa rút tiền thành công, chi tiết:'
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa rút tiền từ tài khoản tiết kiệm thành công, chi tiết:'
 		);
 
 		html = html.replace(
@@ -399,10 +396,13 @@ module.exports.withdrawMessageAccumulated = function(
 				accountId +
 				'<br>Tiền vốn đã rút: ' +
 				value +
+				currency +
 				'<br>Tiền lời đã rút: ' +
 				profit +
+				currency +
 				'<br>Số dư sau khi rút: ' +
 				valueLeft +
+				currency +
 				'<br>Kỳ hạn đăng ký: ' +
 				term +
 				' tháng' +
@@ -412,8 +412,7 @@ module.exports.withdrawMessageAccumulated = function(
 				moment().format('DD/MM/YYYY') +
 				'<br>Số ngày đã gửi: ' +
 				dayPassed +
-				'<br>Số kỳ đã gửi: ' +
-				termPassed +
+				' ngày' +
 				'<br>Tin nhắn: ' +
 				message
 		);
@@ -427,7 +426,7 @@ module.exports.withdrawMessageAccumulated = function(
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.receiveAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -441,6 +440,7 @@ module.exports.withdrawMessagePayment = function(
 	value,
 	currencyIn,
 	valueLeft,
+	message,
 	callback
 ) {
 	const currency = ' ' + currencyIn;
@@ -450,12 +450,12 @@ module.exports.withdrawMessagePayment = function(
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'b');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Rút tiền thành công');
 
 		html = html.replace(
 			'{Re_Content_1}',
-			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa thực hiện rút tiền thành công, chi tiết:'
+			'Xin chào {Re_FirstName} {Re_LastName}, bạn vừa thực hiện rút tiền từ tài khoản thanh toán thành công, chi tiết:'
 		);
 
 		html = html.replace(
@@ -467,7 +467,9 @@ module.exports.withdrawMessagePayment = function(
 				currency +
 				'<br>Số dư còn lại: ' +
 				valueLeft +
-				currency
+				currency +
+				'<br>Tin nhắn: ' +
+				message
 		);
 		html = html.replace('{Re_Thanks_Message}', thankMessage);
 		html = html.replace('{Re_LastName}', lastName);
@@ -478,7 +480,7 @@ module.exports.withdrawMessagePayment = function(
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.receiveAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -491,7 +493,7 @@ module.exports.changeEmailMessageOldEmail = function(lastName, firstName, oldEma
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'email2');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Thay đổi Email');
 
 		html = html.replace(
@@ -509,7 +511,7 @@ module.exports.changeEmailMessageOldEmail = function(lastName, firstName, oldEma
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.email2Attachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -525,7 +527,7 @@ module.exports.changeEmailMessageNewEmail = function(email, lastName, firstName,
 
 	getHTMLService.getHTMLPattern(1, function(response) {
 		var html = response;
-		html = html.replace('{Re_Image}', 'email');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Kích hoạt Email');
 
 		html = html.replace(
@@ -544,7 +546,7 @@ module.exports.changeEmailMessageNewEmail = function(email, lastName, firstName,
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.emailAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});
@@ -563,7 +565,7 @@ module.exports.approvedCitizenIdMessage = function(lastName, firstName, citizenI
 	getHTMLService.getHTMLPattern(0, function(response) {
 		var html = response;
 
-		html = html.replace('{Re_Image}', 'info');
+		html = html.replace('{Re_Image}', 'main');
 		html = html.replace('{Re_Title}', 'Đã duyệt CMND/CCCD');
 
 		html = html.replace(
@@ -581,7 +583,7 @@ module.exports.approvedCitizenIdMessage = function(lastName, firstName, citizenI
 		html = html.split('{Re_Home_URL}').join(process.env.HOST_URL + '/');
 		html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 
-		const attachments = getAttachments.infoAttachments;
+		const attachments = getAttachments.mainImageAttachments;
 
 		return callback({ content, html, attachments });
 	});

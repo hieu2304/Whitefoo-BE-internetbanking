@@ -804,6 +804,13 @@ class User extends Model {
 		return newForgotCode;
 	}
 
+	//xin lại token
+	static async reGenerateToken(currentUser) {
+		const result = await User.findUserByPKUsingExclude(currentUser.id);
+		const token = jwtHelper.generateToken(result);
+		return { token };
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	//							CÁC HÀM CHỈNH SỬA, CẬP NHẬT
 	////////////////////////////////////////////////////////////////////////////////
@@ -1497,50 +1504,109 @@ class User extends Model {
 		return null;
 	}
 
-	//rút tiền
+	//rút tiền: dùng chung cho tk thanh toán và tiết kiệm
 	static async withdrawStepTwo(request, currentUser) {
 		const ErrorsList = [];
 		const withdrawStepTwoErrors = errorListConstant.accountErrorsConstant;
 
 		//xác thực verifyCode...
-		const checkingUser = await User.activeVerifyCode(request.verifyCode);
+		const foundUser = await User.activeVerifyCode(request.verifyCode);
+		const accountId = request.accountId;
+		const foundAccount = await accountService.getAccountNoneExclude(accountId);
+		const message = request.message;
+		if (!message || message === ' ') message = 'Không có tin nhắn kèm theo';
 
-		if (!checkingUser) {
-			ErrorsList.push(withdrawStepTwoErrors.VERIFYCODE_INVALID);
+		if (!foundUser) {
+			ErrorsList.push(errorListConstant.userErrorsConstant.VERIFYCODE_INVALID);
+			return ErrorsList;
+		}
+
+		if (!foundAccount) {
+			ErrorsList.push(withdrawStepTwoErrors.ACCOUNT_NOT_FOUND);
+			return ErrorsList;
+		}
+
+		if (foundAccount.status !== 1) {
+			ErrorsList.push(withdrawStepTwoErrors.SELF_LOCKED);
 			return ErrorsList;
 		}
 
 		//Nếu thằng đang đăng nhập không sở hữu tài khoản thì xóa mã verify rồi cút nó ra
-		if (checkingUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
+		if (foundUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
 			ErrorsList.push(withdrawStepTwoErrors.NOT_BELONG);
 			return ErrorsList;
 		}
 
-		// makeMessageHelper.withdrawMessageAccumulated(
-		// 	'timchideyeu1998@gmail.com',
-		// 	'Nguyễn',
-		// 	'Ngọc',
-		// 	6500000,
-		// 	50000,
-		// 	'0123456789',
-		// 	360,
-		// 	1,
-		// 	12,
-		// 	'14/7/2020',
-		// 	0,
-		// 	'USD',
-		// 	'không em, thích thì rút',
-		// 	function(response) {
-		// 		emailHelper.send(
-		// 			'timchideyeu1998@gmail.com',
-		// 			'Rút tiền thành công',
-		// 			response.content,
-		// 			response.html,
-		// 			response.attachments
-		// 		);
-		// 	}
-		// );
-		return null;
+		//nếu là tài khoản tiết kiệm
+		if (foundAccount.accountType === 1) {
+			//gọi hàm rút tiền của tài khoản tiết kiệm
+			const result = await accountService.withdrawForAccumulatedAccount(foundAccount);
+			if (result) {
+				//gửi email
+				makeMessageHelper.withdrawMessageAccumulated(
+					foundUser.email,
+					foundUser.lastName,
+					foundUser.firstName,
+					result.balance,
+					result.profit,
+					result.accountId,
+					result.totalDaysPassed,
+					result.term,
+					foundAccount.startTermDate,
+					0,
+					foundAccount.currencyType,
+					message,
+					function(response) {
+						emailHelper.send(
+							foundUser.email,
+							'Rút tiền thành công',
+							response.content,
+							response.html,
+							response.attachments
+						);
+					}
+				);
+
+				return null;
+			}
+		} else {
+			//nếu là tài khoản thanh toán, gọi hàm rút tiền của tài khoản thanh toán
+			const valueWithdraw = request.value;
+			if (
+				!valueWithdraw ||
+				parseFloat(valueWithdraw) > parseFloat(foundAccount.balance) ||
+				parseFloat(foundAccount.balance) <= 0.0
+			) {
+				ErrorsList.push(withdrawStepTwoErrors.NOT_ENOUGH_WITHDRAW);
+				return ErrorsList;
+			}
+			const result = await accountService.withdrawForPaymentAccount(foundAccount, valueWithdraw);
+			if (result) {
+				//gửi email
+				makeMessageHelper.withdrawMessagePayment(
+					foundUser.lastName,
+					foundUser.firstName,
+					foundAccount.accountId,
+					valueWithdraw,
+					foundAccount.currencyType,
+					result,
+					message,
+					function(response) {
+						emailHelper.send(
+							foundUser.email,
+							'Rút tiền thành công',
+							response.content,
+							response.html,
+							response.attachments
+						);
+					}
+				);
+
+				return null;
+			}
+		}
+
+		return ErrorsList;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////

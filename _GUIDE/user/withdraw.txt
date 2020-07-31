@@ -20,13 +20,16 @@ method: POST
 
 - trường hợp tài khoản tiết kiệm:
 params:
+accountId:23424242343243
 verifyCode:mã được gửi qua email (người dùng nhập mã này)
+message: được để trống
 
 - trường hợp tài khoản thanh toán:
 params:
+accountId:23424242343243
 verifyCode:mã được gửi qua email (người dùng nhập mã này)
 value: tiền muốn rút
-
+message: được để trống
 
 
 

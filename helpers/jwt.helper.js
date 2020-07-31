@@ -9,34 +9,7 @@ module.exports.jwtEx = function(req, res, next) {
 	});
 };
 
-module.exports.reGenerateToken = function(req, res, next) {
-	const previousToken = req.headers['token'];
-	if (previousToken == null) return res.status(401).send({ message: 'Invalid token' });
-
-	jwt.verify(previousToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-		if (err) return res.status(401).send({ message: 'Invalid token' });
-		const token = this.generateToken({
-			id: user.id,
-			citizenIdentificationId: user.citizenIdentificationId,
-			email: user.email,
-			phoneNumber: user.phoneNumber,
-			username: user.username,
-			lastName: user.lastName,
-			firstName: user.firstName,
-			dateOfBirth: user.dateOfBirth,
-			address: user.address,
-			userType: user.userType,
-			status: user.status,
-			approveStatus: user.approveStatus,
-			enable2fa: user.enable2fa,
-			createdAt: user.createdAt,
-			emailVerified: user.emailVerified
-		});
-
-		return res.json({ token: token });
-	});
-};
-
+//tạo token, truyền vào 1 thông tin user (api getInfo?type=full)
 module.exports.generateToken = function(user) {
 	return (accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' }));
 };

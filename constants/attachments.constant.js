@@ -1,45 +1,9 @@
-//xác minh email hoặc có liên quan email, ảnh cơ bản
-module.exports.emailAttachments = [
+//lấy ảnh chính
+module.exports.mainImageAttachments = [
 	{
-		filename: 'email.png',
-		path: './constants/pattern/images/email.png',
-		cid: 'email'
-	}
-];
-
-//liên quan email nhưng ảnh khác
-module.exports.email2Attachments = [
-	{
-		filename: 'email2.png',
-		path: './constants/pattern/images/email2.png',
-		cid: 'email2'
-	}
-];
-
-//thông báo gửi tiền thành cônng
-module.exports.sendAttachments = [
-	{
-		filename: 'a.png',
-		path: './constants/pattern/images/a.png',
-		cid: 'a'
-	}
-];
-
-//thông báo nhận tiền thành công
-module.exports.receiveAttachments = [
-	{
-		filename: 'b.png',
-		path: './constants/pattern/images/b.png',
-		cid: 'b'
-	}
-];
-
-//thông báo nạp tiền thành công
-module.exports.loadUpAttachments = [
-	{
-		filename: 'loadup.png',
-		path: './constants/pattern/images/loadup.png',
-		cid: 'loadup'
+		filename: 'main.png',
+		path: './constants/pattern/images/main.png',
+		cid: 'main'
 	}
 ];
 

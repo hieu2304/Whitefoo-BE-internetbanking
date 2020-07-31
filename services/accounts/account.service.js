@@ -11,6 +11,7 @@ const errorListConstant = require('../../constants/errorsList.constant');
 const Decimal = require('decimal.js');
 
 class account extends Model {
+	//hàm lấy thông tin STK ra theo accountId
 	static async getAccountNoneExclude(accountId) {
 		const foundAccount = await account.findOne({
 			where: {
@@ -34,7 +35,6 @@ class account extends Model {
 
 		return result;
 	}
-
 	static async getAccountUsingExclude(accountId) {
 		const foundAccount = await account.findOne({
 			where: {
@@ -61,19 +61,20 @@ class account extends Model {
 		return result;
 	}
 
-	static async getAllAccountNoneExclude(_id) {
+	//hàm lấy thông tin toàn bộ STK ra theo userId (chưa bao gồm thông tin của TKTK)
+	static async getAllAccountNoneExclude(userId) {
 		const list = await account.findAll({
 			where: {
-				userId: _id
+				userId: userId
 			}
 		});
 
 		return list;
 	}
-	static async getAllAccountUsingExclude(_id) {
+	static async getAllAccountUsingExclude(userId) {
 		const list = await account.findAll({
 			where: {
-				userId: _id
+				userId: userId
 			},
 			attributes: {
 				exclude: [ 'createdAt', 'updatedAt', 'closedDate', 'id' ]
@@ -83,7 +84,7 @@ class account extends Model {
 		return list;
 	}
 
-	//hàm này cho user, sẽ ẩn 1 số thuộc tính bí mật/bảo mật
+	//hàm lấy thông tin toàn bộ STK ra theo userId (ĐÃ bao gồm thông tin của TKTK)
 	static async getAllAccountReferenceByIdUsingExclude(_id) {
 		const list = await account.getAllAccountUsingExclude(_id);
 		const result = [];
@@ -107,8 +108,6 @@ class account extends Model {
 
 		return result;
 	}
-
-	//hàm này cho nhân viên, không ẩn bất cứ gì
 	static async getAllAccountReferenceByIdNoneExclude(_id) {
 		const list = await account.getAllAccountNoneExclude(_id);
 		const result = [];
@@ -143,6 +142,7 @@ class account extends Model {
 		return false;
 	}
 
+	//hàm hỗ trợ cho hàm tạo STK
 	static async getUniqueRandomAccountId() {
 		var randomAccountId = randomHelper.getRandomNumber(15);
 		while (await account.checkIfExistAccountId(randomAccountId)) {
@@ -151,6 +151,7 @@ class account extends Model {
 		return randomAccountId;
 	}
 
+	//tạo STK mới
 	static async createNewAccount(request, currentUser) {
 		const ErrorsList = [];
 		const createNewAccountErrors = errorListConstant.accountErrorsConstant;
@@ -211,6 +212,7 @@ class account extends Model {
 		return { result, ErrorsList };
 	}
 
+	//nạp tiền
 	static async addBalanceForAccount(request) {
 		const ErrorsList = [];
 		const loadUpBalanceErrors = errorListConstant.accountErrorsConstant;
@@ -320,7 +322,44 @@ class account extends Model {
 		return null;
 	}
 
-	//hàm sẽ chạy mỗi tối
+	//hàm rút tiền cho tài khoản thanh toán
+	static async withdrawForPaymentAccount(foundAccount, value) {
+		const newBalance = new Decimal(foundAccount.balance).sub(value);
+		await account.update(
+			{
+				balance: newBalance
+			},
+			{
+				where: {
+					accountId: foundAccount.accountId
+				}
+			}
+		);
+
+		return newBalance;
+	}
+	//hàm rút tiền cho tài khoản tiết kiệm
+	static async withdrawForAccumulatedAccount(foundAccount) {
+		const profit = await account_accumulatedService.profitCalculate(foundAccount);
+		profit.balance = foundAccount.balance;
+
+		await account.update(
+			{
+				status: 0,
+				balance: 0
+			},
+			{
+				where: {
+					accountId: foundAccount.accountId
+				}
+			}
+		);
+		await account_accumulatedService.withdrawResetAccumulated(foundAccount.accountId);
+
+		return profit;
+	}
+
+	//hàm sẽ chạy mỗi ngày 1 lần cho các STK loại tiết kiệm đê + ngày
 	static async updateDaysAndTermsPassedForAccumulated() {
 		//lấy danh sách các tài khoản là tài khoản tiết kiệm
 		//và đang tình trạng ok
@@ -337,7 +376,7 @@ class account extends Model {
 		}
 	}
 
-	//hàm tính tiền
+	//hàm tính tiền lãi, sẽ gọi thêm bên accumulated
 	static async profitCalculateForAccumulated(request) {
 		const foundAccount = await account.findOne({
 			where: {

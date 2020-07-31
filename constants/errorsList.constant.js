@@ -50,6 +50,11 @@ module.exports.accountErrorsConstant = {
 		message: 'The total of transfer value and fee is larger than your balance'
 	},
 
+	NOT_ENOUGH_WITHDRAW: {
+		code: 'NOT_ENOUGH_WITHDRAW',
+		message: 'The withdraw value is invalid or larger than your balance'
+	},
+
 	REQUIRE_MINIMUM: {
 		code: 'REQUIRE_MINIMUM',
 		message: 'Your transfer value not reached the minimum threshold, minimum is 20000 VND'
