@@ -5,6 +5,7 @@ const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
 const moment = require('moment');
 const exchange_currencyService = require('../currency/exchange_currency.service');
+const errorListConstant = require('../../constants/errorsList.constant');
 
 // https://github.com/MikeMcl/decimal.js/
 const Decimal = require('decimal.js');
@@ -151,11 +152,42 @@ class account extends Model {
 	}
 
 	static async createNewAccount(request, currentUser) {
+		const ErrorsList = [];
+		const createNewAccountErrors = errorListConstant.accountErrorsConstant;
+
 		const userId = typeof request.userId !== 'undefined' ? request.userId : request.id;
 		const accountType = typeof request.accountType !== 'undefined' ? request.accountType : request.type;
 		const currencyType = typeof request.currencyType !== 'undefined' ? request.currencyType : request.currency;
 		const newAccountId = await account.getUniqueRandomAccountId();
-		const newBalance = typeof request.balance !== 'undefined' ? request.balance : request.balance;
+		const newBalance = typeof request.balance !== 'undefined' ? request.balance : 0;
+
+		//Kiểm tra input lỗi
+		//chỉ cho tạo 0 hoặc 1, 0 là payment, 1 là tiet kiem
+		if (accountType !== '1' && accountType !== '0') {
+			ErrorsList.push(createNewAccountErrors.INVALID_ACCOUNT_TYPE);
+		}
+		if (accountType === '1' && request.term !== '3' && request.term !== '6' && request.term !== '12') {
+			//nếu là tài khoản tiết kiệm thì check term đúg ko
+
+			if (request.term !== '18' && request.term !== '24' && request.term !== '30' && request.term !== '36') {
+				ErrorsList.push(createNewAccountErrors.INVALID_TERM);
+			}
+		}
+
+		//chỉ nhận USD hoặc VND
+		if (currencyType !== 'USD' && currencyType !== 'VND') {
+			ErrorsList.push(createNewAccountErrors.INVALID_CURRENCY);
+		}
+
+		//lúc tạo phải từ 500k VND trở lên
+		if (currencyType === 'VND' && newBalance < 500000) {
+			ErrorsList.push(createNewAccountErrors.TOO_LOW_BALANCE);
+		} else if (currencyType === 'USD') {
+			const VNDValue = await exchange_currencyService.exchangeMoney(newBalance, 'USD');
+			if (VNDValue < 500000) ErrorsList.push(createNewAccountErrors.TOO_LOW_BALANCE);
+		}
+
+		if (ErrorsList.length > 0) return { result: null, ErrorsList };
 
 		//nếu tài khoản thanh toán thì chỉ thêm bảng account
 		const newAccount = await account.create({
@@ -171,15 +203,12 @@ class account extends Model {
 		// 0: payment, 1: accumulated
 		if (accountType == 1) {
 			//nếu tài khoản tiết kiệm, phải gọi và thêm vào account_accumulated
-			const result_accumulated = await account_accumulatedService.createNewAccumulatedAccount(
-				request,
-				newAccountId
-			);
+			await account_accumulatedService.createNewAccumulatedAccount(request, newAccountId);
 		}
 
 		//trả về STK và các thông tin cơ bản cho nhân viên thấy
 		const result = await account.getAccountUsingExclude(newAccount.accountId);
-		return result;
+		return { result, ErrorsList };
 	}
 
 	static async addBalanceForAccount(request, currentUser) {
@@ -213,7 +242,7 @@ class account extends Model {
 		const result = await account.update(
 			{
 				balance: newBalance,
-				status:1
+				status: 1
 			},
 			{
 				where: { accountId: accountId }

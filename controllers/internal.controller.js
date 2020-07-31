@@ -10,16 +10,11 @@ module.exports.postCreateAccount = asyncHandler(async function(req, res, next) {
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
-	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
-	if (!userId) return res.status(400).send({ message: 'id not exist' });
-
-	const checkUser = await userService.findByPk(userId);
-	if (!checkUser) return res.status(400).send({ message: 'user not exist' });
 
 	const result = await userService.createAccountForUser(req.body, currentUser);
 
-	if (!result) return res.status(400).send({ message: 'Create fail' });
-	return res.status(201).send(result);
+	if (result.ErrorsList.length > 0) return res.status(400).send(result.ErrorsList);
+	return res.status(201).send(result.result);
 });
 
 // create Account Internal get

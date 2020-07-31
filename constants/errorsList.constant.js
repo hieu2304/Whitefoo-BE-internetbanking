@@ -73,6 +73,26 @@ module.exports.accountErrorsConstant = {
 	REFUND: {
 		code: 'REFUND',
 		message: 'Something happened, we have refunded'
+	},
+
+	INVALID_TERM: {
+		code: 'INVALID_TERM',
+		message: 'Term can only: 3, 6, 12, 18, 24, 30, 36'
+	},
+
+	INVALID_CURRENCY: {
+		code: 'INVALID_CURRENCY',
+		message: 'Currency can only: VND or USD'
+	},
+
+	TOO_LOW_BALANCE: {
+		code: 'TOO_LOW_BALANCE',
+		message: 'Minimum required for create an account is 500000VND (about 22USD)'
+	},
+
+	INVALID_ACCOUNT_TYPE: {
+		code: 'INVALID_ACCOUNT_TYPE',
+		message: 'accountType can only 0 or 1'
 	}
 };
 

@@ -41,12 +41,16 @@ console.log(req.query);
 - Bảng fee_payment:
     + transferType: 1 chuyển nội bộ, 0 is chuyển liên ngân hàng (INTERGER)
 
-- Bảng history_payment:
-    + transferType: 1 chuyển nội bộ, 0 is chuyển liên ngân hàng (INTERGER)
-    + status:   1 = OK, 0 = failed  (INTERGER)
+- Bảng account_log:
+    + status: 1 là OK, 2 là failed,
+    + currencyType: VND hoặc USD
+    + action: các hoạt động (chuyển khoản, nhận tiền, nạp tiền, rút tiền):
+        * loadup        nạp tiền
+        * transfer      chuyển tiền
+        * receive       nhận tiền
+        * withdraw0     rút tiền từ TK Thanh toán
+        * withdraw1     rút tiền từ Tk tiết kiệm
 
-- bảng history_accumulated:
-    + status:   1 = OK, 0 = failed  (INTERGER)
 
 #########################
 

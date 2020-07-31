@@ -11,6 +11,7 @@ params:
 accountType:0       HOẶC    type:0
 userId:1            HOẶC    id:1
 currencyType:VND    HOẶC    currency:VND
+balance:50000 (tối thiểu 500000VND hoặc 23USD)
 
 response nếu thành công: (accountId sẽ được tạo random unique)
 {
@@ -37,7 +38,8 @@ params:
 accountType:1       HOẶC    type:1
 userId:1            HOẶC    id:1
 currencyType:VND    HOẶC    currency:VND
-term:6
+term:6 (chỉ nhận 3 6 12 18 24 30 36)
+balance:50000 (tối thiểu 500000VND hoặc 23USD)
 
 response:
 {

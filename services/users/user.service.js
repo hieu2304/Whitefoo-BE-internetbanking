@@ -646,11 +646,19 @@ class User extends Model {
 
 	// nhân viên tạo tài khoản cho người dùng
 	static async createAccountForUser(request, currentUser) {
-		const result = await accountService.createNewAccount(request, currentUser);
-		if (!result) return null;
-		const loadForUser = await User.findUserByPKNoneExclude(request.userId);
+		const ErrorsList = [];
+		const createAccountForUserErrors = errorListConstant.userErrorsConstant;
+		const userId = typeof request.id !== 'undefined' ? request.id : request.userId;
+		const foundUser = await User.findUserByPKNoneExclude(userId);
+		if (!foundUser) {
+			ErrorsList.push(createAccountForUserErrors.USER_NOT_FOUND);
+			return { result: null, ErrorsList };
+		}
 
-		await audit_logService.pushAuditLog_CreateAccount(currentUser, loadForUser, result.accountId);
+		const result = await accountService.createNewAccount(request, currentUser);
+		if (result.ErrorsList) return result;
+
+		await audit_logService.pushAuditLog_CreateAccount(currentUser, foundUser, result.accountId);
 
 		return result;
 	}
