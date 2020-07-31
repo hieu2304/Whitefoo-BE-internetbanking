@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('./helpers/jwt.helper');
 const authMiddleware = require('./middlewares/auth.middleware');
 const scheduleHelper = require('./helpers/schedule.helper');
 

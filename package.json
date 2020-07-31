@@ -12,14 +12,7 @@
 		"type": "git",
 		"url": "git+https://github.com/ktt45678/web2-2020.git"
 	},
-	"keywords": [
-		"Whitefoo",
-		"Bank",
-		"ngoc",
-		"hieu",
-		"huy",
-		"long"
-	],
+	"keywords": [ "Whitefoo", "Bank", "ngoc", "hieu", "huy", "long" ],
 	"author": "4 idiots",
 	"license": "ISC",
 	"bugs": {
@@ -30,7 +23,6 @@
 		"@azure/storage-blob": "^12.1.2",
 		"bcrypt": "^5.0.0",
 		"body-parser": "^1.19.0",
-		"cookie-session": "^1.4.0",
 		"cors": "^2.8.5",
 		"decimal.js": "^10.2.0",
 		"dotenv": "^8.2.0",

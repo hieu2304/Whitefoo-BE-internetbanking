@@ -6,19 +6,11 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const cookieSession = require('cookie-session');
+
 const cors = require('cors');
 const db = require('./services/db');
 const errorHandler = require('./helpers/error.helper');
 const port = process.env.PORT || 3000;
-
-app.use(
-	cookieSession({
-		name: 'whitefoo',
-		keys: [ 'whitefoo' ],
-		maxAge: 24 * 60 * 60 * 1000 //24 hours
-	})
-);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -27,6 +19,9 @@ app.use(errorHandler);
 
 //FrontEnd yêu cầu
 app.use(cors());
+
+//tránh lỗi khi deploy
+app.use('/', require('./routes/index.route'));
 
 //API
 app.use('/api', require('./api'));
