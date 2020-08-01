@@ -439,6 +439,7 @@ function createImageUriList(blobs) {
 			const blobUriSmall = blobUriGenerator(blob.container, blobNameSmall);
 			blobUris.push({
 				file: blob.blobName,
+				mimeType: blob.mimeType,
 				original: blobUri,
 				normal: blobUriNormal,
 				thumbnail: blobUriThumbnail,
