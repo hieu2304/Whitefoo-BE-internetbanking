@@ -18,6 +18,7 @@ module.exports.getAuthLogout = function(req, res, next) {
 //hàm login bước 1
 module.exports.postAuthLoginAIO = asyncHandler(async function(req, res, next) {
 	const result = await userService.authenticationLoginAIO(req.body);
+	if (result.code) return res.status(400).send(result);
 	return res.status(200).send(result);
 });
 
