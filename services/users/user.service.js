@@ -664,7 +664,7 @@ class User extends Model {
 		// 	return { result: null, ErrorsList };
 		// }
 
-		const result = await accountService.createNewAccount(request, currentUser);
+		const result = await accountService.createNewAccount(request);
 		if (result.ErrorsList) return result;
 
 		await audit_logService.pushAuditLog_CreateAccount(currentUser, foundUser, result.accountId);
@@ -1302,6 +1302,111 @@ class User extends Model {
 		return null;
 	}
 
+	//rút tiền: dùng chung cho tk thanh toán và tiết kiệm
+	static async withdrawStepTwo(request, currentUser) {
+		const ErrorsList = [];
+		const withdrawStepTwoErrors = errorListConstant.accountErrorsConstant;
+
+		//xác thực verifyCode...
+		const foundUser = await User.activeVerifyCode(request.verifyCode);
+		const accountId = request.accountId;
+		const foundAccount = await accountService.getAccountNoneExclude(accountId);
+		const message = request.message;
+		if (!message || message === ' ') message = 'Không có tin nhắn kèm theo';
+
+		if (!foundUser) {
+			ErrorsList.push(errorListConstant.userErrorsConstant.VERIFYCODE_INVALID);
+			return ErrorsList;
+		}
+
+		if (!foundAccount) {
+			ErrorsList.push(withdrawStepTwoErrors.ACCOUNT_NOT_FOUND);
+			return ErrorsList;
+		}
+
+		if (foundAccount.status !== 1) {
+			ErrorsList.push(withdrawStepTwoErrors.SELF_LOCKED);
+			return ErrorsList;
+		}
+
+		//Nếu thằng đang đăng nhập không sở hữu tài khoản thì xóa mã verify rồi cút nó ra
+		if (foundUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
+			ErrorsList.push(withdrawStepTwoErrors.NOT_BELONG);
+			return ErrorsList;
+		}
+
+		//nếu là tài khoản tiết kiệm
+		if (foundAccount.accountType === 1) {
+			//gọi hàm rút tiền của tài khoản tiết kiệm
+			const result = await accountService.withdrawForAccumulatedAccount(foundAccount);
+			if (result) {
+				//gửi email
+				makeMessageHelper.withdrawMessageAccumulated(
+					foundUser.email,
+					foundUser.lastName,
+					foundUser.firstName,
+					result.balance,
+					result.profit,
+					result.accountId,
+					result.totalDaysPassed,
+					result.term,
+					foundAccount.startTermDate,
+					0,
+					foundAccount.currencyType,
+					message,
+					function(response) {
+						emailHelper.send(
+							foundUser.email,
+							'Rút tiền thành công',
+							response.content,
+							response.html,
+							response.attachments
+						);
+					}
+				);
+
+				return null;
+			}
+		} else {
+			//nếu là tài khoản thanh toán, gọi hàm rút tiền của tài khoản thanh toán
+			const valueWithdraw = request.value;
+			if (
+				!valueWithdraw ||
+				parseFloat(valueWithdraw) > parseFloat(foundAccount.balance) ||
+				parseFloat(foundAccount.balance) <= 0.0
+			) {
+				ErrorsList.push(withdrawStepTwoErrors.NOT_ENOUGH_WITHDRAW);
+				return ErrorsList;
+			}
+			const result = await accountService.withdrawForPaymentAccount(foundAccount, valueWithdraw);
+			if (result) {
+				//gửi email
+				makeMessageHelper.withdrawMessagePayment(
+					foundUser.lastName,
+					foundUser.firstName,
+					foundAccount.accountId,
+					valueWithdraw,
+					foundAccount.currencyType,
+					result,
+					message,
+					function(response) {
+						emailHelper.send(
+							foundUser.email,
+							'Rút tiền thành công',
+							response.content,
+							response.html,
+							response.attachments
+						);
+					}
+				);
+
+				return null;
+			}
+		}
+
+		return ErrorsList;
+	}
+
 	//chuyển tiền nội bộ
 	static async transferInternalStepTwo(request, currentUser) {
 		var message = request.message;
@@ -1465,7 +1570,6 @@ class User extends Model {
 		const foundUser = await User.findUserByPKNoneExclude(parseInt(foundAccount.userId));
 
 		makeMessageHelper.transferSuccessMessage(
-			foundUser.email,
 			foundUser.lastName,
 			foundUser.firstName,
 			money,
@@ -1490,13 +1594,13 @@ class User extends Model {
 		const foundUserDes = await User.findUserByPKNoneExclude(parseInt(foundAccountDes.userId));
 
 		makeMessageHelper.transferSuccessMessageDes(
-			foundUserDes.email,
 			foundUserDes.lastName,
 			foundUserDes.firstName,
-			transferMoney,
+			money,
 			foundAccount.accountId,
 			foundAccountDes.accountId,
 			newBalanceDes,
+			foundAccount.currencyType,
 			foundAccountDes.currencyType,
 			message,
 			function(response) {
@@ -1513,109 +1617,53 @@ class User extends Model {
 		return null;
 	}
 
-	//rút tiền: dùng chung cho tk thanh toán và tiết kiệm
-	static async withdrawStepTwo(request, currentUser) {
-		const ErrorsList = [];
-		const withdrawStepTwoErrors = errorListConstant.accountErrorsConstant;
+	//hàm chuyển tiền liên ngân hàng
+	static async transferExternalStepTwo(request, currentUser) {
+		
+	}
 
-		//xác thực verifyCode...
-		const foundUser = await User.activeVerifyCode(request.verifyCode);
+	//hàm lắng nghe chuyển khoản liên ngân hàng (nhận CK liên ngân hàng)
+	static async listenExternal(request) {
 		const accountId = request.accountId;
+		var message = request.message;
+		if (!message)
+			message =
+				'Bạn nhận được tiền được chuyển liên ngân hàng, từ ' +
+				request.bankId +
+				', Người này không để lại lời nhắn gì thêm.';
 		const foundAccount = await accountService.getAccountNoneExclude(accountId);
-		const message = request.message;
-		if (!message || message === ' ') message = 'Không có tin nhắn kèm theo';
+		if (!foundAccount) return null;
+		const result = await accountService.listenExternal_account(foundAccount, request);
 
-		if (!foundUser) {
-			ErrorsList.push(errorListConstant.userErrorsConstant.VERIFYCODE_INVALID);
-			return ErrorsList;
+		if (result === 0) {
+			//gửi mail cho người nhận
+			const foundUser = await User.findUserByPKNoneExclude(parseInt(foundAccount.userId));
+			const finalAccount = await accountService.getAccountNoneExclude(accountId);
+			const requestAccountId = request.requestAccountId + ' (Ngân Hàng ' + request.bankId + ')';
+
+			makeMessageHelper.transferSuccessMessageDes(
+				foundUser.lastName,
+				foundUser.firstName,
+				request.money,
+				requestAccountId,
+				accountId,
+				finalAccount.balance,
+				request.currency,
+				finalAccount.currencyType,
+				message,
+				function(response) {
+					emailHelper.send(
+						foundUser.email,
+						'Nhận tiền thành công',
+						response.content,
+						response.html,
+						response.attachments
+					);
+				}
+			);
 		}
 
-		if (!foundAccount) {
-			ErrorsList.push(withdrawStepTwoErrors.ACCOUNT_NOT_FOUND);
-			return ErrorsList;
-		}
-
-		if (foundAccount.status !== 1) {
-			ErrorsList.push(withdrawStepTwoErrors.SELF_LOCKED);
-			return ErrorsList;
-		}
-
-		//Nếu thằng đang đăng nhập không sở hữu tài khoản thì xóa mã verify rồi cút nó ra
-		if (foundUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
-			ErrorsList.push(withdrawStepTwoErrors.NOT_BELONG);
-			return ErrorsList;
-		}
-
-		//nếu là tài khoản tiết kiệm
-		if (foundAccount.accountType === 1) {
-			//gọi hàm rút tiền của tài khoản tiết kiệm
-			const result = await accountService.withdrawForAccumulatedAccount(foundAccount);
-			if (result) {
-				//gửi email
-				makeMessageHelper.withdrawMessageAccumulated(
-					foundUser.email,
-					foundUser.lastName,
-					foundUser.firstName,
-					result.balance,
-					result.profit,
-					result.accountId,
-					result.totalDaysPassed,
-					result.term,
-					foundAccount.startTermDate,
-					0,
-					foundAccount.currencyType,
-					message,
-					function(response) {
-						emailHelper.send(
-							foundUser.email,
-							'Rút tiền thành công',
-							response.content,
-							response.html,
-							response.attachments
-						);
-					}
-				);
-
-				return null;
-			}
-		} else {
-			//nếu là tài khoản thanh toán, gọi hàm rút tiền của tài khoản thanh toán
-			const valueWithdraw = request.value;
-			if (
-				!valueWithdraw ||
-				parseFloat(valueWithdraw) > parseFloat(foundAccount.balance) ||
-				parseFloat(foundAccount.balance) <= 0.0
-			) {
-				ErrorsList.push(withdrawStepTwoErrors.NOT_ENOUGH_WITHDRAW);
-				return ErrorsList;
-			}
-			const result = await accountService.withdrawForPaymentAccount(foundAccount, valueWithdraw);
-			if (result) {
-				//gửi email
-				makeMessageHelper.withdrawMessagePayment(
-					foundUser.lastName,
-					foundUser.firstName,
-					foundAccount.accountId,
-					valueWithdraw,
-					foundAccount.currencyType,
-					result,
-					message,
-					function(response) {
-						emailHelper.send(
-							foundUser.email,
-							'Rút tiền thành công',
-							response.content,
-							response.html,
-							response.attachments
-						);
-					}
-				);
-
-				return null;
-			}
-		}
-
-		return ErrorsList;
+		return result;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////

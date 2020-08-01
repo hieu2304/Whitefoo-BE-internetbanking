@@ -1,0 +1,27 @@
+mô tả:
+api để lắng nghe nhận tiền liên ngân hàng từ ngân hàng khác
+lưu ý, do để trả ra 5 khi clientId hay SecrectKey sai thì phải skip middleware authSecret
+
+-	/listenexternal
+		request:
+			[body]
+			accountId:STK nhận
+			requestAccountId:STK chuyển
+			bankId:id của ngân hàng bên Nhật cấp từ trước(đã lưu DB)
+			bankSecretKey: mã bí mật bên Nhật cấp từ trước(đã lưu DB)
+			money:giá trị
+			currency:VND hoặc USD
+			message: có thể để trống
+
+			[headder]
+			clientId:
+			SecrectKey:
+
+		response:
+			+ null: STK ko tồn tại
+			+ 0: quá trình nhận tiền thành công
+			+ 1: mã bankId hay bankSecretKey ko đúng với cái từ đầu Nhật cấp
+			+ 2: loại tiền tệ ko hợp lệ, chỉ nhận USD hoặc VND
+			+ 3: lỗi ko rõ, hoàn tiền
+			+ 4: không đủ dữ liệu
+			+ 5: clientId hay SecrectKey sai

@@ -3,6 +3,7 @@ const userService = require('../services/users/user.service');
 const storageService = require('../services/files/storage.service');
 const validateHelper = require('../helpers/validate.helper');
 const jwtHelper = require('../helpers/jwt.helper');
+const middlewareHelper = require('../helpers/middleware.helper');
 const exchange_currencyService = require('../services/currency/exchange_currency.service');
 
 //api cập nhật thông tin người dùng
@@ -200,7 +201,6 @@ module.exports.postUpdateIdCard = asyncHandler(async function(req, res, next) {
 });
 
 //user yêu cầu gửi lại mã xác nhận email (activeCode)
-
 module.exports.postResend = asyncHandler(async function(req, res, next) {
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
@@ -212,4 +212,34 @@ module.exports.postResend = asyncHandler(async function(req, res, next) {
 	if (result) return res.status(400).send(result);
 
 	return res.status(200).send({ message: 'OK' });
+});
+
+//ĐỌC KỸ GUIDE TRƯỚC KHI DÙNG API NÀY
+//api lắng nghe chuyển tiền liên ngân hàng
+module.exports.getListenExternal = function(req, res, next) {
+	//check header
+	const secret = middlewareHelper.getSecret();
+	//header ko có viết hoa
+	const clientId = req.headers['clientid'];
+	const secretKey = req.headers['secretkey'];
+
+	if (clientId != secret[0] || secretKey != secret[1]) {
+		return res.status(403).json(5);
+	}
+
+	return res.status(200).send({ message: 'OK' });
+};
+module.exports.postListenExternal = asyncHandler(async function(req, res, next) {
+	//check header
+	const secret = middlewareHelper.getSecret();
+	//header ko có viết hoa
+	const clientId = req.headers['clientid'];
+	const secretKey = req.headers['secretkey'];
+
+	if (clientId != secret[0] || secretKey != secret[1]) {
+		return res.status(403).json(5);
+	}
+
+	const result = await userService.listenExternal(req.body);
+	return res.status(200).json(result);
 });

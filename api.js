@@ -12,6 +12,9 @@ scheduleHelper.WhiteFooScheduleAll();
 
 //================== PUBLIC API ============================
 
+//vẫn có header nhưng response khác cho team khác
+router.use('/', require('./routes/external.route'));
+
 // Pre-middleware won't work on multer
 router.use('/upload', require('./routes/upload.route'));
 

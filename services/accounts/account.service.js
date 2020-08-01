@@ -7,6 +7,7 @@ const account_accumulatedService = require('./account_accumulated.service');
 const moment = require('moment');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 const errorListConstant = require('../../constants/errorsList.constant');
+const whiteListService = require('../partner/whitelist.service');
 
 // https://github.com/MikeMcl/decimal.js/
 const Decimal = require('decimal.js');
@@ -147,7 +148,7 @@ class account extends Model {
 	}
 
 	//tạo STK mới
-	static async createNewAccount(request, currentUser) {
+	static async createNewAccount(request) {
 		const ErrorsList = [];
 		const createNewAccountErrors = errorListConstant.accountErrorsConstant;
 
@@ -381,6 +382,41 @@ class account extends Model {
 		if (!foundAccount) return 'ko thay';
 		const result = await account_accumulatedService.profitCalculate(foundAccount);
 		return result;
+	}
+
+	//hàm nhận tiền liên ngân hàng
+	static async listenExternal_account(foundAccount, request) {
+		const requestAccountId = request.requestAccountId;
+		const bankId = request.bankId;
+		const bankSecretKey = request.bankSecretKey;
+		const money = request.money;
+		const currency = request.currency;
+		if (currency !== 'VND' && currency !== 'USD') return 2;
+		if (!bankId || !bankSecretKey || !requestAccountId || !money) return 4;
+		if (!this.isNumber(money)) return 4;
+		const HomiesList = await whiteListService.checkIfInWhitelist(bankId, bankSecretKey);
+		if (!HomiesList) return 1;
+		//chỉ nhận bởi TK thanh toán
+		if (foundAccount.accountType !== 0) return 3;
+
+		var newMoney = new Decimal(money);
+		if (foundAccount.currencyType !== currency) {
+			newMoney = await exchange_currencyService.exchangeMoney(newMoney, currency);
+		}
+		//tới được đây là pass hết kiểm tra input, loại Tk...
+		var newBalance = new Decimal(foundAccount.balance).plus(newMoney);
+
+		await account.update(
+			{
+				balance: newBalance
+			},
+			{
+				where: {
+					accountId: request.accountId
+				}
+			}
+		);
+		return 0;
 	}
 }
 

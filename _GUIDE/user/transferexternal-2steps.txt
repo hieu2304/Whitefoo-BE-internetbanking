@@ -1,0 +1,28 @@
+api chuyển tiền liên ngân hàng:
+	/transferexternal
+	(call api lắng nghe bên thứ 3: /transferexternal)
+	request:
+			[body]
+			accountId:STK nhận
+			requestAccountId:STK chuyển
+			bankId:id của ngân hàng bên Nhật cấp từ trước(đã lưu DB)
+			bankSecrectKey: mã bí mật bên Nhật cấp từ trước(đã lưu DB)
+			money:giá trị
+			currency:VND hoặc USD
+			verifyCode: mã 2 bước
+			message: có thể để trống
+
+
+			[headder]
+			clientId:
+			SecrectKey:
+
+				sau khi call api bên thứ 3 /transferexternal, 
+				phụ thuộc vào response, trả ra kết quả cho bên chúng ta:
+					response:
+					+ null: STK ko tồn tại
+					+ 0: quá trình nhận tiền thành công
+					+ 1: mã bankId hay bankSecrectKey ko đúng với cái từ đầu Nhật cấp
+					+ 2: loại tiền tệ ko hợp lệ, chỉ nhận USD hoặc VND
+					+ 3: lỗi ko rõ, hoàn tiền
+					+ 4: không đủ dữ liệu

@@ -137,31 +137,32 @@ module.exports.loadUpSuccessMessage = function(
 
 //tin này gửi cho bên gửi (bên A)
 module.exports.transferSuccessMessage = function(
-	email,
 	lastName,
 	firstName,
 	value,
 	fee,
-	accountId,
-	accountId2,
+	accountIdSend,
+	accountIdReceive,
 	valueLeft,
-	currencyIn,
+	currencySend,
 	message,
 	callback
 ) {
-	const currency = ' ' + currencyIn;
+	var currencySend = ' ' + currencySend;
 	const content =
 		'Bạn vừa chuyển tiền thành công từ STK' +
-		accountId +
+		accountIdSend +
 		'\ntiền gửi :' +
 		value +
-		currency +
+		currencySend +
 		'\ncho STK: ' +
-		accountId2 +
+		accountIdReceive +
 		'\nPhí đã trả: ' +
 		fee +
+		currencySend +
 		'\nSố dư còn lại: ' +
 		valueLeft +
+		currencySend +
 		'\nTin nhắn: ' +
 		message;
 
@@ -179,18 +180,18 @@ module.exports.transferSuccessMessage = function(
 		html = html.replace(
 			'{Re_Content_2}',
 			'<br>STK gửi: ' +
-				accountId +
+				accountIdSend +
 				'<br>STK nhận: ' +
-				accountId2 +
+				accountIdReceive +
 				'<br>Tiền đã gửi: ' +
 				value +
-				currency +
+				currencySend +
 				'<br>Phí đã trả: ' +
 				fee +
-				currency +
+				currencySend +
 				'<br>Số dư hiện tại: ' +
 				valueLeft +
-				currency +
+				currencySend +
 				'<br>Tin đã gửi kèm: ' +
 				message +
 				'<br>'
@@ -212,28 +213,30 @@ module.exports.transferSuccessMessage = function(
 
 //tin này gửi cho bên nhận (bên B)
 module.exports.transferSuccessMessageDes = function(
-	email,
 	lastName,
 	firstName,
 	value,
-	accountId,
-	accountId2,
+	accountIdSend,
+	accountIdReceive,
 	valueLeft,
-	currencyIn,
+	currencySend,
+	currencyReceive,
 	message,
 	callback
 ) {
-	const currency = ' ' + currencyIn;
+	var currencySend = ' ' + currencySend;
+	var currencyReceive = ' ' + currencyReceive;
 	const content =
 		'Bạn vừa nhận tiền thành công từ STK' +
-		accountId +
+		accountIdSend +
 		'\nTiền nhận :' +
 		value +
-		currency +
+		currencySend +
 		'\nSTK nhận: ' +
-		accountId2 +
+		accountIdReceive +
 		'\nSố dư còn lại: ' +
 		valueLeft +
+		currencyReceive +
 		'\nTin nhắn: ' +
 		message;
 
@@ -251,15 +254,15 @@ module.exports.transferSuccessMessageDes = function(
 		html = html.replace(
 			'{Re_Content_2}',
 			'<br>STK gửi: ' +
-				accountId +
+				accountIdSend +
 				'<br>STK nhận: ' +
-				accountId2 +
+				accountIdReceive +
 				'<br>Tiền đã nhận: ' +
 				value +
-				currency +
+				currencySend +
 				'<br>Số dư hiện tại: ' +
 				valueLeft +
-				currency +
+				currencyReceive +
 				'<br>Tin nhắn kèm theo: ' +
 				message +
 				'<br>'
