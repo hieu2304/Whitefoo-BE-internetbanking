@@ -13,7 +13,7 @@ const smallQuality = 'smol';
 
 const idCardContainer = 'idcards';
 const avatarContainer = 'avatar';
-const mediaContainer = 'media';
+const audioContainer = 'audio';
 
 async function getBlobList(req, res) {
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
@@ -117,7 +117,7 @@ async function postIdCard(req, res) {
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
 	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
 	// Return success message
-	return res.status(201).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
+	return res.status(201).send({ message: 'Success' });
 }
 
 async function deleteIdCard(req, res) {
@@ -171,6 +171,19 @@ async function getAvatar(req, res) {
 	return res.status(200).send({ file: blob.blobName, uri: blobUri });
 }
 
+async function getAvatars(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+	const blobs = await Storage.findQualityBlobsByUserId(avatarContainer, currentUser.id, originalQuality);
+	if (!blobs) {
+		return res.status(404).send({ message: 'Result empty.' });
+	}
+	const blobUris = createImageUriList(blobs);
+	return res.status(200).send(blobUris);
+}
+
 async function postAvatar(req, res) {
 	if (!req.file) {
 		return res.status(404).send({ message: 'No file provided.' });
@@ -194,7 +207,7 @@ async function postAvatar(req, res) {
 	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
 	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
-	return res.status(201).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
+	return res.status(201).send({ message: 'Success' });
 }
 
 async function putAvatar(req, res) {
@@ -206,9 +219,9 @@ async function putAvatar(req, res) {
 		return res.status(401).send({ message: 'Unauthorized user' });
 	}
 	// Remove old stuff first
-	const blob = await Storage.findOneBlobByUserId(avatarContainer, currentUser.id);
-	if (blob) {
-		await blobDeleteAsync(blob.id, blob.container, blob.uuid, blob.quality, blob.blobName);
+	const blobs = await Storage.findAllBlobsByUserId(avatarContainer, currentUser.id);
+	if (blobs) {
+		await deleteDataListAsync(blobs);
 	}
 	// Upload the newer
 	const containerName = avatarContainer;
@@ -222,7 +235,7 @@ async function putAvatar(req, res) {
 	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
 	resizedFile = await imageResize(req.file.buffer, 50, 50);
 	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
-	return res.status(200).send({ upload, uploadNormal, uploadThumbnail, uploadSmall });
+	return res.status(201).send({ message: 'Success' });
 }
 
 async function deleteAvatar(req, res) {
@@ -238,6 +251,109 @@ async function deleteAvatar(req, res) {
 		return res.status(200).send({ message: 'Blob deleted successfully.' });
 	}
 	return res.status(404).send({ message: 'File not found on blob storage.' });
+}
+
+async function deleteAvatars(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+	const blobs = await Storage.findAllBlobsByUserId(avatarContainer, currentUser.id);
+	if (!blobs) {
+		return res.status(404).send({ message: 'There is nothing.' });
+	}
+	const deleted = await deleteDataListAsync(blobs);
+	return res.status(200).send({ message: `Successfully deleted ${deleted} file(s).` });
+}
+
+async function getAudio(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+	const blob = await Storage.findOneBlobByUserId(audioContainer, currentUser.id);
+	if (!blob) {
+		return res.status(404).send({ message: 'File not found.' });
+	}
+	const blobName = `${blob.uuid}/${blob.quality}/${blob.blobName}`;
+	const blobUri = blobUriGenerator(blob.container, blobName);
+	return res.status(200).send({ file: blob.blobName, uri: blobUri });
+}
+
+async function getAudios(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+	const blobs = await Storage.findQualityBlobsByUserId(audioContainer, currentUser.id, originalQuality);
+	if (!blobs) {
+		return res.status(404).send({ message: 'Result empty.' });
+	}
+	const blobUris = createUriList(blobs);
+	return res.status(200).send(blobUris);
+}
+
+async function postAudio(req, res) {
+	if (!req.file) {
+		return res.status(404).send({ message: 'No file provided.' });
+	}
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Unauthorized user' });
+	}
+	const containerName = audioContainer;
+	const blobUuid = uuid.v1();
+	const userId = currentUser.id;
+	const fileName = req.file.originalname;
+	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
+	return res.status(201).send({ message: 'Success' });
+}
+
+async function putAudio(req, res) {
+	if (!req.file) {
+		return res.status(404).send({ message: 'No file provided.' });
+	}
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Unauthorized user' });
+	}
+	const blobs = await Storage.findAllBlobsByUserId(audioContainer, currentUser.id);
+	if (blobs) {
+		await deleteDataListAsync(blobs);
+	}
+	const containerName = audioContainer;
+	const blobUuid = uuid.v1();
+	const userId = currentUser.id;
+	const fileName = req.file.originalname;
+	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
+	return res.status(201).send({ message: 'Success' });
+}
+
+async function deleteAudio(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+	const blob = await Storage.findOneBlobByUserId(audioContainer, currentUser.id);
+	if (!blob) {
+		return res.status(404).send({ message: 'File not found.' });
+	} else if (await blobDeleteAsync(blob.id, blob.container, blob.uuid, blob.quality, blob.blobName)) {
+		return res.status(200).send({ message: 'Blob deleted successfully.' });
+	}
+	return res.status(404).send({ message: 'File not found on blob storage.' });
+}
+
+async function deleteAudios(req, res) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+	const blobs = await Storage.findAllBlobsByUserId(audioContainer, currentUser.id);
+	if (!blobs) {
+		return res.status(404).send({ message: 'There is no audio.' });
+	}
+	const deleted = await deleteDataListAsync(blobs);
+	return res.status(200).send({ message: `Successfully deleted ${deleted} file(s).` });
 }
 
 async function blobUploadAsync(containerName, blobUuid, fileName, fileBuffer, fileLength, mimeType, quality, userId) {
@@ -384,5 +500,13 @@ module.exports = {
 	getAvatar,
 	postAvatar,
 	putAvatar,
-	deleteAvatar
+	deleteAvatar,
+	deleteAvatars,
+	getAvatars,
+	getAudio,
+	postAudio,
+	putAudio,
+	deleteAudio,
+	getAudios,
+	deleteAudios
 };
