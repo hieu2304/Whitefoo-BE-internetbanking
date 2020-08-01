@@ -211,9 +211,6 @@ async function postAvatar(req, res) {
 }
 
 async function putAvatar(req, res) {
-	if (!req.file) {
-		return res.status(404).send({ message: 'No file provided.' });
-	}
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Unauthorized user' });
@@ -223,19 +220,22 @@ async function putAvatar(req, res) {
 	if (blobs) {
 		await deleteDataListAsync(blobs);
 	}
-	// Upload the newer
-	const containerName = avatarContainer;
-	const blobUuid = uuid.v1();
-	const userId = currentUser.id;
-	const fileName = req.file.originalname;
-	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
-	let resizedFile = await imageResize(req.file.buffer, 960, 540);
-	const uploadNormal = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, normalQuality, userId);
-	resizedFile = await imageResize(req.file.buffer, 426, 240);
-	const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
-	resizedFile = await imageResize(req.file.buffer, 50, 50);
-	const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
-	return res.status(201).send({ message: 'Success' });
+	// Upload the newer, if there is
+	if (req.file) {
+		const containerName = avatarContainer;
+		const blobUuid = uuid.v1();
+		const userId = currentUser.id;
+		const fileName = req.file.originalname;
+		const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
+		let resizedFile = await imageResize(req.file.buffer, 960, 540);
+		const uploadNormal = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, normalQuality, userId);
+		resizedFile = await imageResize(req.file.buffer, 426, 240);
+		const uploadThumbnail = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, thumbnailQuality, userId);
+		resizedFile = await imageResize(req.file.buffer, 50, 50);
+		const uploadSmall = await blobUploadAsync(containerName, blobUuid, fileName, resizedFile, resizedFile.length, req.file.mimetype, smallQuality, userId);
+		return res.status(201).send({ message: 'Success' });
+	}
+	return res.status(200).send({ message: 'Avatars cleaned up' });
 }
 
 async function deleteAvatar(req, res) {
