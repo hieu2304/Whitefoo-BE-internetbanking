@@ -118,16 +118,20 @@ class User extends Model {
 
 	//hàm nhân viên lấy danh sách STK của 1 user
 	static async getUserAccount(request) {
-		const user = await User.findUserByPKNoneExclude(request.id);
+		var userId = typeof request.id !== 'undefined' ? request.id : request.userId;
+		if (userId && (await User.isNumber(userId))) {
+			userId = parseInt(userId);
+		}
+		const user = await User.findUserByPKNoneExclude(userId);
 		if (!user) return null;
-		const accountList = await accountService.getAllAccountReferenceByIdNoneExclude(request.id);
+		const accountList = await accountService.getAccountList(userId, request);
 
 		return accountList;
 	}
 
 	//user lấy danh sách STK của mình dựa vào id
-	static async getAccount(request) {
-		const accountList = await accountService.getAllAccountReferenceByIdUsingExclude(request.id.toString());
+	static async getAccount(currentUser, request) {
+		const accountList = await accountService.getAccountList(currentUser.id, request);
 		return accountList;
 	}
 
@@ -654,6 +658,11 @@ class User extends Model {
 			ErrorsList.push(createAccountForUserErrors.USER_NOT_FOUND);
 			return { result: null, ErrorsList };
 		}
+		//chỉ tạo cho user kích hoạt CMND rồi
+		// if (foundUser.approveStatus !== 1) {
+		// 	ErrorsList.push(createAccountForUserErrors.USER_NOT_VERIFY);
+		// 	return { result: null, ErrorsList };
+		// }
 
 		const result = await accountService.createNewAccount(request, currentUser);
 		if (result.ErrorsList) return result;

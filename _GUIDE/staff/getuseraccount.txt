@@ -2,7 +2,16 @@ mô tả: nhân viên lấy danh sách tài khoản của 1 user
 
 /api/getuseraccount
 
-request: id (id của user AKA userId)
+method: POST và GET đều như nhau
+
+request:
+id (id của user, có thể dùng userId)
+keyword: Số nào đó để search STK
+type(hoặc accountType): 0 hoặc 1
+start:0
+limit:5
+
+
 
 response:
 [

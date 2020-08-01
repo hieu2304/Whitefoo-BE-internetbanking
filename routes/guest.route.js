@@ -47,10 +47,6 @@ router.post(
 router.get('/getinfo', authMiddleware.authToken, controller.getGetInfo);
 router.post('/getinfo', authMiddleware.authToken, controller.postGetInfo);
 
-//lấy thông tin tài khoản chính mình
-router.get('/getaccount', authMiddleware.authToken, controller.getGetAccount);
-router.post('/getaccount', authMiddleware.authToken, controller.postGetAccount);
-
 //user yêu cầu gửi lai email kích hoạt email (activeCode)
 router.post('/resend', authMiddleware.authToken, controller.postResend);
 

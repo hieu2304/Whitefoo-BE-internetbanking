@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
 const Model = Sequelize.Model;
+const Op = Sequelize.Op;
 const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
 const moment = require('moment');
@@ -61,81 +62,75 @@ class account extends Model {
 		return result;
 	}
 
-	//hàm lấy thông tin toàn bộ STK ra theo userId (chưa bao gồm thông tin của TKTK)
-	static async getAllAccountNoneExclude(userId) {
-		const list = await account.findAll({
-			where: {
-				userId: userId
-			}
-		});
+	//hàm lấy thông tin toàn bộ STK ra theo userId, có paging, có filter
+	static async getAccountList(userId, request) {
+		const keyword = typeof request.keyword !== 'undefined' ? request.keyword : '';
+		var accountType = typeof request.type !== 'undefined' ? request.type : request.accountType;
 
-		return list;
-	}
-	static async getAllAccountUsingExclude(userId) {
-		const list = await account.findAll({
+		var accountTypeArr = [ 0, 1 ];
+		if (accountType && (await account.isNumber(accountType))) {
+			accountType = parseInt(accountType);
+			if (accountType === 1) {
+				accountTypeArr = [ 1 ];
+			} else if (accountType === 0) {
+				accountTypeArr = [ 0 ];
+			}
+		}
+
+		var start = typeof request.start !== 'undefined' ? request.start : 0;
+		var limit = typeof request.limit !== 'undefined' ? request.limit : 3;
+		start = start * limit;
+
+		const totalList = await account.findAndCountAll({
 			where: {
-				userId: userId
+				userId: parseInt(userId),
+				accountType: accountTypeArr,
+				[Op.or]: [
+					Sequelize.where(Sequelize.fn('lower', Sequelize.col('accountId')), {
+						[Op.like]: '%' + keyword + '%'
+					})
+				]
 			},
 			attributes: {
-				exclude: [ 'createdAt', 'updatedAt', 'closedDate', 'id' ]
-			}
+				exclude: [ 'createdAt', 'updatedAt', 'id' ]
+			},
+			offset: Number(start),
+			limit: Number(limit),
+			order: [ [ 'id', 'ASC' ] ]
 		});
 
-		return list;
-	}
+		const list = [];
+		for (var i = 0; i < totalList.rows.length; i++) {
+			var temp = totalList.rows[i].dataValues;
+			temp.openedDate = totalList.rows[i].openedDate;
+			temp.closedDate = totalList.rows[i].closedDate;
+			if (temp.closedDate == 'Invalid date') temp.closedDate = '';
 
-	//hàm lấy thông tin toàn bộ STK ra theo userId (ĐÃ bao gồm thông tin của TKTK)
-	static async getAllAccountReferenceByIdUsingExclude(_id) {
-		const list = await account.getAllAccountUsingExclude(_id);
-		const result = [];
-
-		//kiểm tra từng account trong list, nếu có account tiết kiệm thì phải thêm trường
-		for (var i = 0; i < list.length; i++) {
-			result.push(list[i].dataValues);
-			result[i].openedDate = list[i].openedDate;
 			// 0: payment, 1: accumulated
-			if (result[i].accountType == 1) {
+			if (temp.accountType == 1) {
 				//lấy thêm trường term và startTermDate
-				const moreFields = await account_accumulatedService.getAccountAccumulatedById(list[i].accountId);
-				//set thêm term và startTermDate
-				// cách 1: records.set('Name', 'test')
-				// cách 2: records.Name = 'test'
-				//không dùng .dataValues vì cần định dạng từ getter
-				result[i].term = moreFields.term;
-				result[i].startTermDate = moreFields.startTermDate;
+				const moreFields = await account_accumulatedService.getAccountAccumulatedById(temp.accountId);
+
+				temp.term = moreFields.term;
+				temp.startTermDate = moreFields.startTermDate;
 			}
+			list.push(temp);
 		}
 
-		return result;
-	}
-	static async getAllAccountReferenceByIdNoneExclude(_id) {
-		const list = await account.getAllAccountNoneExclude(_id);
-		const result = [];
+		const count = totalList.count;
 
-		//kiểm tra từng account trong list, nếu có account tiết kiệm thì phải thêm trường
-		for (var i = 0; i < list.length; i++) {
-			result.push(list[i].dataValues);
-			result[i].openedDate = list[i].openedDate;
-			// 0: payment, 1: accumulated
-			if (result[i].accountType == 1) {
-				//lấy thêm trường term và startTermDate
-				const moreFields = await account_accumulatedService.getAccountAccumulatedById(list[i].accountId);
-				//set thêm term và startTermDate
-				// cách 1: records.set('Name', 'test')
-				// cách 2: records.Name = 'test'
-				//không dùng .dataValues vì cần định dạng từ getter
-				result[i].term = moreFields.term;
-				result[i].startTermDate = moreFields.startTermDate;
-			}
-		}
-
-		return result;
+		return { count, list };
 	}
 
-	static async checkIfExistAccountId(_id) {
+	//kiểm tra có phải số
+	static isNumber(n) {
+		return !isNaN(parseFloat(n)) && !isNaN(n - 0);
+	}
+
+	static async checkIfExistAccountId(accountId) {
 		const isExist = await account.findOne({
 			where: {
-				accountId: _id
+				accountId: accountId
 			}
 		});
 		if (isExist) return true;
@@ -397,7 +392,7 @@ account.init(
 			unique: true
 		},
 		userId: {
-			type: Sequelize.STRING,
+			type: Sequelize.INTEGER,
 			allowNull: false
 		},
 		status: {

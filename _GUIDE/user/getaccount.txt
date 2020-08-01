@@ -1,17 +1,17 @@
-mô tả: người dùng tự lấy các thông tin cơ bản của các tài khoản ngân hàng của mình
-
-/api/getaccount 
-
-mô tả: user tự get danh sách account của mình
+mô tả: 
+- user tự get danh sách account của mình
+- user phải kích hoạt CMND và Email rồi
 
 /api/getaccount
 
 method: POST và GET đều như nhau
-điều kiện: đã login, CHƯA xác nhận email, CHƯA kích hoạt CMND
 
-params:không có gì thêm
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+params:
+keyword:số nào đó để search STK
+accountType(hoặc type): 0 hoặc 1
+start:0
+limit:5
+
 
 response:
 [

@@ -249,5 +249,10 @@ module.exports.userErrorsConstant = {
 	USER_BLOCKED: {
 		code: 'USER_BLOCKED',
 		message: 'Your account has been blocked, please contact the staff for more info'
+	},
+
+	USER_NOT_VERIFY: {
+		code: 'USER_NOT_VERIFY',
+		message: 'This user not verify citizenIdentification Id yet'
 	}
 };

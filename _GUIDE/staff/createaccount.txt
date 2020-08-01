@@ -1,4 +1,6 @@
-mô tả: nhân viên tạo tài khoản cho người dùng đã có trong hệ thống
+mô tả:
+- nhân viên tạo tài khoản cho người dùng đã có trong hệ thống
+
 
 có 2 cách dùng api:
 

@@ -4,6 +4,8 @@ module.exports.whitelistBaseValue = [
 		id: 1,
 		bankId: 'ARG', //của Nhật
 		bankSecretKey: '12345',
+		bankFullName: 'Payyed',
+		URL: 'địaChỉCuảNhậtML/transferinteral',
 		clientId: 'temp',
 		secretKey: 'temp2'
 	}

@@ -80,3 +80,25 @@ module.exports.postWithdraw = asyncHandler(async function(req, res, next) {
 	//nếu trả về null có nghĩa là ok
 	return res.status(200).send({ message: 'OK' });
 });
+
+//user get self's accounts information
+module.exports.postGetAccount = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getAccount(currentUser, req.body);
+
+	return res.status(200).send(result);
+});
+module.exports.getGetAccount = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getAccount(currentUser, req.query);
+
+	return res.status(200).send(result);
+});

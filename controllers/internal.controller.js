@@ -15,8 +15,6 @@ module.exports.postCreateAccount = asyncHandler(async function(req, res, next) {
 	if (result.ErrorsList.length > 0) return res.status(400).send(result.ErrorsList);
 	return res.status(201).send(result.result);
 });
-
-// create Account Internal get
 module.exports.getCreateAccount = function(req, res, next) {
 	return res.status(201).send({ message: 'OK' });
 };
@@ -42,13 +40,12 @@ module.exports.postGetUserInfo = asyncHandler(async function(req, res, next) {
 
 //getuseraccount
 //nhân viên lấy danh sách STK của 1 user
-module.exports.getGetUserAccount = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
-};
+module.exports.getGetUserAccount = asyncHandler(async function(req, res, next) {
+	const result = await userService.getUserAccount(req.query);
+	if (!result) return res.status(400).send({ message: 'User not found' });
+	return res.status(200).send(result);
+});
 module.exports.postGetUserAccount = asyncHandler(async function(req, res, next) {
-	const userId = typeof req.body.userId !== 'undefined' ? req.body.userId : req.body.id;
-	if (!userId) return res.status(400).send({ message: 'id not exist' });
-
 	const result = await userService.getUserAccount(req.body);
 	if (!result) return res.status(400).send({ message: 'User not found' });
 	return res.status(200).send(result);

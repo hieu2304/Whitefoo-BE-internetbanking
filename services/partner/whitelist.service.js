@@ -46,6 +46,14 @@ whitelist.init(
 			type: Sequelize.STRING,
 			allowNull: false
 		},
+		bankFullName: {
+			type: Sequelize.STRING,
+			allowNull: false
+		},
+		URL: {
+			type: Sequelize.TEXT,
+			allowNull: false
+		},
 
 		//some bank does not need these 2 keys
 		clientId: {
