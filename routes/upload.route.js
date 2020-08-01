@@ -20,8 +20,8 @@ router.get('/avatars', auth.authSecret, auth.authToken, asyncHandler(controller.
 router.delete('/avatars', auth.authSecret, auth.authToken, asyncHandler(controller.deleteAvatars));
 // Audio
 router.get('/audio', auth.authSecret, auth.authToken, asyncHandler(controller.getAudio));
-router.post('/audio', upload.audio.single('audio'), auth.authSecret, auth.authToken, asyncHandler(controller.postAudio));
-router.put('/audio', upload.audio.single('audio'), auth.authSecret, auth.authToken, asyncHandler(controller.putAudio));
+router.post('/audio', upload.audio.single('audio'), auth.authSecret, auth.authToken, asyncHandler(controller.putAudio));
+router.put('/audio', upload.audio.single('audio'), auth.authSecret, auth.authToken, asyncHandler(controller.postAudio));
 router.delete('/audio', auth.authSecret, auth.authToken, asyncHandler(controller.deleteAudio));
 router.get('/audios', auth.authSecret, auth.authToken, asyncHandler(controller.getAudios));
 router.delete('/audios', auth.authSecret, auth.authToken, asyncHandler(controller.deleteAudios));

@@ -176,7 +176,12 @@ async function getAvatars(req, res) {
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
-	const blobs = await Storage.findQualityBlobsByUserId(avatarContainer, currentUser.id, originalQuality);
+	let userId = currentUser.id;
+	const user = await User.findByPk(currentUser.id);
+	if (req.query.userId && user.userType === 0) {
+		userId = req.query.userId;
+	}
+	const blobs = await Storage.findQualityBlobsByUserId(avatarContainer, userId, originalQuality);
 	if (!blobs) {
 		return res.status(404).send({ message: 'Result empty.' });
 	}
@@ -285,7 +290,12 @@ async function getAudios(req, res) {
 	if (!currentUser) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
-	const blobs = await Storage.findQualityBlobsByUserId(audioContainer, currentUser.id, originalQuality);
+	let userId = currentUser.id;
+	const user = await User.findByPk(currentUser.id);
+	if (req.query.userId && user.userType === 0) {
+		userId = req.query.userId;
+	}
+	const blobs = await Storage.findQualityBlobsByUserId(audioContainer, userId, originalQuality);
 	if (!blobs) {
 		return res.status(404).send({ message: 'Result empty.' });
 	}
@@ -321,12 +331,15 @@ async function putAudio(req, res) {
 	if (blobs) {
 		await deleteDataListAsync(blobs);
 	}
-	const containerName = audioContainer;
-	const blobUuid = uuid.v1();
-	const userId = currentUser.id;
-	const fileName = req.file.originalname;
-	const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
-	return res.status(201).send({ message: 'Success' });
+	if (req.file) {
+		const containerName = audioContainer;
+		const blobUuid = uuid.v1();
+		const userId = currentUser.id;
+		const fileName = req.file.originalname;
+		const upload = await blobUploadAsync(containerName, blobUuid, fileName, req.file.buffer, req.file.buffer.length, req.file.mimetype, originalQuality, userId);
+		return res.status(201).send({ message: 'Success' });
+	}
+	return res.status(200).send({ message: 'Audio cleaned up' });
 }
 
 async function deleteAudio(req, res) {
@@ -407,7 +420,7 @@ function createUriList(blobs) {
 	for (const blob of blobs) {
 		const blobName = `${blob.uuid}/${blob.quality}/${blob.blobName}`;
 		const blobUri = blobUriGenerator(blob.container, blobName);
-		blobUris.push({ file: blob.blobName, quality: blob.quality, uri: blobUri });
+		blobUris.push({ file: blob.blobName, quality: blob.quality, mimeType: blob.mimeType, uri: blobUri });
 	}
 	return blobUris;
 }
