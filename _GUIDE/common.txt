@@ -36,7 +36,7 @@ console.log(req.query);
 
 - Bảng account:
     + accountType: 1 là accumulated (tiết kiệm), 0 là payment (thanh toán)  (INTERGER)
-    + status: 1 là OK, 0 closed, 2 là locked  (INTERGER)
+    + status: 1 là OK, 0 closed (INTERGER)
 
 - Bảng fee_payment:
     + transferType: 1 chuyển nội bộ, 0 is chuyển liên ngân hàng (INTERGER)

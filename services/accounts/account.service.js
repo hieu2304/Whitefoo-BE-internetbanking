@@ -268,7 +268,8 @@ class account extends Model {
 		await account.update(
 			{
 				balance: newBalance,
-				status: 1
+				status: 1,
+				closedDate: null
 			},
 			{
 				where: { accountId: accountId }
@@ -357,7 +358,8 @@ class account extends Model {
 		await account.update(
 			{
 				status: 0,
-				balance: 0
+				balance: 0,
+				closedDate: new moment()
 			},
 			{
 				where: {

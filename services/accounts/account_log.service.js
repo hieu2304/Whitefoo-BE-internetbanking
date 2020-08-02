@@ -124,7 +124,8 @@ class account_log extends Model {
 		newDetail.message = typeof msg !== 'undefined' ? msg : '';
 		newDetail.date = newDate;
 		newDetail.time = newTime;
-		newDetail.id = parseInt(getNewId.id) + 1;
+		if (getNewId) newDetail.id = parseInt(getNewId.id) + 1;
+		newDetail.id = 1;
 
 		await account_log.create({
 			accountIdA: accountIdA,
