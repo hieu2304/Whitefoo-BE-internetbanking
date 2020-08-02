@@ -150,8 +150,8 @@ class exchange_currency extends Model {
 			asyncHandler(async function(err, response, body) {
 				body = JSON.parse(body);
 
-				if (body.rates && typeof body.rates.USDVND !== 'undefined') {
-					const data = body.rates.USDVND;
+				if (body.rates && typeof body.rates.USDVND !== 'undefined' && body.rates.USDVND.rate) {
+					const data = body.rates.USDVND.rate;
 					await exchange_currency.updateRateFromDataAPI(data);
 				} else {
 					console.log('\nFailed to get data from freeforexapi, trying another API...');

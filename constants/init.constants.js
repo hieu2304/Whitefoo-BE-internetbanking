@@ -6,8 +6,8 @@ module.exports.whitelistBaseValue = [
 		bankSecretKey: '12345',
 		bankFullName: 'Payyed',
 		URL: 'địaChỉCuảNhậtML/transferinteral',
-		clientId: 'temp',
-		secretKey: 'temp2'
+		clientId: 'wibu',
+		secretKey: '0263baf607bec5531849'
 	}
 ];
 

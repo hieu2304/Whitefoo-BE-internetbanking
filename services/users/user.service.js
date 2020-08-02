@@ -34,6 +34,10 @@ class User extends Model {
 		result.emailVerified = 1;
 		if (user.activeCode !== '') result.emailVerified = 0;
 
+		if (result.citizenIdentificationId == 'null' || !result.citizenIdentificationId) {
+			result.citizenIdentificationId = '';
+		}
+
 		result.createdAt = moment(user.createdAt).format('DD/MM/YYYY hh:mm:ss');
 		return result;
 	}
@@ -71,6 +75,10 @@ class User extends Model {
 
 		result.emailVerified = 1;
 		if (user.activeCode !== '') result.emailVerified = 0;
+
+		if (result.citizenIdentificationId == 'null' || !result.citizenIdentificationId) {
+			result.citizenIdentificationId = '';
+		}
 
 		result.createdAt = moment(user.createdAt).format('DD/MM/YYYY hh:mm:ss');
 
@@ -1618,9 +1626,7 @@ class User extends Model {
 	}
 
 	//hàm chuyển tiền liên ngân hàng
-	static async transferExternalStepTwo(request, currentUser) {
-		
-	}
+	static async transferExternalStepTwo(request, currentUser) {}
 
 	//hàm lắng nghe chuyển khoản liên ngân hàng (nhận CK liên ngân hàng)
 	static async listenExternal(request) {
@@ -1735,7 +1741,7 @@ User.init(
 			type: Sequelize.STRING,
 			allowNull: true,
 			unique: true,
-			defaultValue: null
+			defaultValue: ''
 		},
 		email: {
 			type: Sequelize.STRING,
