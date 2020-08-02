@@ -157,3 +157,13 @@ module.exports.postGetProfit = asyncHandler(async function(req, res, next) {
 	const result = await accountService.profitCalculateForAccumulated(req.body);
 	return res.status(200).send(result);
 });
+
+//nhân viên lấy history của account log
+module.exports.getGetUserLog = asyncHandler(async function(req, res, next) {
+	const result = await userService.getUserLogByStaff(req.query);
+	return res.status(200).send(result);
+});
+module.exports.postGetUserLog = asyncHandler(async function(req, res, next) {
+	const result = await userService.getUserLogByStaff(req.body);
+	return res.status(200).send(result);
+});

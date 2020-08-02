@@ -1,0 +1,22 @@
+mô tả:
++ get toàn log toàn bộ STK của user này, xếp theo thgian gần nhất, lọc theo tiêu chí:
+    * mã giao dịch nào
+    * loại hoạt động(chuyển khoản, rút tiền, nhận tiền...)
+    * có start và limit
+
+/api/getlog
+
+method: GET hoặc POST
+
+params:
+
+    type:lọc theo tiêu chí:
+        + transfer: liên quan chuyển khoản
+        + withdraw: liên quan rút tiền
+        + loadup: liên quan nạp tiền
+
+    id: mã giao dịch (truyền vào đúg mã)
+
+    start và limit: phân trang
+
+    

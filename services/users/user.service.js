@@ -16,6 +16,7 @@ const exchange_currencyService = require('../currency/exchange_currency.service'
 const audit_logService = require('../users/audit_log.service');
 const system_logService = require('../system/system_log.service');
 const citizenService = require('./citizen.service');
+const account_logService = require('../accounts/account_log.service');
 const requestService = require('request');
 
 class User extends Model {
@@ -423,6 +424,16 @@ class User extends Model {
 		return result;
 	}
 
+	//get history activies account log
+	static async getLogByUser(currentUser, request) {
+		return [];
+	}
+
+	//get history activies account log by staff
+	static async getUserLogByStaff(request) {
+		return [];
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	//						CÁC HÀM TÌM KIẾM RỒI XÁC THỰC, XÁC THỰC
 	////////////////////////////////////////////////////////////////////////////////
@@ -587,22 +598,26 @@ class User extends Model {
 			},
 			order: [ [ 'time', 'DESC' ] ]
 		});
+		if (!historySendActive) {
+			await User.sendActive(currentUser);
+			return null;
+		}
 
 		var historyItem = historySendActive.dataValues;
 		//historyItem.hours = moment(historyItem.time).hours();
 		//historyItem.minutes = moment(historyItem.time).minutes();
-		historyItem.day = moment(historyItem.time).dates();
-		historyItem.month = moment(historyItem.time).months() + 1;
-		historyItem.year = moment(historyItem.time).years();
+		historyItem.day = moment(historyItem.time).date();
+		historyItem.month = moment(historyItem.time).month() + 1;
+		historyItem.year = moment(historyItem.time).year();
 
 		const now = new moment();
 		//historyItem.hoursNow = moment(now).hours();
 		//historyItem.minutesNow = moment(now).minutes();
 		//ko dùng days và day vì nó đếm ngày trong tuần (ví dụ friday sẽ trả ra 5)
-		historyItem.dayNow = moment(now).dates();
+		historyItem.dayNow = moment(now).date();
 		//dùng months sẽ phải +1 và theo moment: tháng đếm từ 0
-		historyItem.monthNow = moment(now).months() + 1;
-		historyItem.yearNow = moment(now).years();
+		historyItem.monthNow = moment(now).month() + 1;
+		historyItem.yearNow = moment(now).year();
 
 		//cùng ngày + tháng + năm + giờ và chỉ cách nhau dưới 5p sẽ trả ra lỗi
 		if (
@@ -1298,6 +1313,13 @@ class User extends Model {
 				);
 			}
 		);
+		await account_logService.pushAccountLog_loadUp(
+			foundAccount.accountId,
+			request.balance,
+			request.currencyType,
+			'',
+			1
+		);
 
 		await audit_logService.pushAuditLog_AddBalance(
 			currentUser,
@@ -1348,6 +1370,15 @@ class User extends Model {
 			//gọi hàm rút tiền của tài khoản tiết kiệm
 			const result = await accountService.withdrawForAccumulatedAccount(foundAccount);
 			if (result) {
+				await account_logService.pushAccountLog_withdraw(
+					1,
+					foundAccount.accountId,
+					parseFloat(result.balance) + parseFloat(result.profit),
+					foundAccount.currencyType,
+					message,
+					1
+				);
+
 				//gửi email
 				makeMessageHelper.withdrawMessageAccumulated(
 					foundUser.email,
@@ -1388,6 +1419,15 @@ class User extends Model {
 			}
 			const result = await accountService.withdrawForPaymentAccount(foundAccount, valueWithdraw);
 			if (result) {
+				await account_logService.pushAccountLog_withdraw(
+					0,
+					foundAccount.accountId,
+					valueWithdraw,
+					foundAccount.currencyType,
+					message,
+					1
+				);
+
 				//gửi email
 				makeMessageHelper.withdrawMessagePayment(
 					foundUser.lastName,
@@ -1459,11 +1499,21 @@ class User extends Model {
 				return ErrorsList;
 			}
 			//kiểm tra giới hạn đơn vị giao dịch...
-			//...Code here
-			//kiểm tra giới hạn của ngày
-			//...Code here
-			//kiểm tra giới hạn của tháng
-			//...Code here
+			const checkLimit = await account_logService.checkAccountOverLimitTransfer(
+				foundAccount,
+				money,
+				foundAccount.currencyType
+			);
+			if (checkLimit === 'transfer') {
+				ErrorsList.push(errorListTransfer.LIMIT_TRANSFER);
+				return ErrorsList;
+			} else if (checkLimit === 'day') {
+				ErrorsList.push(errorListTransfer.LIMIT_DAY);
+				return ErrorsList;
+			} else if (checkLimit === 'month') {
+				ErrorsList.push(errorListTransfer.LIMIT_MONTH);
+				return ErrorsList;
+			}
 		} else {
 			//nếu bên gửi xài đơn vị VND thì khỏi đổi về TẠM THỜI
 			if (parseFloat(money) < 20000) {
@@ -1471,11 +1521,21 @@ class User extends Model {
 				return ErrorsList;
 			}
 			//kiểm tra giới hạn đơn vị giao dịch...
-			//...Code here
-			//kiểm tra giới hạn của ngày
-			//...Code here
-			//kiểm tra giới hạn của tháng
-			//...Code here
+			const checkLimit = await account_logService.checkAccountOverLimitTransfer(
+				foundAccount,
+				money,
+				foundAccount.currencyType
+			);
+			if (checkLimit === 'transfer') {
+				ErrorsList.push(errorListTransfer.LIMIT_TRANSFER);
+				return ErrorsList;
+			} else if (checkLimit === 'day') {
+				ErrorsList.push(errorListTransfer.LIMIT_DAY);
+				return ErrorsList;
+			} else if (checkLimit === 'month') {
+				ErrorsList.push(errorListTransfer.LIMIT_MONTH);
+				return ErrorsList;
+			}
 		}
 
 		//xác thực verifyCode...
@@ -1577,50 +1637,60 @@ class User extends Model {
 		//bên A trước
 		const foundUser = await User.findUserByPKNoneExclude(parseInt(foundAccount.userId));
 
-		makeMessageHelper.transferSuccessMessage(
-			foundUser.lastName,
-			foundUser.firstName,
-			money,
-			newFee,
+		await account_logService.pushAccountLog_transfer(
+			'',
 			foundAccount.accountId,
 			foundAccountDes.accountId,
-			newBalance,
-			foundAccount.currencyType,
-			message,
-			function(response) {
-				emailHelper.send(
-					foundUser.email,
-					'Chuyển tiền thành công',
-					response.content,
-					response.html,
-					response.attachments
-				);
-			}
-		);
-
-		//bên B sau
-		const foundUserDes = await User.findUserByPKNoneExclude(parseInt(foundAccountDes.userId));
-
-		makeMessageHelper.transferSuccessMessageDes(
-			foundUserDes.lastName,
-			foundUserDes.firstName,
 			money,
-			foundAccount.accountId,
-			foundAccountDes.accountId,
-			newBalanceDes,
 			foundAccount.currencyType,
-			foundAccountDes.currencyType,
 			message,
-			function(response) {
-				emailHelper.send(
-					foundUserDes.email,
-					'Nhận tiền thành công',
-					response.content,
-					response.html,
-					response.attachments
-				);
-			}
+			1
 		);
+
+		// makeMessageHelper.transferSuccessMessage(
+		// 	foundUser.lastName,
+		// 	foundUser.firstName,
+		// 	money,
+		// 	newFee,
+		// 	foundAccount.accountId,
+		// 	foundAccountDes.accountId,
+		// 	newBalance,
+		// 	foundAccount.currencyType,
+		// 	message,
+		// 	function(response) {
+		// 		emailHelper.send(
+		// 			foundUser.email,
+		// 			'Chuyển tiền thành công',
+		// 			response.content,
+		// 			response.html,
+		// 			response.attachments
+		// 		);
+		// 	}
+		// );
+
+		// //bên B sau
+		// const foundUserDes = await User.findUserByPKNoneExclude(parseInt(foundAccountDes.userId));
+
+		// makeMessageHelper.transferSuccessMessageDes(
+		// 	foundUserDes.lastName,
+		// 	foundUserDes.firstName,
+		// 	money,
+		// 	foundAccount.accountId,
+		// 	foundAccountDes.accountId,
+		// 	newBalanceDes,
+		// 	foundAccount.currencyType,
+		// 	foundAccountDes.currencyType,
+		// 	message,
+		// 	function(response) {
+		// 		emailHelper.send(
+		// 			foundUserDes.email,
+		// 			'Nhận tiền thành công',
+		// 			response.content,
+		// 			response.html,
+		// 			response.attachments
+		// 		);
+		// 	}
+		// );
 
 		return null;
 	}

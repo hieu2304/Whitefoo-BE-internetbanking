@@ -63,6 +63,21 @@ class account extends Model {
 		return result;
 	}
 
+	//hàm chỉ trả ra list account trong array ['1234','456'...]
+	static async getAccountListIdOnly(userId) {
+		const list = await account.findAll({
+			where: {
+				userId: userId
+			},
+			attributes: [ 'accountId' ]
+		});
+		const result = [];
+		for (var i = 0; i < list.length; i++) {
+			result.push(list[i].accountId);
+		}
+		return result;
+	}
+
 	//hàm lấy thông tin toàn bộ STK ra theo userId, có paging, có filter
 	static async getAccountList(userId, request) {
 		const keyword = typeof request.keyword !== 'undefined' ? request.keyword : '';

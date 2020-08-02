@@ -47,4 +47,8 @@ router.post('/getaudit', controller.postGetAudit);
 //tính lãi
 router.post('/profit', controller.postGetProfit);
 
+//lấy history account log
+router.get('/getuserlog', controller.getGetUserLog);
+router.post('/getuserlog', controller.postGetUserLog);
+
 module.exports = router;

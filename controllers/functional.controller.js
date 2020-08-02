@@ -102,3 +102,25 @@ module.exports.getGetAccount = asyncHandler(async function(req, res, next) {
 
 	return res.status(200).send(result);
 });
+
+//get history activities of account
+module.exports.getGetLog = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getLogByUser(currentUser, req.query);
+
+	return res.status(200).send(result);
+});
+module.exports.postGetLog = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getLogByUser(currentUser, req.body);
+
+	return res.status(200).send(result);
+});

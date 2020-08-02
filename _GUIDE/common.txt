@@ -47,8 +47,8 @@ console.log(req.query);
     + action: các hoạt động (chuyển khoản, nhận tiền, nạp tiền, rút tiền):
         * loadup        nạp tiền
         * transfer      chuyển tiền
-        * withdraw0     rút tiền từ TK Thanh toán
-        * withdraw1     rút tiền từ Tk tiết kiệm
+        * withdraw     rút tiền từ TK Thanh toán/TK tiết kiệm
+
 
 - Bảng audit_log:
     + action: các hoạt động (duyệt, từ chối CMND, nạp tiền, mở tài khoản...)

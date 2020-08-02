@@ -31,4 +31,8 @@ router.post('/withdraw', validateHelper.validateWithdraw(), controller.postWithd
 router.get('/getaccount', controller.getGetAccount);
 router.post('/getaccount', controller.postGetAccount);
 
+//get history log account
+router.get('/getlog', controller.getGetLog);
+router.post('/getlog', controller.postGetLog);
+
 module.exports = router;
