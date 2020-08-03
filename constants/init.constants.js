@@ -5,7 +5,7 @@ module.exports.whitelistBaseValue = [
 		bankId: 'ARG', //của Nhật
 		bankSecretKey: '12345',
 		bankFullName: 'Payyed',
-		URL: 'địaChỉCuảNhậtML/transferinteral',
+		URL: 'https://dack-17ck1.herokuapp.com/api/listen-external',
 		clientId: 'wibu',
 		secretKey: '0263baf607bec5531849'
 	}

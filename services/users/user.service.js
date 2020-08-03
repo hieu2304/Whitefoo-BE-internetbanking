@@ -1259,6 +1259,12 @@ class User extends Model {
 			);
 		}
 
+		//nếu người dc update là nhân viên thì sẽ ko tự khóa
+		if (user.userType === 0) {
+			newStatus = 1;
+			newApprove = 1;
+		}
+
 		//update thông tin user
 		await User.update(
 			{

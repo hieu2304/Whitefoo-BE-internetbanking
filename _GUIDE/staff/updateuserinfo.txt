@@ -1,6 +1,8 @@
 mô tả:
 - nhân viên update thông tin cho user
 - nếu field nào nhân viên không điền hoặc gửi giá trị cũ, hệ thống sẽ hiểu là không update field đó
+- nếu nhân viên update cho 1 nhân viên khác hoặc bản thân, status sẽ luôn là 1, approveStatus luôn là 1
+- cho phép nhân viên tự hạ quyền bản thân hoặc nhân viên khác thành người dùng (userType = 0)
 
 
 /api/updateuserinfo
