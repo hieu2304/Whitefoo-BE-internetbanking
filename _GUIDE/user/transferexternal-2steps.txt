@@ -1,28 +1,68 @@
 api chuyển tiền liên ngân hàng:
-	/transferexternal
-	(call api lắng nghe bên thứ 3: /transferexternal)
-	request:
-			[body]
-			accountId:STK nhận
-			requestAccountId:STK chuyển
-			bankId:id của ngân hàng bên Nhật cấp từ trước(đã lưu DB)
-			bankSecrectKey: mã bí mật bên Nhật cấp từ trước(đã lưu DB)
-			money:giá trị
-			currency:VND hoặc USD
-			verifyCode: mã 2 bước
-			message: có thể để trống
+- mô tả, chuyển tiền sang ngân hàng khác
+
+client của whitefoobank request cho server của whitefoobank:
+
+/api/transferexternal
+
+method:POST
+
+điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
+
+params:
+
+accountId:STK nhận
+requestAccountId:STK chuyển
+bankId:id của ngân hàng bên Nhật cấp từ trước(đã lưu DB, gọi api banklist để lấy danh sách)
+money:giá trị
+verifyCode: mã 2 bước
+message: có thể để trống
 
 
-			[headder]
-			clientId:
-			SecrectKey:
 
-				sau khi call api bên thứ 3 /transferexternal, 
-				phụ thuộc vào response, trả ra kết quả cho bên chúng ta:
-					response:
-					+ null: STK ko tồn tại
-					+ 0: quá trình nhận tiền thành công
-					+ 1: mã bankId hay bankSecrectKey ko đúng với cái từ đầu Nhật cấp
-					+ 2: loại tiền tệ ko hợp lệ, chỉ nhận USD hoặc VND
-					+ 3: lỗi ko rõ, hoàn tiền
-					+ 4: không đủ dữ liệu
+================================================================
+
+	API bên Nhật:
+		sau khi call api bên thứ 3 /transferexternal, 
+		[header]
+			clientId:...
+			SecrectKey:...
+		[body]
+			accountId:STK nhận bên nhật
+			requestAccountId:STK chuyển (bên mình)
+			bankId:wfb
+			bankSecretKey:12345
+			money:500000
+			currency:VND
+			message:cc
+
+
+		phụ thuộc vào response, trả ra kết quả cho bên chúng ta:
+			response:
+			+ null: STK ko tồn tại
+			+ 0: quá trình nhận tiền thành công
+			+ 1: mã bankId hay bankSecrectKey ko đúng với cái từ đầu Nhật cấp
+			+ 2: loại tiền tệ ko hợp lệ, chỉ nhận USD hoặc VND
+			+ 3: lỗi ko rõ, hoàn tiền
+			+ 4: không đủ dữ liệu
+
+
+
+############################################################
+có 2 trường hợp xảy ra:
+
+Th1: bên gửi xài VND
+	tính giới hạn chuyển tiền, trả ra lỗi nếu đạt giới hạn
+	tính phí: dựa vào bảng phí mà tính phí
+	gọi api bên thứ 3
+		nếu trả ra ok:
+			+ cập nhật lại, trừ tiền hiện tại
+		nếu trả ra lỗi, đọc và trả lỗi cho FE mình
+
+Th2: bên gửi xài USD
+	tính giới hạn chuyển tiền, trả ra lỗi nếu đạt giới hạn
+	tính phí: chuyển value sang VND rồi tính phí -> chuyển phí lại USD
+	gọi api bên thứ 3
+		nếu trả ra ok:
+			+ cập nhật lại, trừ tiền hiện tại
+		nếu trả ra lỗi, đọc và trả lỗi cho FE mình

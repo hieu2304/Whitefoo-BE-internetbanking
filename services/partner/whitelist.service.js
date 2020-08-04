@@ -4,6 +4,24 @@ const initConstant = require('../../constants/init.constants');
 const Model = Sequelize.Model;
 
 class whitelist extends Model {
+	static async getWhiteListExclude() {
+		const listTotal = await whitelist.findAndCountAll();
+		const list = [];
+		for (var i = 0; i < listTotal.rows.length; i++) {
+			var temp = listTotal.rows[i].dataValues;
+			delete temp.bankSecretKey;
+			delete temp.URL;
+			delete temp.clientId;
+			delete temp.secretKey;
+			delete temp.createdAt;
+			delete temp.updatedAt;
+
+			list.push(temp);
+		}
+
+		return { count: listTotal.count, list };
+	}
+
 	static async getWhitelist() {
 		const result = await whitelist.findAll();
 		return result;

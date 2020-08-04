@@ -253,11 +253,19 @@ class account extends Model {
 		//console.log(addBalance);
 		newBalance = newBalance.plus(addBalance);
 		//console.log(newBalance);
+
+		//nếu tài khoản đi bị khóa, update lại thành mở, update ngày đóng + mở lại
+		if (theChosenAccount.status != 1) {
+			await account.update({
+				status: 1,
+				openedDate: new moment(),
+				closedDate: null
+			});
+		}
+
 		await account.update(
 			{
-				balance: newBalance,
-				status: 1,
-				closedDate: null
+				balance: newBalance
 			},
 			{
 				where: { accountId: accountId }
@@ -355,6 +363,8 @@ class account extends Model {
 				}
 			}
 		);
+
+		//gọi để reset các giá trị lưu về ngày đã qua, kỳ hạn đã qua...
 		await account_accumulatedService.withdrawResetAccumulated(foundAccount.accountId);
 
 		return profit;
@@ -470,7 +480,8 @@ account.init(
 				const result = moment.utc(this.getDataValue('closedDate')).format('DD/MM/YYYY');
 				return result;
 			},
-			allowNull: true
+			allowNull: true,
+			defaultValue: null
 		}
 	},
 	{

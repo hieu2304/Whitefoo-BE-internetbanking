@@ -4,7 +4,7 @@ const controller = require('../controllers/functional.controller');
 const validateHelper = require('../helpers/validate.helper');
 
 //some User's functional here, ex: transferring money, withdrawal money.....
-router.get('/testfunctional', controller.testFunctional);
+//router.get('/testfunctional', controller.testFunctional);
 
 //Tính năng người dùng tự đổi mật khẩu
 //đã chuyển qua guest vì ko cần yêu cầu đã xác nhận CMND, email
@@ -34,5 +34,9 @@ router.post('/getaccount', controller.postGetAccount);
 //get history log account
 router.get('/getlog', controller.getGetLog);
 router.post('/getlog', controller.postGetLog);
+
+//get bankList
+router.get('/getbanklist', controller.getGetBankList);
+router.post('/getbanklist', controller.postGetBankList);
 
 module.exports = router;

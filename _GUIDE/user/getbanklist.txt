@@ -1,0 +1,12 @@
+mô tả:
+- trả ra danh sách ngân hàng chúng ta liên kết
+
+/api/getbanklist
+
+method: GET và POST
+
+params: không
+
+điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
+
+response mẫu

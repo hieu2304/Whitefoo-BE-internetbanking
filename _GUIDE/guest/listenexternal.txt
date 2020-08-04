@@ -25,3 +25,16 @@ lưu ý, do để trả ra 5 khi clientId hay SecrectKey sai thì phải skip mi
 			+ 3: lỗi ko rõ, hoàn tiền
 			+ 4: không đủ dữ liệu
 			+ 5: clientId hay SecrectKey sai
+
+ví dụ:
+[body]
+	accountId:12345
+	requestAccountId:54321
+	bankId:ARG
+	bankSecretKey:12345
+	money:500000
+	currency:VND
+	message:hihi
+[header]
+	clientId:11111
+	SecrectKey:444444

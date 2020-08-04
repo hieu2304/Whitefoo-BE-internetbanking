@@ -1,7 +1,10 @@
 mô tả: nhân viên nạp tiền cho 1 tài khoản có trong hệ thống
-người dùng sở hữu sẽ nhận được email thông báo
-khi nạp loại tiền khác loại lúc tài khoản đăng ký thì hệ thống sẽ tự chuyển đổi rồi mới cộng
-
+- người dùng sở hữu sẽ nhận được email thông báo
+- khi nạp loại tiền khác loại lúc tài khoản đăng ký thì hệ thống sẽ tự chuyển đổi rồi mới cộng
+- nếu tài khoản (Tiết kiệm hay thanh toán) đang bị khóa, khi nạp thì sẽ:
+    + mở lại status thành 1
+    + update ngày mở
+    + update ngày đóng thành null
 
 /api/addbalance
 

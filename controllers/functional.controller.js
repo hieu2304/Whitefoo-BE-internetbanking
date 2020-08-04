@@ -2,6 +2,7 @@ const userService = require('../services/users/user.service');
 const asyncHandler = require('express-async-handler');
 const validateHelper = require('../helpers/validate.helper');
 const jwtHelper = require('../helpers/jwt.helper');
+const whitelistService = require('../services/partner/whitelist.service');
 
 module.exports.testFunctional = function(req, res, next) {
 	return res.status(200).send({ message: 'OK' });
@@ -122,5 +123,16 @@ module.exports.postGetLog = asyncHandler(async function(req, res, next) {
 
 	const result = await userService.getLogByUser(currentUser, req.body);
 
+	return res.status(200).send(result);
+});
+
+//lấy danh sách ngân hàng liên kết
+module.exports.getGetBankList = asyncHandler(async function(req, res, next) {
+	const result = await whitelistService.getWhiteListExclude();
+	return res.status(200).send(result);
+});
+
+module.exports.postGetBankList = asyncHandler(async function(req, res, next) {
+	const result = await whitelistService.getWhiteListExclude();
 	return res.status(200).send(result);
 });

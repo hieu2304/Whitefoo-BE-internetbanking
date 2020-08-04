@@ -530,6 +530,7 @@ class User extends Model {
 	static async authenticationLoginAIO({ username, password }) {
 		const LoginErrors = errorListConstant.userErrorsConstant;
 
+		if (!username) return LoginErrors.LOGIN_INVALID;
 		const authUser = await User.findUserNoneExclude(username);
 
 		if (!authUser || !password) return LoginErrors.LOGIN_INVALID;
