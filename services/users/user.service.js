@@ -1704,7 +1704,7 @@ class User extends Model {
 	}
 
 	//hàm chuyển tiền liên ngân hàng
-	static async transferExternalStepTwo(request, currentUser) {
+	static async transferExternalStepTwo(request, currentUser, res) {
 		const ErrorsList = [];
 		const errorListTransfer = errorListConstant.accountErrorsConstant;
 		const userTransferErrors = errorListConstant.userErrorsConstant;
@@ -1724,25 +1724,25 @@ class User extends Model {
 
 		if (!foundBank) {
 			ErrorsList.push(errorListTransfer.BANK_NOT_FOUND);
-			return ErrorsList;
+			return res.status(400).send(ErrorsList);
 		}
 
 		//không cho phép tài khoản gửi và nhận là 1
 		if (requestAccountId === accountId) {
 			ErrorsList.push(errorListTransfer.SELF_DETECT);
-			return ErrorsList;
+			return res.status(400).send(ErrorsList);
 		}
 
 		//nếu không tìm thấy hoặc tài khoản bên gửi không thuộc loại thanh toán
 		if (!foundAccount || foundAccount.accountType !== 0) {
 			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
-			return ErrorsList;
+			return res.status(400).send(ErrorsList);
 		}
 
 		//nếu tài khoản bên gửi đang bị khóa (1 là OK, 0 closed, 2là locked)
 		if (foundAccount.status !== 1) {
 			ErrorsList.push(errorListTransfer.SELF_LOCKED);
-			return ErrorsList;
+			return res.status(400).send(ErrorsList);
 		}
 
 		if (foundAccount.currencyType !== 'VND') {
@@ -1752,7 +1752,7 @@ class User extends Model {
 			//nếu mệnh giá < 20k
 			if (parseFloat(tempMoney) < 20000) {
 				ErrorsList.push(errorListTransfer.REQUIRE_MINIMUM);
-				return ErrorsList;
+				return res.status(400).send(ErrorsList);
 			}
 			//kiểm tra giới hạn đơn vị giao dịch...
 			const checkLimit = await account_logService.checkAccountOverLimitTransfer(
@@ -1762,19 +1762,19 @@ class User extends Model {
 			);
 			if (checkLimit === 'transfer') {
 				ErrorsList.push(errorListTransfer.LIMIT_TRANSFER);
-				return ErrorsList;
+				return res.status(400).send(ErrorsList);
 			} else if (checkLimit === 'day') {
 				ErrorsList.push(errorListTransfer.LIMIT_DAY);
-				return ErrorsList;
+				return res.status(400).send(ErrorsList);
 			} else if (checkLimit === 'month') {
 				ErrorsList.push(errorListTransfer.LIMIT_MONTH);
-				return ErrorsList;
+				return res.status(400).send(ErrorsList);
 			}
 		} else {
 			//nếu bên gửi xài đơn vị VND thì khỏi đổi về TẠM THỜI
 			if (parseFloat(money) < 20000) {
 				ErrorsList.push(errorListTransfer.REQUIRE_MINIMUM);
-				return ErrorsList;
+				return res.status(400).send(ErrorsList);
 			}
 			//kiểm tra giới hạn đơn vị giao dịch...
 			const checkLimit = await account_logService.checkAccountOverLimitTransfer(
@@ -1784,13 +1784,13 @@ class User extends Model {
 			);
 			if (checkLimit === 'transfer') {
 				ErrorsList.push(errorListTransfer.LIMIT_TRANSFER);
-				return ErrorsList;
+				return res.status(400).send(ErrorsList);
 			} else if (checkLimit === 'day') {
 				ErrorsList.push(errorListTransfer.LIMIT_DAY);
-				return ErrorsList;
+				return res.status(400).send(ErrorsList);
 			} else if (checkLimit === 'month') {
 				ErrorsList.push(errorListTransfer.LIMIT_MONTH);
-				return ErrorsList;
+				return res.status(400).send(ErrorsList);
 			}
 		}
 
@@ -1799,13 +1799,13 @@ class User extends Model {
 
 		if (!checkingUser) {
 			ErrorsList.push(userTransferErrors.VERIFYCODE_INVALID);
-			return ErrorsList;
+			return res.status(400).send(ErrorsList);
 		}
 
 		//Nếu thằng đang đăng nhập không sở hữu tài khoản bên gửi thì xóa mã verify rồi cút nó ra
 		if (checkingUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
 			ErrorsList.push(errorListTransfer.NOT_BELONG);
-			return ErrorsList;
+			return res.status(400).send(ErrorsList);
 		}
 
 		var newFee = new Decimal(0.0);
@@ -1827,11 +1827,11 @@ class User extends Model {
 		//nếu tài khoản bên gửi VND: thì tổng = value(VND)+fee(VND)
 		//nếu tài khoản bên gửi USD: thì tổng = value(USD)+fee(USD)
 		var totalConsumeMoney = new Decimal(newFee).plus(money);
+		var newBalance = new Decimal(foundAccount.balance).sub(totalConsumeMoney);
 		if (parseFloat(totalConsumeMoney) > parseFloat(foundAccount.balance)) {
 			ErrorsList.push(errorListTransfer.NOT_ENOUGH);
-			return ErrorsList;
+			return res.status(400).send(ErrorsList);
 		}
-
 		requestService.post(
 			{
 				headers: { clientid: foundBank.dataValues.clientId, secretkey: foundBank.dataValues.secretKey },
@@ -1846,15 +1846,68 @@ class User extends Model {
 					message: message
 				}
 			},
-			function(err, response, body) {
-				const result = body;``
-				if (result == '4') {
+			async function(err, response, body) {
+				const result = JSON.parse(body);
+
+				if (result == 0) {
+					//cập nhật tiền, push log và send mail
+					await accountService.update(
+						{
+							balance: newBalance
+						},
+						{
+							where: {
+								accountId: foundAccount.accountId
+							}
+						}
+					);
+
+					await account_logService.pushAccountLog_transfer(
+						bankId,
+						request.requestAccountId,
+						request.accountId,
+						request.money,
+						foundAccount.currencyType,
+						message,
+						1
+					);
+
+					makeMessageHelper.transferSuccessMessage(
+						checkingUser.lastName,
+						checkingUser.firstName,
+						request.money,
+						newFee,
+						request.requestAccountId,
+						request.accountId + ' (Ngân hàng ' + bankId + ')',
+						newBalance,
+						foundAccount.currencyType,
+						message,
+						function(response) {
+							emailHelper.send(
+								checkingUser.email,
+								'Chuyển tiền thành công',
+								response.content,
+								response.html,
+								response.attachments
+							);
+						}
+					);
+				} else {
+					console.log('failed');
+					//push lỗi, không cập nhật tiền, không send mail
+					await account_logService.pushAccountLog_transfer(
+						bankId,
+						request.requestAccountId,
+						request.accountId,
+						request.money,
+						foundAccount.currencyType,
+						message,
+						0
+					);
 				}
-				console.log(result);
 			}
 		);
-
-		return null;
+		return res.status(200).send({ message: 'OK' });
 	}
 
 	//hàm lắng nghe chuyển khoản liên ngân hàng (nhận CK liên ngân hàng)

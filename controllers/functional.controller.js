@@ -153,11 +153,5 @@ module.exports.postTransferExternal = asyncHandler(async function(req, res, next
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 
-	const result = await userService.transferExternalStepTwo(req.body, currentUser);
-
-	//khác null nghĩa là có lỗi
-	if (result) return res.status(400).json(result);
-
-	//nếu trả về null có nghĩa là ok
-	return res.status(200).send({ message: 'OK' });
+	await userService.transferExternalStepTwo(req.body, currentUser, res);
 });

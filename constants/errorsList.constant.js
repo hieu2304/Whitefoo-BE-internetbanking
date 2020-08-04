@@ -77,7 +77,7 @@ module.exports.accountErrorsConstant = {
 
 	REFUND: {
 		code: 'REFUND',
-		message: 'Something happened, we have refunded'
+		message: 'Something happened, can not transfer at now, we have refunded'
 	},
 
 	INVALID_TERM: {
