@@ -132,7 +132,32 @@ module.exports.getGetBankList = asyncHandler(async function(req, res, next) {
 	return res.status(200).send(result);
 });
 
+//lấy danh sách ngân hàng
 module.exports.postGetBankList = asyncHandler(async function(req, res, next) {
 	const result = await whitelistService.getWhiteListExclude();
 	return res.status(200).send(result);
+});
+
+//chuyển liên ngân hàng
+module.exports.getTransferExternal = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+module.exports.postTransferExternal = asyncHandler(async function(req, res, next) {
+	const errors = validateHelper.validateErrorHandle(req);
+	if (errors) {
+		return res.status(400).json(errors);
+	}
+
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.transferExternalStepTwo(req.body, currentUser);
+
+	//khác null nghĩa là có lỗi
+	if (result) return res.status(400).json(result);
+
+	//nếu trả về null có nghĩa là ok
+	return res.status(200).send({ message: 'OK' });
 });

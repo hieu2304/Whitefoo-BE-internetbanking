@@ -54,7 +54,7 @@ module.exports.postGetUserAccount = asyncHandler(async function(req, res, next) 
 //getaccountinfo
 //nhân viên lấy toàn bộ thông tin STK của 1 người nào đó dựa vào accountId
 module.exports.getGetAccountInfo = asyncHandler(async function(req, res, next) {
-	const accountId = typeof req.body.accountId !== 'undefined' ? req.body.accountId : req.body.id;
+	const accountId = typeof req.query.accountId !== 'undefined' ? req.query.accountId : req.body.id;
 	const result = await accountService.getAccountNoneExclude(accountId);
 
 	if (!result) return res.status(400).send({ message: 'not exist accountId ' + accountId });

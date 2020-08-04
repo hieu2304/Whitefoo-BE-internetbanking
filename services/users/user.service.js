@@ -17,6 +17,7 @@ const audit_logService = require('../users/audit_log.service');
 const system_logService = require('../system/system_log.service');
 const citizenService = require('./citizen.service');
 const account_logService = require('../accounts/account_log.service');
+const whitelistService = require('../partner/whitelist.service');
 const requestService = require('request');
 
 class User extends Model {
@@ -1654,56 +1655,207 @@ class User extends Model {
 			1
 		);
 
-		// makeMessageHelper.transferSuccessMessage(
-		// 	foundUser.lastName,
-		// 	foundUser.firstName,
-		// 	money,
-		// 	newFee,
-		// 	foundAccount.accountId,
-		// 	foundAccountDes.accountId,
-		// 	newBalance,
-		// 	foundAccount.currencyType,
-		// 	message,
-		// 	function(response) {
-		// 		emailHelper.send(
-		// 			foundUser.email,
-		// 			'Chuyển tiền thành công',
-		// 			response.content,
-		// 			response.html,
-		// 			response.attachments
-		// 		);
-		// 	}
-		// );
+		makeMessageHelper.transferSuccessMessage(
+			foundUser.lastName,
+			foundUser.firstName,
+			money,
+			newFee,
+			foundAccount.accountId,
+			foundAccountDes.accountId,
+			newBalance,
+			foundAccount.currencyType,
+			message,
+			function(response) {
+				emailHelper.send(
+					foundUser.email,
+					'Chuyển tiền thành công',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
+		);
 
-		// //bên B sau
-		// const foundUserDes = await User.findUserByPKNoneExclude(parseInt(foundAccountDes.userId));
+		//bên B sau
+		const foundUserDes = await User.findUserByPKNoneExclude(parseInt(foundAccountDes.userId));
 
-		// makeMessageHelper.transferSuccessMessageDes(
-		// 	foundUserDes.lastName,
-		// 	foundUserDes.firstName,
-		// 	money,
-		// 	foundAccount.accountId,
-		// 	foundAccountDes.accountId,
-		// 	newBalanceDes,
-		// 	foundAccount.currencyType,
-		// 	foundAccountDes.currencyType,
-		// 	message,
-		// 	function(response) {
-		// 		emailHelper.send(
-		// 			foundUserDes.email,
-		// 			'Nhận tiền thành công',
-		// 			response.content,
-		// 			response.html,
-		// 			response.attachments
-		// 		);
-		// 	}
-		// );
+		makeMessageHelper.transferSuccessMessageDes(
+			foundUserDes.lastName,
+			foundUserDes.firstName,
+			money,
+			foundAccount.accountId,
+			foundAccountDes.accountId,
+			newBalanceDes,
+			foundAccount.currencyType,
+			foundAccountDes.currencyType,
+			message,
+			function(response) {
+				emailHelper.send(
+					foundUserDes.email,
+					'Nhận tiền thành công',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
+		);
 
 		return null;
 	}
 
 	//hàm chuyển tiền liên ngân hàng
-	static async transferExternalStepTwo(request, currentUser) {}
+	static async transferExternalStepTwo(request, currentUser) {
+		const ErrorsList = [];
+		const errorListTransfer = errorListConstant.accountErrorsConstant;
+		const userTransferErrors = errorListConstant.userErrorsConstant;
+
+		const accountId = request.accountId;
+		const requestAccountId = request.requestAccountId;
+		const bankId = request.bankId;
+		var money = new Decimal(request.money);
+		var message = request.message || 'không có tin nhắn kèm theo';
+
+		const foundAccount = await accountService.getAccountNoneExclude(requestAccountId);
+		const foundBank = await whitelistService.findOne({
+			where: {
+				bankId: bankId
+			}
+		});
+
+		if (!foundBank) {
+			ErrorsList.push(errorListTransfer.BANK_NOT_FOUND);
+			return ErrorsList;
+		}
+
+		//không cho phép tài khoản gửi và nhận là 1
+		if (requestAccountId === accountId) {
+			ErrorsList.push(errorListTransfer.SELF_DETECT);
+			return ErrorsList;
+		}
+
+		//nếu không tìm thấy hoặc tài khoản bên gửi không thuộc loại thanh toán
+		if (!foundAccount || foundAccount.accountType !== 0) {
+			ErrorsList.push(errorListTransfer.SELF_NOT_EXISTS);
+			return ErrorsList;
+		}
+
+		//nếu tài khoản bên gửi đang bị khóa (1 là OK, 0 closed, 2là locked)
+		if (foundAccount.status !== 1) {
+			ErrorsList.push(errorListTransfer.SELF_LOCKED);
+			return ErrorsList;
+		}
+
+		if (foundAccount.currencyType !== 'VND') {
+			//đổi toàn bộ tiền gửi dạng USD(money) sang tiền VND(tempMoney)
+			var tempMoney = await exchange_currencyService.exchangeMoney(money, foundAccount.currencyType);
+
+			//nếu mệnh giá < 20k
+			if (parseFloat(tempMoney) < 20000) {
+				ErrorsList.push(errorListTransfer.REQUIRE_MINIMUM);
+				return ErrorsList;
+			}
+			//kiểm tra giới hạn đơn vị giao dịch...
+			const checkLimit = await account_logService.checkAccountOverLimitTransfer(
+				foundAccount,
+				money,
+				foundAccount.currencyType
+			);
+			if (checkLimit === 'transfer') {
+				ErrorsList.push(errorListTransfer.LIMIT_TRANSFER);
+				return ErrorsList;
+			} else if (checkLimit === 'day') {
+				ErrorsList.push(errorListTransfer.LIMIT_DAY);
+				return ErrorsList;
+			} else if (checkLimit === 'month') {
+				ErrorsList.push(errorListTransfer.LIMIT_MONTH);
+				return ErrorsList;
+			}
+		} else {
+			//nếu bên gửi xài đơn vị VND thì khỏi đổi về TẠM THỜI
+			if (parseFloat(money) < 20000) {
+				ErrorsList.push(errorListTransfer.REQUIRE_MINIMUM);
+				return ErrorsList;
+			}
+			//kiểm tra giới hạn đơn vị giao dịch...
+			const checkLimit = await account_logService.checkAccountOverLimitTransfer(
+				foundAccount,
+				money,
+				foundAccount.currencyType
+			);
+			if (checkLimit === 'transfer') {
+				ErrorsList.push(errorListTransfer.LIMIT_TRANSFER);
+				return ErrorsList;
+			} else if (checkLimit === 'day') {
+				ErrorsList.push(errorListTransfer.LIMIT_DAY);
+				return ErrorsList;
+			} else if (checkLimit === 'month') {
+				ErrorsList.push(errorListTransfer.LIMIT_MONTH);
+				return ErrorsList;
+			}
+		}
+
+		//xác thực verifyCode...
+		const checkingUser = await User.activeVerifyCode(request.verifyCode);
+
+		if (!checkingUser) {
+			ErrorsList.push(userTransferErrors.VERIFYCODE_INVALID);
+			return ErrorsList;
+		}
+
+		//Nếu thằng đang đăng nhập không sở hữu tài khoản bên gửi thì xóa mã verify rồi cút nó ra
+		if (checkingUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
+			ErrorsList.push(errorListTransfer.NOT_BELONG);
+			return ErrorsList;
+		}
+
+		var newFee = new Decimal(0.0);
+		if (foundAccount.currencyType !== 'VND') {
+			//đổi toàn bộ tiền gửi USD(money) sang tiền VND(tempMoney) để tính chi phí, vì bảng phí ta để theo VND
+			var tempMoney = await exchange_currencyService.exchangeMoney(money, foundAccount.currencyType);
+			//tính chi phí theo VND
+			newFee = await fee_paymentService.getTransferFee(tempMoney, 1);
+		} else {
+			newFee = await fee_paymentService.getTransferFee(money, 1);
+		}
+
+		//vì phí tính theo VND, để tính toán +- vào tài khoản xài USD thì phải chuyển về USD (TH1 và TH2)
+		if (foundAccount.currencyType !== 'VND') {
+			newFee = await exchange_currencyService.exchangeMoney(newFee, 'VND');
+		}
+
+		//tổng tiền tiêu hao bên gửi (sẽ trừ cái này nếu chuyển thành công)
+		//nếu tài khoản bên gửi VND: thì tổng = value(VND)+fee(VND)
+		//nếu tài khoản bên gửi USD: thì tổng = value(USD)+fee(USD)
+		var totalConsumeMoney = new Decimal(newFee).plus(money);
+		if (parseFloat(totalConsumeMoney) > parseFloat(foundAccount.balance)) {
+			ErrorsList.push(errorListTransfer.NOT_ENOUGH);
+			return ErrorsList;
+		}
+
+		requestService.post(
+			{
+				headers: { clientid: foundBank.dataValues.clientId, secretkey: foundBank.dataValues.secretKey },
+				url: foundBank.dataValues.URL,
+				form: {
+					accountId: request.accountId,
+					requestAccountId: request.requestAccountId,
+					bankId: 'wfb',
+					bankSecretKey: '12345',
+					money: request.money,
+					currency: foundAccount.currencyType,
+					message: message
+				}
+			},
+			function(err, response, body) {
+				const result = body;``
+				if (result == '4') {
+				}
+				console.log(result);
+			}
+		);
+
+		return null;
+	}
 
 	//hàm lắng nghe chuyển khoản liên ngân hàng (nhận CK liên ngân hàng)
 	static async listenExternal(request) {
@@ -1743,6 +1895,16 @@ class User extends Model {
 						response.attachments
 					);
 				}
+			);
+
+			await account_logService.pushAccountLog_transfer(
+				'ARG',
+				request.requestAccountId,
+				request.accountId,
+				request.money,
+				request.currency,
+				message,
+				1
 			);
 		}
 

@@ -39,4 +39,8 @@ router.post('/getlog', controller.postGetLog);
 router.get('/getbanklist', controller.getGetBankList);
 router.post('/getbanklist', controller.postGetBankList);
 
+//chuyển khoản liên ngân hàng
+router.get('/transferexternal', controller.getTransferExternal);
+router.post('/transferexternal', validateHelper.validateTransfer(), controller.postTransferExternal);
+
 module.exports = router;

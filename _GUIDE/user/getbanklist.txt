@@ -10,3 +10,14 @@ params: không
 điều kiện: đã login, đã xác nhận email, dẵ kích hoạt CMND
 
 response mẫu
+
+{
+    "count": 1,
+    "list": [
+        {
+            "id": 1,
+            "bankId": "ARG",
+            "bankFullName": "Payyed"
+        }
+    ]
+}

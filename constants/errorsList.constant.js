@@ -108,6 +108,11 @@ module.exports.accountErrorsConstant = {
 	ACCOUNT_NOT_FOUND: {
 		code: 'ACCOUNT_NOT_FOUND',
 		message: 'AccountId not exist'
+	},
+
+	BANK_NOT_FOUND: {
+		code: 'BANK_NOT_FOUND',
+		message: 'BankId not exist in bank list'
 	}
 };
 
