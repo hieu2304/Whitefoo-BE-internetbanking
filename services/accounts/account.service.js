@@ -34,33 +34,21 @@ class account extends Model {
 		//dùng từ getter để được định dạng
 		result.openedDate = foundAccount.openedDate;
 		result.closedDate = foundAccount.closedDate;
+		result.createdAt = moment(result.createdAt).format('DD/MM/YYYY hh:mm:ss');
+		result.updatedAt = moment(result.updatedAt).format('DD/MM/YYYY hh:mm:ss');
+
+		if (result.openedDate === 'Invalid date') result.openedDate = '';
+		if (result.closedDate === 'Invalid date') result.closedDate = '';
 
 		return result;
 	}
 	static async getAccountUsingExclude(accountId) {
-		const foundAccount = await account.findOne({
-			where: {
-				accountId: accountId
-			},
-			attributes: {
-				exclude: [ 'createdAt', 'updatedAt', 'closedDate', 'id' ]
-			}
-		});
-		if (!foundAccount) return null;
+		const foundAccount = await account.getAccountNoneExclude(accountId);
 
-		const result = foundAccount.dataValues;
-		// 0: payment, 1: accumulated
-		//nếu đây là TK TK, thì thêm fields của TK TK
-		if (foundAccount.accountType == 1) {
-			const moreFields = await account_accumulatedService.getAccountAccumulatedById(result.accountId);
+		if (foundAccount.createdAt) delete foundAccount.createdAt;
+		if (foundAccount.updatedAt) delete foundAccount.updatedAt;
 
-			result.term = moreFields.dataValues.term;
-			result.startTermDate = moreFields.startTermDate;
-		}
-		//dùng từ getter để được định dạng
-		result.openedDate = foundAccount.openedDate;
-
-		return result;
+		return foundAccount;
 	}
 
 	//hàm chỉ trả ra list account trong array ['1234','456'...]

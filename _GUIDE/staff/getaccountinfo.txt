@@ -2,7 +2,7 @@ mô tả: nhân viên biết STK của 1 user và muốn bấm vào xem thông t
 
 
 /api/getaccountinfo
-method: POST
+method: POST hoặc GET
 
 params:
 accountId:741699937737173 (xem accountId ở bảng account, lúc request có thể ghi tắt là id, nhưng bản chất là accountId)
@@ -19,7 +19,7 @@ response:
     "currencyType": "VND",
     "accountType": 0,
     "openedDate": "18/07/2020",
-    "closedDate": "Invalid date",
+    "closedDate": "",
     "createdAt": "2020-07-18T08:28:33.050Z",
     "updatedAt": "2020-07-18T08:28:33.050Z"
 }
