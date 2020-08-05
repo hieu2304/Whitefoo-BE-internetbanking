@@ -143,9 +143,9 @@ class account extends Model {
 
 	//hàm hỗ trợ cho hàm tạo STK
 	static async getUniqueRandomAccountId() {
-		var randomAccountId = randomHelper.getRandomNumber(15);
+		var randomAccountId = randomHelper.getRandomNumber(9);
 		while (await account.checkIfExistAccountId(randomAccountId)) {
-			randomAccountId = randomHelper.getRandomNumber(15);
+			randomAccountId = randomHelper.getRandomNumber(9);
 		}
 		return randomAccountId;
 	}
