@@ -11,6 +11,7 @@ const whiteListService = require('../partner/whitelist.service');
 
 // https://github.com/MikeMcl/decimal.js/
 const Decimal = require('decimal.js');
+const { where } = require('sequelize');
 
 class account extends Model {
 	//hàm lấy thông tin STK ra theo accountId
@@ -256,11 +257,16 @@ class account extends Model {
 
 		//nếu tài khoản đi bị khóa, update lại thành mở, update ngày đóng + mở lại
 		if (theChosenAccount.status != 1) {
-			await account.update({
-				status: 1,
-				openedDate: new moment(),
-				closedDate: null
-			});
+			await account.update(
+				{
+					status: 1,
+					openedDate: new moment(),
+					closedDate: null
+				},
+				{
+					where: { accountId: accountId }
+				}
+			);
 		}
 
 		await account.update(
@@ -275,7 +281,7 @@ class account extends Model {
 		return null;
 	}
 
-	static async updateAccount(request, currentUser) {
+	static async updateAccount(request) {
 		//lấy accountId ra
 		const accountId = typeof request.accountId !== 'undefined' ? request.accountId : request.id;
 		if (!accountId) return null;
@@ -331,9 +337,9 @@ class account extends Model {
 				where: { accountId: accountId }
 			}
 		);
-		// push xuống log
+
 		if (result) {
-			return { result, newStatus };
+			return theChosenAccount;
 		}
 		return null;
 	}

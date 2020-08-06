@@ -42,6 +42,10 @@ class audit_log extends Model {
 			actionArr = [ 'add balance' ];
 		} else if (type === 'createaccount') {
 			actionArr = [ 'create account' ];
+		} else if (type === 'edituser') {
+			actionArr = [ 'edit user' ];
+		} else if (type === 'editaccount') {
+			actionArr = [ 'edit account' ];
 		}
 
 		if (byUserInternal !== 'all' && internalUserIdArr.includes(byUserInternal.toString())) {
@@ -67,6 +71,20 @@ class audit_log extends Model {
 		return result;
 	}
 
+	static async pushAuditLog_EditAccount(internalUser, user, accountId) {
+		var filterAction = 'edit account';
+		var action = 'chỉnh sửa STK ' + accountId;
+
+		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
+	}
+
+	static async pushAuditLog_EditUser(internalUser, user) {
+		var filterAction = 'edit user';
+		var action = 'chỉnh sửa thông tin';
+
+		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
+	}
+
 	static async pushAuditLog_ApproveIdCard(internalUser, user, approveStatus) {
 		var filterAction = 'approve idCard';
 		var action = 'Duyệt CMND/CCCD';
@@ -87,7 +105,7 @@ class audit_log extends Model {
 
 	static async pushAuditLog_AddBalance(internalUser, user, addedBalance, currencyType, accountId) {
 		var filterAction = 'add balance';
-		var action = 'STK ' + accountId + ', + ' + addedBalance + ' ' + currencyType;
+		var action = 'Nạp tiền ' + addedBalance + ' ' + currencyType + ' vào STK ' + accountId;
 
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
@@ -103,10 +121,10 @@ class audit_log extends Model {
 		const fullName_a = internalUser.firstName + ' ' + internalUser.lastName;
 		const fullName_b = user.firstName + ' ' + user.lastName;
 
-		newDetail.id_a = id_a;
-		newDetail.id_b = id_b;
-		newDetail.fullName_a = fullName_a;
-		newDetail.fullName_b = fullName_b;
+		newDetail.id_user = id_a;
+		newDetail.id_target = id_b;
+		newDetail.fullName_user = fullName_a;
+		newDetail.fullName_target = fullName_b;
 		newDetail.date = newDate;
 		newDetail.time = newTime;
 		newDetail.action = action;

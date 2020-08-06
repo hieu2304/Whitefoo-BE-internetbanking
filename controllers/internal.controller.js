@@ -111,7 +111,7 @@ module.exports.postUpdateAccount = asyncHandler(async function(req, res, next) {
 		return res.status(401).send({ message: 'Invalid Token' });
 	}
 
-	const result = await accountService.updateAccount(req.body, currentUser);
+	const result = await userService.updateAccountInfo(req.body, currentUser);
 
 	if (!result) return res.status(400).send({ message: 'failed' });
 	return res.status(200).send({ message: 'OK' });

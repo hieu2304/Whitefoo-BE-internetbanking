@@ -589,3 +589,113 @@ module.exports.approvedCitizenIdMessage = function(lastName, firstName, citizenI
 		return callback({ content, html, attachments });
 	});
 };
+
+//tin nhắn khi bị chỉnh sửa STK
+module.exports.editAccountMessage = function(
+	lastName,
+	firstName,
+	accountId,
+	lastName_staff,
+	firstName_staff,
+	email_staff,
+	callback
+) {
+	const content =
+		'Chỉnh sửa số tài khoản ' +
+		accountId +
+		', bởi nhân viên ' +
+		firstName_staff +
+		' ' +
+		lastName_staff +
+		'(Email: ' +
+		email_staff +
+		').';
+
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
+
+		html = html.replace('{Re_Image}', 'main');
+		html = html.replace('{Re_Title}', 'Chỉnh sửa số tài khoản');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_FirstName} {Re_LastName}, Số tài khoản thuộc sở hữu của bạn đã được chỉnh sửa thông tin bởi nhân viên, chi tiết:'
+		);
+
+		html = html.replace(
+			'{Re_Content_2}',
+			'Số tài khoản: ' +
+				accountId +
+				'<br>' +
+				'Họ và tên nhân viên thực hiện: ' +
+				firstName_staff +
+				' ' +
+				lastName_staff +
+				'<br>' +
+				'Email nhân viên: ' +
+				email_staff +
+				'<br>Nếu số tài khoản của bạn bị chỉnh sửa ngoài ý muốn, hãy liên hệ ngay với nhân viên của ngân hàng WhiteFoo!'
+		);
+
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
+
+		//replace all constant URL
+		html = replaceConstantURL(html);
+
+		const attachments = getAttachments.mainImageAttachments;
+
+		return callback({ content, html, attachments });
+	});
+};
+
+//tin nhắn khi bị chỉnh sửa thông tin cá nhân
+module.exports.editUserMessage = function(lastName, firstName, lastName_staff, firstName_staff, email_staff, callback) {
+	const content =
+		'Thay đổi thông tin cá nhân' +
+		', bởi nhân viên ' +
+		firstName_staff +
+		' ' +
+		lastName_staff +
+		'(Email: ' +
+		email_staff +
+		').';
+
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
+
+		html = html.replace('{Re_Image}', 'main');
+		html = html.replace('{Re_Title}', 'Thay đổi thông tin cá nhân');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_FirstName} {Re_LastName}, thông tin cá nhân của bạn đã được thay đổi bởi nhân viên:'
+		);
+
+		html = html.replace(
+			'{Re_Content_2}',
+			'Họ và tên nhân viên thực hiện: ' +
+				firstName_staff +
+				' ' +
+				lastName_staff +
+				'<br>' +
+				'Email nhân viên: ' +
+				email_staff +
+				'<br>Nếu thông tin cá nhân của bạn bị chỉnh sửa ngoài ý muốn, hãy liên hệ ngay với nhân viên của ngân hàng WhiteFoo!'
+		);
+
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
+
+		//replace all constant URL
+		html = replaceConstantURL(html);
+
+		const attachments = getAttachments.mainImageAttachments;
+
+		return callback({ content, html, attachments });
+	});
+};

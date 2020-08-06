@@ -1288,8 +1288,57 @@ class User extends Model {
 			}
 		);
 
+		await audit_logService.pushAuditLog_EditUser(currentUser, user);
+
 		//send email ở đây
+		makeMessageHelper.editUserMessage(
+			user.lastName,
+			user.firstName,
+			currentUser.lastName,
+			currentUser.firstName,
+			currentUser.email,
+			function(response) {
+				emailHelper.send(
+					user.email,
+					'Thay đổi thông tin cá nhân',
+					response.content,
+					response.html,
+					response.attachments
+				);
+			}
+		);
+
 		return null;
+	}
+
+	//nhân viên update account người dùng
+	static async updateAccountInfo(request, currentUser) {
+		const result = await accountService.updateAccount(request);
+
+		if (result) {
+			const foundUser = await User.findUserByPKNoneExclude(result.userId);
+			await audit_logService.pushAuditLog_EditAccount(currentUser, foundUser, result.accountId);
+
+			makeMessageHelper.editAccountMessage(
+				foundUser.lastName,
+				foundUser.firstName,
+				result.accountId,
+				currentUser.lastName,
+				currentUser.firstName,
+				currentUser.email,
+				function(response) {
+					emailHelper.send(
+						foundUser.email,
+						'Chinh sửa số tài khoản',
+						response.content,
+						response.html,
+						response.attachments
+					);
+				}
+			);
+		}
+
+		return result;
 	}
 
 	//nhân viên nạp tiền cho người dùng
@@ -1727,11 +1776,11 @@ class User extends Model {
 			return res.status(400).send(ErrorsList);
 		}
 
-		//không cho phép tài khoản gửi và nhận là 1
-		if (requestAccountId === accountId) {
-			ErrorsList.push(errorListTransfer.SELF_DETECT);
-			return res.status(400).send(ErrorsList);
-		}
+		// cho phép tài khoản gửi và nhận là 1 vì khác ngân hàng mà
+		// if (requestAccountId === accountId) {
+		// 	ErrorsList.push(errorListTransfer.SELF_DETECT);
+		// 	return res.status(400).send(ErrorsList);
+		// }
 
 		//nếu không tìm thấy hoặc tài khoản bên gửi không thuộc loại thanh toán
 		if (!foundAccount || foundAccount.accountType !== 0) {

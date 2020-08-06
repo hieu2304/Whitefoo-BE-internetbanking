@@ -16,6 +16,10 @@ mô tả:
 
         * createaccount: xem log tạo STK
 
+        * edituser: log loại NV sửa ng dùng
+
+        * editaccount: log NV chỉnh sửa tài khoản
+
     + by: lọc theo tiêu chí thực hiện bởi nhân viên nào:
 
         * id: theo tiêu chí người thực thi là Nhân viên có id nào đó
