@@ -23,7 +23,14 @@ class audit_log extends Model {
 
 		//các tiêu chí lọc mặc định
 		//action mặc định là tất cả
-		var actionArr = [ 'denied idCard', 'approve idCard', 'create account', 'add balance' ];
+		var actionArr = [
+			'denied idCard',
+			'approve idCard',
+			'create account',
+			'add balance',
+			'edit user',
+			'edit account'
+		];
 
 		//by staff mặc định là toàn bộ staff
 		var internalUserIdArr = [];
