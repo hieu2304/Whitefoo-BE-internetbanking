@@ -1,0 +1,45 @@
+mô tả:
+- tính lãi dự kiến của 1 tài khoản tiết kiệm
+(tài khoản sử dụng VND thì trả ra theo VND, tài khoản sử dụng USD thì trả ra theo USD)
+
+/api/profit
+
+method: POST và GET
+
+
+params:
+
+accountId: số TK muốn rút tiền
+
+ví dụ:
+request: (tài khoản xài VND,có số dư là 500000, đã gửi 120 ngày, kỳ hạn đăng ký 12 thág)
+    accountId: 0058094838219061
+
+response:
+    {
+        "accountId": "005809483821906",
+        "term": 12,
+        "daysPassed": 30,
+        "quarterYearPassed": 1,
+        "termsPassed": 0,
+        "totalDaysPassed": 120,
+        "profit": "6979.1666666666666665"
+    }
+
+
+  
+ request: (tài khoản xài USD, có số dư là 25, đã gửi 120 ngày, kỳ hạn đăng ký 12 thág)
+    accountId:12345
+    money:50
+    transferType:1
+
+ response:
+    {
+        "accountId": "005809483821906",
+        "term": 12,
+        "daysPassed": 30,
+        "quarterYearPassed": 1,
+        "termsPassed": 0,
+        "totalDaysPassed": 120,
+        "profit": "0.34895833333333333333"
+    }

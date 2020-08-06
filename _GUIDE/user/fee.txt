@@ -1,0 +1,37 @@
+mô tả:
+- tính phí dự kiến khi chuyển khoản
+(tài khoản sử dụng VND thì trả ra theo VND, tài khoản sử dụng USD thì trả ra theo USD)
+
+/api/fee
+
+method: POST và GET
+
+
+params:
+
+accountId: số TK bên chuyển đi
+money: giá trị muốn chuyển
+transferType: loại chuyển (0 là liên ngân hàng, 1 là nội bộ, nếu bỏ trống thì default là 1)
+
+ví dụ:
+ request: (tài khoản xài VND)
+    accountId: 12345
+    money: 1150000 (khoảng 50$)
+    transferType: 1
+
+ response:
+    {
+    "fee": "5000"
+    }
+
+
+  
+ request: (tài khoản xài USD)
+    accountId:12345
+    money:50
+    transferType:1
+
+ response:
+    {
+    "fee": "0.21602564656476015"
+    }

@@ -8,6 +8,7 @@ const moment = require('moment');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 const errorListConstant = require('../../constants/errorsList.constant');
 const whiteListService = require('../partner/whitelist.service');
+const fee_paymentService = require('../accounts/fee_payment.service');
 
 // https://github.com/MikeMcl/decimal.js/
 const Decimal = require('decimal.js');
@@ -401,14 +402,43 @@ class account extends Model {
 		}
 	}
 
+	//hàm tính phí khi chuyển khoản (nhận usd -> trả USD, nhận VND -> trả VND)
+	static async feeCalculateForPayment(accountId, money, transferType) {
+		var transferTypeDefault = transferType || 1;
+		var totalMoney = new Decimal(money);
+		var fee = new Decimal(0.0);
+		const foundAccount = await account.findOne({
+			where: {
+				accountId: accountId,
+				accountType: 0 //0 is payment
+			}
+		});
+		if (!foundAccount) return fee;
+
+		//nếu tài khoản xài khác đơn vị VND thì chuyển sang VND để tính phí (bảng  phí theo VND)
+		if (foundAccount.currencyType !== 'VND') {
+			totalMoney = await exchange_currencyService.exchangeMoney(totalMoney, 'USD');
+		}
+
+		fee = await fee_paymentService.getTransferFee(totalMoney, transferTypeDefault);
+
+		//nếu tài khoản xài khác đơn vị VND, thì cái phí trên là theo VND, chuyển về USD
+		if (foundAccount.currencyType !== 'VND') {
+			fee = await exchange_currencyService.exchangeMoney(fee, 'VND');
+		}
+
+		return fee;
+	}
+
 	//hàm tính tiền lãi, sẽ gọi thêm bên accumulated
 	static async profitCalculateForAccumulated(request) {
 		const foundAccount = await account.findOne({
 			where: {
-				accountId: request.accountId
+				accountId: request.accountId,
+				accountType: 1 //1 is accumulated
 			}
 		});
-		if (!foundAccount) return 'ko thay';
+		if (!foundAccount) return { profit: '0' };
 		const result = await account_accumulatedService.profitCalculate(foundAccount);
 		return result;
 	}

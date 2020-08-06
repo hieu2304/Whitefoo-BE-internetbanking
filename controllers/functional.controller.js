@@ -2,6 +2,7 @@ const userService = require('../services/users/user.service');
 const asyncHandler = require('express-async-handler');
 const validateHelper = require('../helpers/validate.helper');
 const jwtHelper = require('../helpers/jwt.helper');
+const accountService = require('../services/accounts/account.service');
 const whitelistService = require('../services/partner/whitelist.service');
 
 module.exports.testFunctional = function(req, res, next) {
@@ -154,4 +155,34 @@ module.exports.postTransferExternal = asyncHandler(async function(req, res, next
 	}
 
 	await userService.transferExternalStepTwo(req.body, currentUser, res);
+});
+
+//lãi dự tính của tài khoản tiết kiệm
+module.exports.postGetProfit = asyncHandler(async function(req, res, next) {
+	const result = await accountService.profitCalculateForAccumulated(req.body);
+	return res.status(200).send(result);
+});
+module.exports.getGetProfit = asyncHandler(async function(req, res, next) {
+	const result = await accountService.profitCalculateForAccumulated(req.query);
+	return res.status(200).send(result);
+});
+
+//tính phí dự kiến của tài khoản thanh toán khi chuyển khoản
+module.exports.getGetFee = asyncHandler(async function(req, res, next) {
+	const result = await accountService.feeCalculateForPayment(
+		req.query.accountId,
+		req.query.money,
+		req.query.transferType
+	);
+
+	return res.status(200).send({ fee: result });
+});
+module.exports.postGetFee = asyncHandler(async function(req, res, next) {
+	const result = await accountService.feeCalculateForPayment(
+		req.body.accountId,
+		req.body.money,
+		req.body.transferType
+	);
+
+	return res.status(200).send({ fee: result });
 });

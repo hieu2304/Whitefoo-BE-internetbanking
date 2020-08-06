@@ -4,6 +4,7 @@ const initConstant = require('../../constants/init.constants');
 const Model = Sequelize.Model;
 const Decimal = require('decimal.js');
 class fee_payment extends Model {
+	//tính lãi khi chuyển khoản, 0 là liên ngân hàng, 1 là nội bộ
 	static async getTransferFee(value, transferType) {
 		const list = await fee_payment.findAll({
 			where: {

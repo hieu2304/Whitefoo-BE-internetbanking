@@ -43,4 +43,12 @@ router.post('/getbanklist', controller.postGetBankList);
 router.get('/transferexternal', controller.getTransferExternal);
 router.post('/transferexternal', validateHelper.validateTransfer(), controller.postTransferExternal);
 
+//tính lãi dự kiến của tài khoản tiết kiệm
+router.get('/profit', controller.getGetProfit);
+router.post('/profit', controller.postGetProfit);
+
+//tính phí chuyển khoản dự kiến
+router.get('/fee', controller.getGetFee);
+router.post('/fee', controller.postGetFee);
+
 module.exports = router;
