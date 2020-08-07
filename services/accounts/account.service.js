@@ -12,7 +12,6 @@ const fee_paymentService = require('../accounts/fee_payment.service');
 
 // https://github.com/MikeMcl/decimal.js/
 const Decimal = require('decimal.js');
-const { where } = require('sequelize');
 
 class account extends Model {
 	//hàm lấy thông tin STK ra theo accountId
@@ -36,8 +35,8 @@ class account extends Model {
 		//dùng từ getter để được định dạng
 		result.openedDate = foundAccount.openedDate;
 		result.closedDate = foundAccount.closedDate;
-		result.createdAt = moment(result.createdAt).format('DD/MM/YYYY hh:mm:ss');
-		result.updatedAt = moment(result.updatedAt).format('DD/MM/YYYY hh:mm:ss');
+		result.createdAt = moment(result.createdAt).format('DD/MM/YYYY HH:mm:ss');
+		result.updatedAt = moment(result.updatedAt).format('DD/MM/YYYY HH:mm:ss');
 
 		if (result.openedDate === 'Invalid date') result.openedDate = '';
 		if (result.closedDate === 'Invalid date') result.closedDate = '';

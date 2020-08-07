@@ -105,7 +105,7 @@ module.exports.getGetAccount = asyncHandler(async function(req, res, next) {
 	return res.status(200).send(result);
 });
 
-//get history activities of account
+//lấy lịch sử của các tài khoản của chính mình
 module.exports.getGetLog = asyncHandler(async function(req, res, next) {
 	currentUser = jwtHelper.decodeToken(req.headers['token']);
 	if (!currentUser) {

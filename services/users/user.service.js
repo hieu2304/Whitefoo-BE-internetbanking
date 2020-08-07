@@ -39,7 +39,7 @@ class User extends Model {
 			result.citizenIdentificationId = '';
 		}
 
-		result.createdAt = moment(user.createdAt).format('DD/MM/YYYY hh:mm:ss');
+		result.createdAt = moment(user.createdAt).format('DD/MM/YYYY HH:mm:ss');
 		return result;
 	}
 	static async findUserByPKUsingExclude(id) {
@@ -81,7 +81,7 @@ class User extends Model {
 			result.citizenIdentificationId = '';
 		}
 
-		result.createdAt = moment(user.createdAt).format('DD/MM/YYYY hh:mm:ss');
+		result.createdAt = moment(user.createdAt).format('DD/MM/YYYY HH:mm:ss');
 
 		return result;
 	}
@@ -426,12 +426,48 @@ class User extends Model {
 
 	//get history activies account log
 	static async getLogByUser(currentUser, request) {
-		return [];
+		const accountArr = await accountService.getAccountIdArrayByUserId(currentUser.id);
+		const listTotal = await account_logService.getAccountLogByAccountIdArr(
+			accountArr,
+			request.type,
+			request.fromDate,
+			request.toDate,
+			request.start,
+			request.limit
+		);
+		const list = [];
+
+		for (var i = 0; i < listTotal.rows.length; i++) {
+			list.push(JSON.parse(listTotal.rows[i].description));
+			list[i].id = listTotal.rows[i].id;
+		}
+
+		return { count: listTotal.count, list };
 	}
 
 	//get history activies account log by staff
 	static async getUserLogByStaff(request) {
-		return [];
+		const accountArr = [];
+		if (!request.accountId) return { count: 0, list: [] };
+
+		accountArr.push(request.accountId);
+		const listTotal = await account_logService.getAccountLogByAccountIdArr(
+			accountArr,
+			request.type,
+			request.fromDate,
+			request.toDate,
+			request.start,
+			request.limit
+		);
+
+		const list = [];
+
+		for (var i = 0; i < listTotal.rows.length; i++) {
+			list.push(JSON.parse(listTotal.rows[i].description));
+			list[i].id = listTotal.rows[i].id;
+		}
+
+		return { count: listTotal.count, list };
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -656,7 +692,7 @@ class User extends Model {
 			firstName: request.firstName,
 			//ép sang dạng của Postgre là MM/DD/YYYY, DB của postgre ko chứa DD/MM/YYYY
 			//đừng lo vì DB đã có hàm format sẵn khi lấy ra
-			dateOfBirth: moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss'),
+			dateOfBirth: moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss'),
 			phoneNumber: request.phoneNumber,
 			username: request.username,
 			address: request.address,
@@ -1005,10 +1041,10 @@ class User extends Model {
 		var newDateOfBirth = request.dateOfBirth;
 		if (!newDateOfBirth) {
 			newDateOfBirth = user.dateOfBirth;
-			newDateOfBirth = moment(newDateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+			newDateOfBirth = moment(newDateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
 		} else {
 			//chỉ format khi và chỉ khi khác data cũ, hạn chế xài format tránh lỗi
-			newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+			newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
 		}
 
 		//tiếp đến là các thông tin quan trọng: username, email, phoneNumber...
@@ -1190,10 +1226,10 @@ class User extends Model {
 		var newDateOfBirth = request.dateOfBirth;
 		if (!newDateOfBirth) {
 			newDateOfBirth = user.dateOfBirth;
-			newDateOfBirth = moment(newDateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+			newDateOfBirth = moment(newDateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
 		} else {
 			//chỉ format khi và chỉ khi khác data cũ, hạn chế xài format tránh lỗi
-			newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+			newDateOfBirth = moment(request.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
 		}
 
 		var newEmail = request.email;
@@ -1973,7 +2009,7 @@ class User extends Model {
 			);
 
 			await account_logService.pushAccountLog_transfer(
-				'ARG',
+				request.bankId,
 				request.requestAccountId,
 				request.accountId,
 				request.money,
@@ -2084,7 +2120,7 @@ User.init(
 			type: Sequelize.DATEONLY,
 			//định dạng khi lấy dữ liệu ra, sẽ tự format thành Ngày/tháng/năm
 			//vì postgre mặc định sẽ trả ra dạng YYYY-MM-DD
-			//postgre khi input date chỉ nhận 2 dạng: YYYY-MM-DD hh:mm:ss và MM-DD-YYYY hh:mm:ss (dấu - hoặc /)
+			//postgre khi input date chỉ nhận 2 dạng: YYYY-MM-DD HH:mm:ss và MM-DD-YYYY HH:mm:ss (dấu - hoặc /)
 			//nếu muốn data lấy ra đã được getter định dạng thì ko dùng .dataValues
 			get: function() {
 				return moment.utc(this.getDataValue('dateOfBirth')).format('DD/MM/YYYY');

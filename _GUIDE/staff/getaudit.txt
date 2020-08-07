@@ -43,7 +43,7 @@ id_b: ID của người dùng
 fullName_b: tên của người dùng
 action: hành độg nhân viên đã thực thi (duyệt CMND, từ chối CMND, update thông tin user...)
 date (DD/MM/YYYY)
-time (hh:mm:ss)
+time (HH:mm:ss)
 
 
 

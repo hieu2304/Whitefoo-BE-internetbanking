@@ -32,7 +32,7 @@ system_log.init(
 			allowNull: false,
 			defaultValue: new Date(),
 			get: function() {
-				return moment.utc(this.getDataValue('time')).format('DD/MM/YYYY hh:mm:ss');
+				return moment.utc(this.getDataValue('time')).format('DD/MM/YYYY HH:mm:ss');
 			}
 		},
 		action: {

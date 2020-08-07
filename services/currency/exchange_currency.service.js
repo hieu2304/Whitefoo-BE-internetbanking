@@ -94,7 +94,7 @@ class exchange_currency extends Model {
 		);
 
 		console.log(
-			'\nServer updated exchange rate USD and VND at ' + moment(new Date()).format('DD/MM/YYYY hh:mm:ss')
+			'\nServer updated exchange rate USD and VND at ' + moment(new Date()).format('DD/MM/YYYY HH:mm:ss')
 		);
 		console.log('Current rate: 1 USD = ' + USDtoVND_rate + ' VND\n');
 	}

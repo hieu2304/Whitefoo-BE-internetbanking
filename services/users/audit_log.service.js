@@ -121,7 +121,7 @@ class audit_log extends Model {
 		const newDetail = {};
 		const theTimeTotal = new moment();
 		const newDate = moment(theTimeTotal).format('DD/MM/YYYY');
-		const newTime = moment(theTimeTotal).format('hh:mm:ss');
+		const newTime = moment(theTimeTotal).format('HH:mm:ss');
 
 		const id_a = internalUser.id;
 		const id_b = user.id;
@@ -160,7 +160,7 @@ audit_log.init(
 			allowNull: false,
 			defaultValue: new Date(),
 			get: function() {
-				return moment.utc(this.getDataValue('time')).format('DD/MM/YYYY hh:mm:ss');
+				return moment.utc(this.getDataValue('time')).format('DD/MM/YYYY HH:mm:ss');
 			}
 		},
 		action: {

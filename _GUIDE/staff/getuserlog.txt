@@ -1,7 +1,10 @@
 mô tả:
-+ get toàn log toàn bộ STK của toàn bộ user, xếp theo thgian gần nhất, lọc theo tiêu chí:
-    * mã giao dịch nào
-    * loại hoạt động(chuyển khoản, rút tiền, nhận tiền...)
++ get toàn log lịch sử toàn bộ của 1 STK, xếp theo thgian gần nhất, lọc theo tiêu chí:
+
+    * accountId: STK muốn xem (truyền tuyệt đối, STK là 123 thì truyền 123)
+    * type: lọc loại hoạt động(chuyển khoản, rút tiền, nạp tiền), mặc định trả ra toàn bộ
+    * fromDate  (DD/MM/YYYY)
+    * toDate    (DD/MM/YYYY)
     * có start và limit
 
 /api/getuserlog
@@ -9,11 +12,15 @@ mô tả:
 method: GET hoặc POST
 
 params:
-type:lọc theo tiêu chí:
-    + transfer: liên quan chuyển khoản
-    + withdraw: liên quan rút tiền
-    + loadup: liên quan nạp tiền
+    accountId: STK cần tra (vd: 12346789)
+    type:lọc theo tiêu chí:
+        + 'transfer': liên quan chuyển khoản
+        + 'withdraw': liên quan rút tiền
+        + 'loadup': liên quan nạp tiền
+    fromDate: từ ngày XYZ (vd: 12/12/2012)  (mặc định là 1/1/2000)
+    toDate: đến ngày ZYX (vd: 30/12/2020) (mặc định là ngày hiện tại)
+    start: 0
+    limit: 5
 
-id: mã giao dịch (truyền vào đúg mã)
 
-start và limit: phân trang
+response:

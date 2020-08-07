@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
+const Op = Sequelize.Op;
 const Model = Sequelize.Model;
 const moment = require('moment');
 const exchange_currencyService = require('../currency/exchange_currency.service');
@@ -7,6 +8,53 @@ const law_paymentService = require('../accounts/law_payment.service');
 const Decimal = require('decimal.js');
 
 class account_log extends Model {
+	//hàm lấy lịch sử giao dịch của danh sách STK (hỡ trợ 2 api getlog)
+	static async getAccountLogByAccountIdArr(accountIdArr, type, fromDateIn, toDateIn, start, limit) {
+		var fromDate = fromDateIn;
+		var toDate = toDateIn;
+		var actionArr = [ 'transfer', 'loadup', 'withdraw' ];
+		if (!limit) {
+			limit = 5;
+		}
+		if (!start) {
+			start = 0;
+		}
+		start = start * limit;
+
+		if (!accountIdArr || accountIdArr.length < 1) return { count: 0, list: [] };
+
+		if (type === 'transfer') actionArr = [ 'transfer' ];
+		else if (type === 'loadup') actionArr = [ 'loadup' ];
+		else if (type === 'withdraw') actionArr = [ 'withdraw' ];
+
+		if (!fromDate) fromDate = '2000-1-1';
+		else {
+			fromDate = fromDate + ' 00:00:01';
+			fromDate = moment(fromDate, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
+		}
+
+		if (!toDate) toDate = moment().format('YYYY-MM-DD');
+		else {
+			toDate = toDate + ' 23:59:58';
+			toDate = moment(toDate, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
+		}
+
+		const result = await account_log.findAndCountAll({
+			where: {
+				[Op.or]: [ { accountIdA: accountIdArr }, { accountIdB: accountIdArr } ],
+				action: actionArr,
+				time: {
+					[Op.between]: [ fromDate, toDate ]
+				}
+			},
+			offset: Number(start),
+			limit: Number(limit),
+			order: [ [ 'createdAt', 'DESC' ] ]
+		});
+
+		return result;
+	}
+
 	//hàm tính tổng giá trị 1 tài khoản đã thanh toán trong 1 ngày, 1 tháng
 	static async sumValueTransfer(accountId) {
 		const listLog = await account_log.findAll({
@@ -67,11 +115,11 @@ class account_log extends Model {
 	//transferBank để biết chuyển nội bộ hay liên ngân hàng
 	static async pushAccountLog_transfer(transferBank, accountIdA, accountIdB, value, currencyType, msg, status) {
 		var filterAction = 'transfer';
-		var action = 'chuyển khoản';
+		var action = 'Chuyển khoản';
 
 		//khác ngân hàng thì điền vào trả cho FE, vd: chuyển khoản (ngân hàng ARG)
 		if (transferBank && transferBank !== '' && transferBank !== 'wfb') {
-			action = 'chuyển khoản (ngân hàng' + transferBank + ')';
+			action = 'Chuyển khoản (ngân hàng ' + transferBank + ')';
 		}
 
 		await account_log.pushAccountLog(
@@ -108,24 +156,17 @@ class account_log extends Model {
 		const newDetail = {}; //description
 		const theTimeTotal = new moment();
 		const newDate = moment(theTimeTotal).format('DD/MM/YYYY');
-		const newTime = moment(theTimeTotal).format('hh:mm:ss');
-
-		// xử lý description
-		const getNewId = await account_log.findOne({
-			order: [ [ 'id', 'DESC' ] ]
-		});
+		const newTime = moment(theTimeTotal).format('HH:mm:ss');
 
 		newDetail.accountIdA = accountIdA;
 		newDetail.accountIdB = accountIdB;
 		newDetail.action = action;
 		newDetail.value = value;
 		newDetail.currencyType = currencyType;
-		newDetail.status = status === 1 ? 'thành công' : 'thất bại';
+		newDetail.status = status === 1 ? 'Thành công' : 'Thất bại';
 		newDetail.message = typeof msg !== 'undefined' ? msg : '';
 		newDetail.date = newDate;
 		newDetail.time = newTime;
-		if (getNewId) newDetail.id = parseInt(getNewId.id) + 1;
-		newDetail.id = 1;
 
 		await account_log.create({
 			accountIdA: accountIdA,

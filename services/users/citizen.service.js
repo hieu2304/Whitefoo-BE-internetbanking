@@ -18,7 +18,7 @@ class citizen extends Model {
 		issueDateUnformatted,
 		newCitizenIdentificationId
 	) {
-		var issueDateFormatted = moment(issueDateUnformatted, 'DD/MM/YYYY').format('YYYY-MM-DD hh:mm:ss');
+		var issueDateFormatted = moment(issueDateUnformatted, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss');
 		if (!moment(issueDateFormatted).isValid()) {
 			issueDateFormatted = moment();
 		}
