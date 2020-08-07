@@ -186,3 +186,25 @@ module.exports.postGetFee = asyncHandler(async function(req, res, next) {
 
 	return res.status(200).send({ fee: result });
 });
+
+//api getarr
+module.exports.getGetArr = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await accountService.getAccountListFilterByType(currentUser.id, req.query.type);
+
+	return res.status(200).send(result);
+});
+module.exports.postGetArr = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await accountService.getAccountListFilterByType(currentUser.id, req.body.type);
+
+	return res.status(200).send(result);
+});

@@ -1,0 +1,15 @@
+mô tả: 
+- user tự get danh sách account của mình, toàn bộ, không phân trang
+- chỉ trả ra theo loại, ko trả ra toàn bộ loại, loại mặc định là chuyển khoản
+- mặc định trả ra nếu  ko truyền type sẽ trả ra tài khoản thanh toán
+
+/api/getarr
+
+
+method: POST và GET đều như nhau
+
+
+params: type
+type :1 là tài khoản tiết kiệm
+type :0 là tài khoản thanh toán (có  thể bỏ trống)
+

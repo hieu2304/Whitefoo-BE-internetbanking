@@ -53,8 +53,26 @@ class account extends Model {
 		return foundAccount;
 	}
 
+	//hàm lấy toàn bộ account của 1 user theo loại account
+	static async getAccountListFilterByType(userId, type) {
+		var accountType = [ 0 ];
+		if (type == 1 || type == '1') accountType = [ 1 ];
+
+		const result = await account.findAll({
+			where: {
+				userId: userId,
+				accountType: accountType
+			},
+			attributes: {
+				exclude: [ 'createdAt', 'updatedAt', 'id', 'accountType', 'openedDate', 'closedDate' ]
+			}
+		});
+
+		return result;
+	}
+
 	//hàm chỉ trả ra list account trong array ['1234','456'...]
-	static async getAccountListIdOnly(userId) {
+	static async getAccountIdArrayByUserId(userId) {
 		const list = await account.findAll({
 			where: {
 				userId: userId

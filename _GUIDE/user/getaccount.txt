@@ -7,7 +7,7 @@ mô tả:
 method: POST và GET đều như nhau
 
 params:
-keyword:số nào đó để search STK
+keyword:số nào đó để search STK (mặc định trả ra all)
 accountType(hoặc type): 0 hoặc 1
 start:0
 limit:5
