@@ -165,3 +165,23 @@ module.exports.postGetUserLog = asyncHandler(async function(req, res, next) {
 	const result = await userService.getUserLogByStaff(req.body);
 	return res.status(200).send(result);
 });
+
+//Nhân viên rút tiền hộ user
+module.exports.getWithdraw = function(req, res, next) {
+	return res.status(200).send({ message: 'OK' });
+};
+module.exports.postWithdraw = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	//gọi hàm withdraw(sẽ gửi mail nếu thành công)
+	const result = await userService.withdrawStepTwo(req.body, currentUser);
+
+	//khác null nghĩa là có lỗi
+	if (result) return res.status(400).json(result);
+
+	//nếu trả về null có nghĩa là ok
+	return res.status(200).send({ message: 'OK' });
+});

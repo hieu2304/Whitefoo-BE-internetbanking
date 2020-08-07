@@ -1038,6 +1038,13 @@ class User extends Model {
 			if (newEnable2fa !== 1 && newEnable2fa !== 0) newEnable2fa = user.enable2fa;
 		}
 
+		var newEnableNoti = request.enableNoti;
+		if (!newEnableNoti) newEnableNoti = user.enableNoti;
+		else {
+			newEnableNoti = parseInt(request.enableNoti);
+			if (newEnableNoti !== 1 && newEnableNoti !== 0) newEnableNoti = user.enableNoti;
+		}
+
 		var newDateOfBirth = request.dateOfBirth;
 		if (!newDateOfBirth) {
 			newDateOfBirth = user.dateOfBirth;
@@ -1112,32 +1119,32 @@ class User extends Model {
 			});
 		}
 
-		//phần mật khẩu: không update logic chung các thông tin khác, chỉ update khi thực sự đổi
-		if (request.currentPassword && request.currentPassword !== '') {
-			//nếu có nhập mk cũ đúng thì mới tiến hành xem xét mk mới
-			const newPassword = request.newPassword;
-			const confirmPassword = request.confirmPassword;
-			if (await User.verifyPassword(request.currentPassword, user.password)) {
-				if (newPassword !== confirmPassword) {
-					errorList.push(updateSelfInfoErrors.PASSWORD_NOT_EQUAL);
-				} else if (newPassword.length < 8) {
-					errorList.push(updateSelfInfoErrors.PASSWORD_TOO_SHORT);
-				} else {
-					await User.update(
-						{
-							password: await User.hashPassword(newPassword)
-						},
-						{
-							where: {
-								id: user.id
-							}
-						}
-					);
-				}
-			} else {
-				errorList.push(updateSelfInfoErrors.WRONG_PASSWORD);
-			}
-		}
+		// //phần mật khẩu: không update logic chung các thông tin khác, chỉ update khi thực sự đổi
+		// if (request.currentPassword && request.currentPassword !== '') {
+		// 	//nếu có nhập mk cũ đúng thì mới tiến hành xem xét mk mới
+		// 	const newPassword = request.newPassword;
+		// 	const confirmPassword = request.confirmPassword;
+		// 	if (await User.verifyPassword(request.currentPassword, user.password)) {
+		// 		if (newPassword !== confirmPassword) {
+		// 			errorList.push(updateSelfInfoErrors.PASSWORD_NOT_EQUAL);
+		// 		} else if (newPassword.length < 8) {
+		// 			errorList.push(updateSelfInfoErrors.PASSWORD_TOO_SHORT);
+		// 		} else {
+		// 			await User.update(
+		// 				{
+		// 					password: await User.hashPassword(newPassword)
+		// 				},
+		// 				{
+		// 					where: {
+		// 						id: user.id
+		// 					}
+		// 				}
+		// 			);
+		// 		}
+		// 	} else {
+		// 		errorList.push(updateSelfInfoErrors.WRONG_PASSWORD);
+		// 	}
+		// }
 
 		if (errorList.length > 0) return errorList;
 
@@ -1148,6 +1155,7 @@ class User extends Model {
 				lastName: newLastName,
 				firstName: newFirstName,
 				enable2fa: newEnable2fa,
+				enableNoti: newEnableNoti, // chỉ nhận 0 và 1
 				dateOfBirth: newDateOfBirth,
 				username: newUsername,
 				phoneNumber: newPhoneNumber,
@@ -1163,7 +1171,7 @@ class User extends Model {
 		return null;
 	}
 
-	//nhân viên update người dùng
+	//nhân viên update thông tin cá nhân người dùng
 	static async updateUserInfo(request, currentUser) {
 		const errorList = [];
 
@@ -1189,14 +1197,6 @@ class User extends Model {
 
 		var newAddress = request.address;
 		if (!newAddress) newAddress = user.address;
-
-		// chỉ nhận 2 trạng thái 0 = login normal 1 = login 2fa
-		var newEnable2fa = request.enable2fa;
-		if (!newEnable2fa) newEnable2fa = user.enable2fa;
-		else {
-			newEnable2fa = parseInt(request.enable2fa);
-			if (newEnable2fa !== 1 && newEnable2fa !== 0) newEnable2fa = user.enable2fa;
-		}
 
 		//1 = OK, 0 = Locked, chỉ nhận 2 dạng tình trạng tài khoản
 		var newStatus = request.status;
@@ -1297,6 +1297,7 @@ class User extends Model {
 		}
 
 		//nếu người dc update là nhân viên thì sẽ ko tự khóa
+		//vẫn được tự hạ chức
 		if (user.userType === 0) {
 			newStatus = 1;
 			newApprove = 1;
@@ -1315,8 +1316,7 @@ class User extends Model {
 				phoneNumber: newPhoneNumber,
 				username: newUsername,
 				citizenIdentificationId: newCitizenIdentificationId,
-				approveStatus: newApprove,
-				enable2fa: newEnable2fa // chỉ nhận 0 và 1
+				approveStatus: newApprove
 			},
 			{
 				where: { id: userId }
@@ -1326,22 +1326,24 @@ class User extends Model {
 		await audit_logService.pushAuditLog_EditUser(currentUser, user);
 
 		//send email ở đây
-		makeMessageHelper.editUserMessage(
-			user.lastName,
-			user.firstName,
-			currentUser.lastName,
-			currentUser.firstName,
-			currentUser.email,
-			function(response) {
-				emailHelper.send(
-					user.email,
-					'Thay đổi thông tin cá nhân',
-					response.content,
-					response.html,
-					response.attachments
-				);
-			}
-		);
+		if (user.enableNoti == 1) {
+			makeMessageHelper.editUserMessage(
+				user.lastName,
+				user.firstName,
+				currentUser.lastName,
+				currentUser.firstName,
+				currentUser.email,
+				function(response) {
+					emailHelper.send(
+						user.email,
+						'Thay đổi thông tin cá nhân',
+						response.content,
+						response.html,
+						response.attachments
+					);
+				}
+			);
+		}
 
 		return null;
 	}
@@ -1354,23 +1356,25 @@ class User extends Model {
 			const foundUser = await User.findUserByPKNoneExclude(result.userId);
 			await audit_logService.pushAuditLog_EditAccount(currentUser, foundUser, result.accountId);
 
-			makeMessageHelper.editAccountMessage(
-				foundUser.lastName,
-				foundUser.firstName,
-				result.accountId,
-				currentUser.lastName,
-				currentUser.firstName,
-				currentUser.email,
-				function(response) {
-					emailHelper.send(
-						foundUser.email,
-						'Chinh sửa số tài khoản',
-						response.content,
-						response.html,
-						response.attachments
-					);
-				}
-			);
+			if (foundUser.enableNoti == 1) {
+				makeMessageHelper.editAccountMessage(
+					foundUser.lastName,
+					foundUser.firstName,
+					result.accountId,
+					currentUser.lastName,
+					currentUser.firstName,
+					currentUser.email,
+					function(response) {
+						emailHelper.send(
+							foundUser.email,
+							'Chinh sửa số tài khoản',
+							response.content,
+							response.html,
+							response.attachments
+						);
+					}
+				);
+			}
 		}
 
 		return result;
@@ -1424,22 +1428,15 @@ class User extends Model {
 		return null;
 	}
 
+	//chỉ nhân viên được rút tiền
 	//rút tiền: dùng chung cho tk thanh toán và tiết kiệm
 	static async withdrawStepTwo(request, currentUser) {
 		const ErrorsList = [];
 		const withdrawStepTwoErrors = errorListConstant.accountErrorsConstant;
-
-		//xác thực verifyCode...
-		const foundUser = await User.activeVerifyCode(request.verifyCode);
 		const accountId = request.accountId;
-		const foundAccount = await accountService.getAccountNoneExclude(accountId);
-		const message = request.message;
-		if (!message || message === ' ') message = 'Không có tin nhắn kèm theo';
 
-		if (!foundUser) {
-			ErrorsList.push(errorListConstant.userErrorsConstant.VERIFYCODE_INVALID);
-			return ErrorsList;
-		}
+		const foundAccount = await accountService.getAccountNoneExclude(accountId);
+		const message = request.message || 'Không có tin nhắn kèm theo!';
 
 		if (!foundAccount) {
 			ErrorsList.push(withdrawStepTwoErrors.ACCOUNT_NOT_FOUND);
@@ -1451,11 +1448,18 @@ class User extends Model {
 			return ErrorsList;
 		}
 
-		//Nếu thằng đang đăng nhập không sở hữu tài khoản thì xóa mã verify rồi cút nó ra
-		if (foundUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
-			ErrorsList.push(withdrawStepTwoErrors.NOT_BELONG);
+		const foundUser = await User.findUserByPKNoneExclude(foundAccount.userId);
+
+		if (!foundUser) {
+			ErrorsList.push(errorListConstant.userErrorsConstant.VERIFYCODE_INVALID);
 			return ErrorsList;
 		}
+
+		// //Nếu thằng đang đăng nhập không sở hữu tài khoản thì xóa mã verify rồi cút nó ra
+		// if (foundUser.id !== currentUser.id || parseInt(foundAccount.userId) !== currentUser.id) {
+		// 	ErrorsList.push(withdrawStepTwoErrors.NOT_BELONG);
+		// 	return ErrorsList;
+		// }
 
 		//nếu là tài khoản tiết kiệm
 		if (foundAccount.accountType === 1) {
@@ -1494,6 +1498,14 @@ class User extends Model {
 							response.attachments
 						);
 					}
+				);
+
+				await audit_logService.pushAuditLog_Withdraw(
+					currentUser,
+					foundUser,
+					parseFloat(result.balance) + parseFloat(result.profit),
+					foundAccount.currencyType,
+					foundAccount.accountId
 				);
 
 				return null;
@@ -1538,6 +1550,15 @@ class User extends Model {
 							response.attachments
 						);
 					}
+				);
+
+				//push log
+				await audit_logService.pushAuditLog_Withdraw(
+					currentUser,
+					foundUser,
+					valueWithdraw,
+					foundAccount.currencyType,
+					foundAccount.accountId
 				);
 
 				return null;
@@ -2151,6 +2172,12 @@ User.init(
 
 		enable2fa: {
 			type: Sequelize.INTEGER, //1 là có kích hoạt 2 bước login, 0 là ko có
+			allowNull: false,
+			defaultValue: 0
+		},
+
+		enableNoti: {
+			type: Sequelize.INTEGER, //1 là có kích hoạt gửi mail thông báo bảo mật
 			allowNull: false,
 			defaultValue: 0
 		},

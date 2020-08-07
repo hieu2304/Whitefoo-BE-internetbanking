@@ -48,4 +48,8 @@ router.post('/getaudit', controller.postGetAudit);
 router.get('/getuserlog', controller.getGetUserLog);
 router.post('/getuserlog', controller.postGetUserLog);
 
+//Nhân viên rút tiền dùm user
+router.get('/withdraw', controller.getWithdraw);
+router.post('/withdraw', controller.postWithdraw);
+
 module.exports = router;

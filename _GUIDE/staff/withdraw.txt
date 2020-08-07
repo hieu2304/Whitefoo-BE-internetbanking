@@ -1,0 +1,30 @@
+
+- tài khoản tiết kiệm
+		-> mặc định rút lãi + lời -> khóa tài khoản, chờ nạp sẽ kích hoạt lại
+
+	- tài khoản thanh toán
+		-> kiểm tra giá trị nhập đủ ko các kiểu... nếu pass -> bước kế
+		-> rút số tiền đã nhập
+
+
+
+/api/withdraw
+
+method: POST
+
+
+- trường hợp tài khoản tiết kiệm:
+params:
+	accountId:23424242343243
+	message: được để trống
+
+- trường hợp tài khoản thanh toán:
+params:
+	accountId:23424242343243
+	value: tiền muốn rút
+	message: được để trống
+
+
+
+response:  đúng thì OK kèm gửi mail
+

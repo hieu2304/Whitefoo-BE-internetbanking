@@ -57,32 +57,6 @@ module.exports.postTransferInternal = asyncHandler(async function(req, res, next
 	return res.status(200).send({ message: 'OK' });
 });
 
-//user rút tiền có 2 bước, bước 1 xài sendverify
-//B2:
-module.exports.getWithdraw = function(req, res, next) {
-	return res.status(200).send({ message: 'OK' });
-};
-module.exports.postWithdraw = asyncHandler(async function(req, res, next) {
-	const errors = validateHelper.validateErrorHandle(req);
-	if (errors) {
-		return res.status(400).json(errors);
-	}
-
-	currentUser = jwtHelper.decodeToken(req.headers['token']);
-	if (!currentUser) {
-		return res.status(401).send({ message: 'Invalid Token' });
-	}
-
-	//gọi hàm withdraw(sẽ gửi mail nếu thành công)
-	const result = await userService.withdrawStepTwo(req.body, currentUser);
-
-	//khác null nghĩa là có lỗi
-	if (result) return res.status(400).json(result);
-
-	//nếu trả về null có nghĩa là ok
-	return res.status(200).send({ message: 'OK' });
-});
-
 //user get self's accounts information
 module.exports.postGetAccount = asyncHandler(async function(req, res, next) {
 	currentUser = jwtHelper.decodeToken(req.headers['token']);

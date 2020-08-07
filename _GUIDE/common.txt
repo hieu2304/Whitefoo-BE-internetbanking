@@ -33,6 +33,7 @@ console.log(req.query);
     + status:   1 = OK, 0 = Locked  (INTERGER)
     + verifyCode, activeCode, forgotCode: '' nghĩa là đã kích hoạt, còn lại nghĩa là chưa  (STRING)
     + enable2fa: 1 là có, 2 là không có quá trình đăng nhập 2 bước
+    + enableNoti: nhận các email khi bị chỉnh sửa thông tin cá nhân + chỉnh sửa account sở hữu
 
 - Bảng account:
     + accountType: 1 là accumulated (tiết kiệm), 0 là payment (thanh toán)  (INTERGER)

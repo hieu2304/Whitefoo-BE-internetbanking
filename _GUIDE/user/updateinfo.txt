@@ -24,15 +24,15 @@ lastName:daylaten
 firstName:daylaho
 address:basubasa
 enable2fa:0
+enableNoti:1
 dateOfBirth:31/07/1865
 phoneNumber:1234567
 username:ngoc
 email:abcdef123456r@gmail.com
-currentPassword:khongcopass
-newPassword:khongcopass123
-confirmPassword:khongcopass123
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
+
+
 
 response:
 {

@@ -29,7 +29,8 @@ class audit_log extends Model {
 			'create account',
 			'add balance',
 			'edit user',
-			'edit account'
+			'edit account',
+			'withdraw'
 		];
 
 		//by staff mặc định là toàn bộ staff
@@ -53,14 +54,17 @@ class audit_log extends Model {
 			actionArr = [ 'edit user' ];
 		} else if (type === 'editaccount') {
 			actionArr = [ 'edit account' ];
+		} else if (type === 'withdraw') {
+			actionArr = [ 'withdraw' ];
 		}
 
 		if (byUserInternal !== 'all' && internalUserIdArr.includes(byUserInternal.toString())) {
 			internalUserIdArr = [];
 			internalUserIdArr.push(byUserInternal);
 		}
+		console.log(internalUserIdArr);
 
-		const list = await audit_log.findAll({
+		const totalList = await audit_log.findAndCountAll({
 			where: {
 				action: actionArr,
 				internalUserId: internalUserIdArr
@@ -71,11 +75,11 @@ class audit_log extends Model {
 		});
 		const result = [];
 
-		for (var i = 0; i < list.length; i++) {
-			result.push(JSON.parse(list[i].description));
+		for (var i = 0; i < totalList.rows.length; i++) {
+			result.push(JSON.parse(totalList.rows[i].description));
 		}
 
-		return result;
+		return { count: totalList.count, list: result };
 	}
 
 	static async pushAuditLog_EditAccount(internalUser, user, accountId) {
@@ -113,6 +117,13 @@ class audit_log extends Model {
 	static async pushAuditLog_AddBalance(internalUser, user, addedBalance, currencyType, accountId) {
 		var filterAction = 'add balance';
 		var action = 'Nạp tiền ' + addedBalance + ' ' + currencyType + ' vào STK ' + accountId;
+
+		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
+	}
+
+	static async pushAuditLog_Withdraw(internalUser, user, value, currencyType, accountId) {
+		var filterAction = 'withdraw';
+		var action = 'Rút ' + value + ' ' + currencyType + ' từ STK ' + accountId;
 
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}

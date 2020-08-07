@@ -23,10 +23,6 @@ router.post('/sendverify', controller.postSendVerify);
 router.get('/transferinternal', controller.getTransferInternal);
 router.post('/transferinternal', validateHelper.validateTransfer(), controller.postTransferInternal);
 
-//User rút tiền (B1 xài sendverify), sử dụng validate của withdraw
-router.get('/withdraw', controller.getWithdraw);
-router.post('/withdraw', validateHelper.validateWithdraw(), controller.postWithdraw);
-
 //lấy thông tin tài khoản chính mình
 router.get('/getaccount', controller.getGetAccount);
 router.post('/getaccount', controller.postGetAccount);

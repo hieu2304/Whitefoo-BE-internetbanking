@@ -24,6 +24,7 @@ response:
     "status": 1,
     "approveStatus": 1,
     "enable2fa": 0,
+    "enableNoti": 1,
     "emailVerified": 1,
     "identificationType": "CCCD",
     "issueDate": "31/12/1990"

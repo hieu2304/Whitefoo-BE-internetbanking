@@ -1,4 +1,7 @@
-[chưa release API này]
+[RELEASED]
+
+/api/getaudit
+
 mô tả:
 
 - method cho sử dụng: GET và POST (GET sử dụng query, POST sử dụng body)
@@ -20,13 +23,16 @@ mô tả:
 
         * editaccount: log NV chỉnh sửa tài khoản
 
-    + by: lọc theo tiêu chí thực hiện bởi nhân viên nào:
+        * withdraw: rút tiền
 
-        * id: theo tiêu chí người thực thi là Nhân viên có id nào đó
+    + by: lọc theo tiêu chí thực hiện bởi nhân viên nào(nếu truyền id ko phải nhân viên thì mặc định là toàn bộ nhân viên)
+
+        
 
     + start và limit để phân trang:
         * start bắt đầu từ 0, không truyền hoặc truyền ký tự thì mặc định là 0
         * limit bắt đầu từ 1, không truyền hoặc truyền ký tự thì mặc định lả 3
+
 
 ví dụ:
 METHOD: GET
@@ -47,7 +53,10 @@ time (HH:mm:ss)
 
 
 
+
+
 mô tả thêm cho back-end:
+
 khi lưu log vào DB, details sẽ lưu json dạng string để khi trả ra chỉ parse
 details json parse:
 tham khảo: https://stackoverflow.com/questions/5726729/how-to-parse-json-using-node-js
