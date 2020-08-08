@@ -593,7 +593,7 @@ class User extends Model {
 			delete result.emailVerified;
 			delete result.status;
 
-			return result;
+			return { enable2fa: result.enable2fa };
 		}
 
 		const token = jwtHelper.generateToken(result);
@@ -1520,8 +1520,15 @@ class User extends Model {
 		} else {
 			//nếu là tài khoản thanh toán, gọi hàm rút tiền của tài khoản thanh toán
 			const valueWithdraw = request.value;
+			if (!await User.isNumber(valueWithdraw) || !valueWithdraw) {
+				ErrorsList.push(withdrawStepTwoErrors.MONEY_INVALID);
+				return ErrorsList;
+			} else if (parseFloat(valueWithdraw) <= 0.0) {
+				ErrorsList.push(withdrawStepTwoErrors.MONEY_INVALID);
+				return ErrorsList;
+			}
+
 			if (
-				!valueWithdraw ||
 				parseFloat(valueWithdraw) > parseFloat(foundAccount.balance) ||
 				parseFloat(foundAccount.balance) <= 0.0
 			) {
@@ -1587,6 +1594,11 @@ class User extends Model {
 		var money = new Decimal(request.money); //tiền để tính toán ở bên gửi
 		var transferMoney = new Decimal(request.money); //tiền để tính toán ở bên nhận
 		const foundAccount = await accountService.getAccountNoneExclude(requestAccountId);
+
+		if (!await User.isNumber(request.money) || !request.money) {
+			ErrorsList.push(withdrawStepTwoErrors.MONEY_INVALID);
+			return ErrorsList;
+		}
 
 		//không cho phép tài khoản gửi và nhận là 1
 		if (requestAccountId === accountId) {
@@ -1812,6 +1824,11 @@ class User extends Model {
 		const bankId = request.bankId;
 		var money = new Decimal(request.money);
 		var message = request.message || 'không có tin nhắn kèm theo';
+
+		if (!await User.isNumber(request.money) || !request.money) {
+			ErrorsList.push(withdrawStepTwoErrors.MONEY_INVALID);
+			return ErrorsList;
+		}
 
 		const foundAccount = await accountService.getAccountNoneExclude(requestAccountId);
 		const foundBank = await whitelistService.findOne({

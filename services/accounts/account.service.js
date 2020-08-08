@@ -180,6 +180,10 @@ class account extends Model {
 		const newAccountId = await account.getUniqueRandomAccountId();
 		const newBalance = typeof request.balance !== 'undefined' ? request.balance : 0;
 
+		if (!await account.isNumber(newBalance)) {
+			ErrorsList.push(createNewAccountErrors.MONEY_INVALID);
+		}
+
 		//Kiểm tra input lỗi
 		//chỉ cho tạo 0 hoặc 1, 0 là payment, 1 là tiet kiem
 		if (accountType !== '1' && accountType !== '0') {
@@ -254,6 +258,12 @@ class account extends Model {
 
 		if (theChosenAccount.accountType === 1 && theChosenAccount.status === 1) {
 			ErrorsList.push(loadUpBalanceErrors.ALREADY_STARTED_ACCUMULATED);
+		}
+
+		if (!await account.isNumber(request.balance) || !request.balance) {
+			ErrorsList.push(loadUpBalanceErrors.MONEY_INVALID);
+		} else if (request.balance && parseFloat(request.balance) < 0.0) {
+			ErrorsList.push(loadUpBalanceErrors.MONEY_INVALID);
 		}
 
 		if (ErrorsList.length > 0) return ErrorsList;

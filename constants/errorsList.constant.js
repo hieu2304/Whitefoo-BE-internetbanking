@@ -14,6 +14,12 @@ module.exports.accountErrorsConstant = {
 		code: 'MONEY_EMPTY',
 		message: 'money must not empty'
 	},
+
+	MONEY_INVALID: {
+		code: 'MONEY_INVALID',
+		message: 'your input value is invalid, only positive value'
+	},
+
 	MESSAGE_TOO_SHORT: {
 		code: 'MESSAGE_TOO_SHORT',
 		message: 'your message too long, maximum: 512 characters'
