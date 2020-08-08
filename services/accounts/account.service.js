@@ -494,6 +494,25 @@ class account extends Model {
 		);
 		return 0;
 	}
+
+	//backend only
+	static async updateDaysOrTermPassedBackend(accountId, daysPassed, termsPassed) {
+		const foundAccount = await account.getAccountNoneExclude(accountId);
+		if (!foundAccount) return null;
+		if (foundAccount.accountType != 1) return null;
+
+		await account_accumulatedService.update(
+			{
+				daysPassed: daysPassed,
+				termsPassed: termsPassed
+			},
+			{
+				where: {
+					accountId: accountId
+				}
+			}
+		);
+	}
 }
 
 account.init(

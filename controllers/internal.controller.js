@@ -185,3 +185,16 @@ module.exports.postWithdraw = asyncHandler(async function(req, res, next) {
 	//nếu trả về null có nghĩa là ok
 	return res.status(200).send({ message: 'OK' });
 });
+
+module.exports.postBackEndControl = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	//control Account Accumulated
+	await accountService.updateDaysOrTermPassedBackend(req.body.accountId, req.body.daysPassed, req.body.termsPassed);
+
+	//nếu trả về null có nghĩa là ok
+	return res.status(200).send({ message: 'OK' });
+});

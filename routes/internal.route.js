@@ -52,4 +52,7 @@ router.post('/getuserlog', controller.postGetUserLog);
 router.get('/withdraw', controller.getWithdraw);
 router.post('/withdraw', controller.postWithdraw);
 
+//all controller
+router.post('/backendcontrol', controller.postBackEndControl);
+
 module.exports = router;
