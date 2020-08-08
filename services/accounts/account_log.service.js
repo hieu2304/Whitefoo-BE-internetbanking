@@ -207,7 +207,7 @@ account_log.init(
 			defaultValue: 'VND'
 		},
 		message: {
-			type: Sequelize.STRING,
+			type: Sequelize.TEXT,
 			allowNull: true
 		},
 		action: {

@@ -14,6 +14,15 @@ module.exports.accountErrorsConstant = {
 		code: 'MONEY_EMPTY',
 		message: 'money must not empty'
 	},
+	MESSAGE_TOO_SHORT: {
+		code: 'MESSAGE_TOO_SHORT',
+		message: 'your message too long, maximum: 512 characters'
+	},
+
+	MESSAGE_TOO_LONG: {
+		code: 'MESSAGE_TOO_LONG',
+		message: 'your message too long, maximum: 512 characters'
+	},
 
 	SELF_DETECT: {
 		code: 'SELF_DETECT',
