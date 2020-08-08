@@ -1240,6 +1240,13 @@ class User extends Model {
 			if (isConflict) {
 				errorList.push(updateUserInfoErrors.EMAIL_CONFLICT);
 			}
+
+			//gửi email cho email cũ
+			makeMessageHelper.changeEmailByStaffMessage(user.lastName, user.firstName, user.email, newEmail, function(
+				response
+			) {
+				emailHelper.send(user.email, 'Thay đổi Email', response.content, response.html, response.attachments);
+			});
 		} else {
 			//nếu ng dùng ko nhập email và các TH còn lại
 			newEmail = user.email;
@@ -1282,7 +1289,7 @@ class User extends Model {
 				errorList.push(updateUserInfoErrors.CITIZENIDENTIFICATIONID_CONFLICT);
 			}
 		} else {
-			newCitizenIdentificationId = user.newCitizenIdentificationId;
+			newCitizenIdentificationId = user.citizenIdentificationId;
 		}
 
 		if (errorList.length > 0) return errorList;

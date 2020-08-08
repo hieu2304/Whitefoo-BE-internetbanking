@@ -699,3 +699,33 @@ module.exports.editUserMessage = function(lastName, firstName, lastName_staff, f
 		return callback({ content, html, attachments });
 	});
 };
+
+//tin nhắn khi nhân viên đổi email người dùng
+module.exports.changeEmailByStaffMessage = function(lastName, firstName, oldEmail, newEmail, callback) {
+	const content = 'đã thay đổi email:\n - Từ: ' + oldEmail + '\n - Sang: ' + newEmail;
+
+	getHTMLService.getHTMLPattern(0, function(response) {
+		var html = response;
+
+		html = html.replace('{Re_Image}', 'main');
+		html = html.replace('{Re_Title}', 'Thay đổi Email');
+
+		html = html.replace(
+			'{Re_Content_1}',
+			'Xin chào {Re_FirstName} {Re_LastName}, nhân viên vừa thực hiện đổi email mới cho bạn, chi tiết:'
+		);
+
+		html = html.replace('{Re_Content_2}', 'Email cũ: ' + oldEmail + '<br>' + 'Email mới: ' + newEmail);
+		html = html.replace('{Re_Thanks_Message}', thankMessage);
+		html = html.replace('{Re_LastName}', lastName);
+		html = html.replace('{Re_FirstName}', firstName);
+		html = html.replace('{Re_Code}', '');
+
+		//replace all constant URL
+		html = replaceConstantURL(html);
+
+		const attachments = getAttachments.mainImageAttachments;
+
+		return callback({ content, html, attachments });
+	});
+};
