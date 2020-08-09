@@ -74,7 +74,11 @@ module.exports.validateRegisterInformation = function() {
 		check('dateOfBirth', errorConstant.DATEOFBIRTH_INVALID).custom(function(dateOfBirth) {
 			const dateFormat = [ 'DD/MM/YYYY' ]; // , 'MM/DD/YYYY', 'YYYY/MM/DD'
 			const result = moment(dateOfBirth, dateFormat).format('DD/MM/YYYY');
-			return moment(result, 'DD/MM/YYYY').isValid();
+			if (result == 'Invalid date') return false;
+			return true;
+
+			//moment is now updated: https://momentjs.com/guides/#/warnings/js-date/
+			//return moment(result, 'DD/MM/YYYY').isValid();
 
 			//moment(scope.modelValue, 'DD-MMM-YYYY HH:mm a', true).isValid()
 			//moment(checked_date, DATE_FORMAT).format(DATE_FORMAT) === checked_date
@@ -110,7 +114,8 @@ module.exports.validateUpdateIdCard = function() {
 		check('issueDate', errorConstant.ISSUEDATE_INVALID).custom(function(issueDate) {
 			const dateFormat = [ 'DD/MM/YYYY' ]; // , 'MM/DD/YYYY', 'YYYY/MM/DD'
 			const result = moment(issueDate, dateFormat).format('DD/MM/YYYY');
-			return moment(result, 'DD/MM/YYYY').isValid();
+			if (result == 'Invalid date') return false;
+			return true;
 		}),
 		check('identificationType', errorConstant.IDENTIFICATIONTYPE_INVALID).custom(function(identificationType) {
 			if (identificationType !== 'CMND' && identificationType !== 'CCCD') return false;
@@ -141,7 +146,8 @@ module.exports.validateUpdateInfo = function() {
 		check('dateOfBirth', errorConstant.DATEOFBIRTH_INVALID).custom(function(dateOfBirth) {
 			const dateFormat = [ 'DD/MM/YYYY' ]; // , 'MM/DD/YYYY', 'YYYY/MM/DD'
 			const result = moment(dateOfBirth, dateFormat).format('DD/MM/YYYY');
-			return moment(result, 'DD/MM/YYYY').isValid();
+			if (result == 'Invalid date') return false;
+			return true;
 		}),
 
 		check('phoneNumber', errorConstant.PHONENUMBER_TOO_SHORT).isLength({ min: 3 }),
