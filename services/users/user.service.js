@@ -1443,7 +1443,7 @@ class User extends Model {
 		const accountId = request.accountId;
 
 		const foundAccount = await accountService.getAccountNoneExclude(accountId);
-		const message = request.message || 'Không có tin nhắn kèm theo!';
+		const message = request.message || '';
 
 		if (!foundAccount) {
 			ErrorsList.push(withdrawStepTwoErrors.ACCOUNT_NOT_FOUND);
@@ -1585,7 +1585,7 @@ class User extends Model {
 	//chuyển tiền nội bộ
 	static async transferInternalStepTwo(request, currentUser) {
 		var message = request.message;
-		if (!message || message == ' ' || message == '') message = 'Không có tin nhắn kèm theo!';
+		if (!message || message == ' ' || message == '') message = '';
 		const ErrorsList = [];
 		const errorListTransfer = errorListConstant.accountErrorsConstant;
 		const userTransferErrors = errorListConstant.userErrorsConstant;
@@ -1823,7 +1823,7 @@ class User extends Model {
 		const requestAccountId = request.requestAccountId;
 		const bankId = request.bankId;
 		var money = new Decimal(request.money);
-		var message = request.message || 'không có tin nhắn kèm theo';
+		var message = request.message || '';
 
 		if (!await User.isNumber(request.money) || !request.money) {
 			ErrorsList.push(withdrawStepTwoErrors.MONEY_INVALID);
@@ -2017,11 +2017,11 @@ class User extends Model {
 	static async listenExternal(request) {
 		const accountId = request.accountId;
 		var message = request.message;
-		if (!message)
-			message =
-				'Bạn nhận được tiền được chuyển liên ngân hàng, từ ' +
-				request.bankId +
-				', Người này không để lại lời nhắn gì thêm.';
+		if (!message) message = '';
+
+		// 'Bạn nhận được tiền được chuyển liên ngân hàng, từ ' +
+		// request.bankId +
+		// ', Người này không để lại lời nhắn gì thêm.';
 		const foundAccount = await accountService.getAccountNoneExclude(accountId);
 		if (!foundAccount) return null;
 		const result = await accountService.listenExternal_account(foundAccount, request);

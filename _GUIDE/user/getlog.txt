@@ -17,8 +17,8 @@ params:
         + 'transfer': liên quan chuyển khoản
         + 'withdraw': liên quan rút tiền
         + 'loadup': liên quan nạp tiền
-    fromDate: từ ngày XYZ (12/12/2012)
-    toDate: đến ngày ZYX (30/12/2020)
+    fromDate: từ ngày XYZ (12/12/2012)   (mặc định là 1/1/2000)
+    toDate: đến ngày ZYX (30/12/2020)    (mặc định là ngày hiện tại +2)
     start: 0
     limit: 5
 

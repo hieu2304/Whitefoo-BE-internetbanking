@@ -12,6 +12,10 @@ class account_log extends Model {
 	static async getAccountLogByAccountIdArr(accountIdArr, type, fromDateIn, toDateIn, start, limit) {
 		var fromDate = fromDateIn;
 		var toDate = toDateIn;
+		var now = moment().add(2, 'days');
+		now = moment(now).format('YYYY-MM-DD');
+		now = now + ' 23:59:59';
+
 		var actionArr = [ 'transfer', 'loadup', 'withdraw' ];
 		if (!limit) {
 			limit = 5;
@@ -21,23 +25,37 @@ class account_log extends Model {
 		}
 		start = start * limit;
 
-		if (!accountIdArr || accountIdArr.length < 1) return { count: 0, list: [] };
+		if (!accountIdArr || accountIdArr.length < 1) return { count: 0, rows: [] };
 
 		if (type === 'transfer') actionArr = [ 'transfer' ];
 		else if (type === 'loadup') actionArr = [ 'loadup' ];
 		else if (type === 'withdraw') actionArr = [ 'withdraw' ];
 
-		if (!fromDate) fromDate = '2000-1-1';
+		if (!fromDate) fromDate = '2000-1-1 00:00:01';
 		else {
 			fromDate = fromDate + ' 00:00:01';
 			fromDate = moment(fromDate, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
+
+			if (fromDate == 'Invalid date') {
+				fromDate = '2000-1-1 00:00:01';
+			}
 		}
 
 		if (!toDate) toDate = moment().format('YYYY-MM-DD');
 		else {
 			toDate = toDate + ' 23:59:58';
 			toDate = moment(toDate, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
+
+			if (toDate == 'Invalid date') {
+				toDate = now;
+			}
 		}
+		console.log(fromDate);
+		console.log(toDate);
+		fromDate = moment(fromDate, 'YYYY-MM-DD HH:mm:ss').format();
+		toDate = moment(toDate, 'YYYY-MM-DD HH:mm:ss').format();
+		console.log(fromDate);
+		console.log(toDate);
 
 		const result = await account_log.findAndCountAll({
 			where: {
@@ -116,15 +134,17 @@ class account_log extends Model {
 	static async pushAccountLog_transfer(transferBank, accountIdA, accountIdB, value, currencyType, msg, status) {
 		var filterAction = 'transfer';
 		var action = 'Chuyển khoản';
+		var bankId = '';
 
 		//khác ngân hàng thì điền vào trả cho FE, vd: chuyển khoản (ngân hàng ARG)
 		if (transferBank && transferBank !== '' && transferBank !== 'wfb') {
-			action = 'Chuyển khoản (ngân hàng ' + transferBank + ')';
+			bankId = transferBank;
 		}
 
 		await account_log.pushAccountLog(
 			accountIdA,
 			accountIdB,
+			bankId,
 			action,
 			filterAction,
 			value,
@@ -141,18 +161,38 @@ class account_log extends Model {
 		var action = 'Rút tiền (TKTT)';
 		if (typeOfWithdraw === 1 || typeOfWithdraw === '1') action = 'Rút tiền (TKTK)';
 
-		await account_log.pushAccountLog(accountIdA, '', action, filterAction, valueTotal, currencyType, msg, status);
+		await account_log.pushAccountLog(
+			accountIdA,
+			'',
+			'',
+			action,
+			filterAction,
+			valueTotal,
+			currencyType,
+			msg,
+			status
+		);
 	}
 
 	static async pushAccountLog_loadUp(accountIdA, value, currencyType, msg, status) {
 		var filterAction = 'loadup';
 		var action = 'Nạp tiền';
 
-		await account_log.pushAccountLog(accountIdA, '', action, filterAction, value, currencyType, msg, status);
+		await account_log.pushAccountLog(accountIdA, '', '', action, filterAction, value, currencyType, msg, status);
 	}
 
 	//không sử dụng hàm này bên ngoài
-	static async pushAccountLog(accountIdA, accountIdB, action, filterAction, value, currencyType, msg, status) {
+	static async pushAccountLog(
+		accountIdA,
+		accountIdB,
+		bankId,
+		action,
+		filterAction,
+		value,
+		currencyType,
+		msg,
+		status
+	) {
 		const newDetail = {}; //description
 		const theTimeTotal = new moment();
 		const newDate = moment(theTimeTotal).format('DD/MM/YYYY');
@@ -163,8 +203,9 @@ class account_log extends Model {
 		newDetail.action = action;
 		newDetail.value = value;
 		newDetail.currencyType = currencyType;
-		newDetail.status = status === 1 ? 'Thành công' : 'Thất bại';
+		newDetail.status = status;
 		newDetail.message = typeof msg !== 'undefined' ? msg : '';
+		newDetail.bankId = bankId;
 		newDetail.date = newDate;
 		newDetail.time = newTime;
 

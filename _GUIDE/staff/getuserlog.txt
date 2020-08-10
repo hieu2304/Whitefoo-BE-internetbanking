@@ -18,7 +18,7 @@ params:
         + 'withdraw': liên quan rút tiền
         + 'loadup': liên quan nạp tiền
     fromDate: từ ngày XYZ (vd: 12/12/2012)  (mặc định là 1/1/2000)
-    toDate: đến ngày ZYX (vd: 30/12/2020) (mặc định là ngày hiện tại)
+    toDate: đến ngày ZYX (vd: 30/12/2020) (mặc định là ngày hiện tại +2)
     start: 0
     limit: 5
 
