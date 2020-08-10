@@ -12,6 +12,7 @@ class account_log extends Model {
 	static async getAccountLogByAccountIdArr(accountIdArr, type, fromDateIn, toDateIn, start, limit) {
 		var fromDate = fromDateIn;
 		var toDate = toDateIn;
+		//tạo now = ngày hiện tại +2 ngày, chuẩn format YYYY-MM-DD HH:mm:ss
 		var now = moment().add(2, 'days');
 		now = moment(now).format('YYYY-MM-DD');
 		now = now + ' 23:59:59';
@@ -31,17 +32,18 @@ class account_log extends Model {
 		else if (type === 'loadup') actionArr = [ 'loadup' ];
 		else if (type === 'withdraw') actionArr = [ 'withdraw' ];
 
-		if (!fromDate) fromDate = '2000-1-1 00:00:01';
+		//nếu ko truyền thì mặc định là 0h0p0s 1/1/2000
+		if (!fromDate) fromDate = '2000-01-01 00:00:01';
 		else {
 			fromDate = fromDate + ' 00:00:01';
 			fromDate = moment(fromDate, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
 
 			if (fromDate == 'Invalid date') {
-				fromDate = '2000-1-1 00:00:01';
+				fromDate = '2000-01-01 00:00:01';
 			}
 		}
 
-		if (!toDate) toDate = moment().format('YYYY-MM-DD');
+		if (!toDate) toDate = now;
 		else {
 			toDate = toDate + ' 23:59:58';
 			toDate = moment(toDate, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD HH:mm:ss');
@@ -50,12 +52,10 @@ class account_log extends Model {
 				toDate = now;
 			}
 		}
-		console.log(fromDate);
-		console.log(toDate);
+
+		//fromDate & toDate tới chỗ này thì phải theo dạng YYYY-MM-DD HH:mm:ss dù là trường hợp nào
 		fromDate = moment(fromDate, 'YYYY-MM-DD HH:mm:ss').format();
 		toDate = moment(toDate, 'YYYY-MM-DD HH:mm:ss').format();
-		console.log(fromDate);
-		console.log(toDate);
 
 		const result = await account_log.findAndCountAll({
 			where: {
