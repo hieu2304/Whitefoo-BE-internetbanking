@@ -61,7 +61,7 @@ response:
 
 bước 2:
 
-/api/verify2fa
+/api/auth/verify2fa
 
 method: POST
 điều kiện: đã logout, email/cmnd/sdt/username sẽ là username và username phải có trong DB
