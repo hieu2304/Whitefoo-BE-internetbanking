@@ -7,8 +7,9 @@ method: POST
 
 params:
 token: token còn đang hiệu lực
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
+
+
 
 response: token mới, vd:
 

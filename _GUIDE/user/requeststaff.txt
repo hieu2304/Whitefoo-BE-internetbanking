@@ -6,8 +6,10 @@ mô tả: 2 chức năng, 1 là đếm số staff hiện tại, 2 là yêu cầu
 method: GET
 điều kiện: đã login, đã xác nhận email, chưa kích hoạt CMND
 params: không
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
+
+
 
 response:
 {
@@ -21,8 +23,9 @@ response:
 method: POST
 điều kiện: đã login, đã xác nhận email, chưa kích hoạt CMND
 params: không
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
+
 
 response:
 {

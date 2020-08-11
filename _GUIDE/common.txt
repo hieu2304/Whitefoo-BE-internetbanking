@@ -1,5 +1,10 @@
 CÁC THÔNG TIN NÊN NHỚ:
 
+- khi gọi API luôn phải có clientID và secretKey mới gọi api được (set trong header khi request)
+(thiết lập trong .env nhé, đây là mẫu ví dụ)
+clientId:515hwrFpeLvGeVo2SvSe
+secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
 - method GET không truyền body (req.body), thay vào đó là dùng req.query, ví dụ:
 
 {URL}/api/getinfo?name=NhanVienA&age=20&job=backend
@@ -73,13 +78,7 @@ $10$3ycq9sloOYTrhNeJWlXKMO.tQ.5ACxXuxdAD/fQ2fzd269EviDLme
 
 
 
-LƯU Ý: khi gọi API luôn phải có clientID và secretKey mới gọi api được
-(thiết lập trong .env nhé, đây là mẫu ví dụ)
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
 
-
-#########################
 
 
 - thư mục guest: các api dành cho những người chưa đăng nhập, khách vãng lai

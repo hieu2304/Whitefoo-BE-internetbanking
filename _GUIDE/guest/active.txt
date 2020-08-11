@@ -7,8 +7,9 @@ method: POST
 
 params:
 activeCode: Code được send qua email để xác nhận tài khoản
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJH
+
+
+
 
 reponse:
 {

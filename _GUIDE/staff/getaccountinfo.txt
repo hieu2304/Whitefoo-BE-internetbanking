@@ -6,8 +6,8 @@ method: POST hoặc GET
 
 params:
 accountId:741699937737173 (xem accountId ở bảng account, lúc request có thể ghi tắt là id, nhưng bản chất là accountId)
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
 
 response:
 {

@@ -6,9 +6,9 @@ hàm initBaseValueAllNeededModel()
 dùng để insert các thông tin cơ BẢNG được QUY ĐỊNH CỨNG
 như các bảng law và fee, vì lệ phí và các thứ luật khác phải được set cứng như đã thảo luận
 
-hàm này sẽ được chạy khi server khởi động được 6 giây, lý do là vừa tạo table vừa insert dễ lỗi, tốt nhất là chờ sau khi tạo xong table rồi insert.
+hàm này sẽ được chạy khi server khởi động được 8 giây, lý do là vừa tạo table vừa insert dễ lỗi, tốt nhất là chờ sau khi tạo xong table rồi insert.
 
-set 6 giây sẽ được để trong /helpers/schedule.helper.js
+set 8 giây sẽ được để trong /helpers/schedule.helper.js
 
 
 khi nào release lên server thật thì bỏ comment line dòng 

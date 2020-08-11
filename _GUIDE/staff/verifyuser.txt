@@ -13,8 +13,9 @@ method:GET
 
 params:
 không có
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
+
 
 response: danh sách các user đang chờ duyệt CMND (approveStatus == 2 only)
 [
@@ -62,6 +63,7 @@ params:
 
 userId: id của người dùng cần duyệt (có thể ghi userId hoặc id)
 approveStatus: 1 hoặc 0 (0 là từ chối duyệt, 1 là duyệt, 2 là chờ duyệt)
+
 
 response:
 {

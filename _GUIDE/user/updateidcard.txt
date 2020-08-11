@@ -23,6 +23,7 @@ vd: citizenIdentificationId của user 1 đang là '123'
     nếu tiếp tục gọi api này và nhập citizenIdentificationId là '123' thì sẽ không update gì cả
 giải thích: tránh user mò mẫm phá, nếu sau này user muốn update cmnd mới thì miễn khác cái cũ là ok
 
+
 params:
 citizenIdentificationId:123456
 issueDate:31/12/1999

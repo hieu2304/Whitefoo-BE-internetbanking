@@ -18,8 +18,8 @@ updateDaysAndTermPassed = asyncHandler(async function() {
 });
 
 module.exports.WhiteFooScheduleAll = function() {
-	//init DB lần đầu khi khởi động server 6s
-	setTimeout(initHelper.initBaseValueAllNeededModel, 6000);
+	//init DB lần đầu khi khởi động server 8s
+	setTimeout(initHelper.initBaseValueAllNeededModel, 8000);
 
 	//mỗi 3 tiếng cập nhật tỷ giá VND USD 1 lần
 	//các khung giờ cập nhật:

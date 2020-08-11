@@ -12,8 +12,9 @@ params:
 
 username:ngoc
 password:khongcopass
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
+
+
 
 response:
 {
@@ -37,6 +38,7 @@ response:
 
 
 
+-----------------------------------------------------------------
 
 trường hợp 2: CÓ sử dụng xác minh 2 bước (enable2fa:1)
 
@@ -50,14 +52,14 @@ params:
 
 username:ngoc
 password:khongcopass
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+
 
 gửi mail cho user và trả ra
 response: 
 {
     "enable2fa": 1
 }
+
 
 bước 2:
 
@@ -67,20 +69,22 @@ method: POST
 điều kiện: đã logout, email/cmnd/sdt/username sẽ là username và username phải có trong DB
 params:
 
-verifyCode:UCZORzmxwIyziev
-clientId:515hwrFpeLvGeVo2SvSe
-secretKey:GkehqK7jqutGisHQV5B59IBsQeI3Kt16lpe3uKzTn1GIfbKZcGTvL9iLpeK86jA9sp9SFXFQX7yszpflqkCsJHa33wb8SUEDq1HSCadLldp1VxP8lmi
+verifyCode:123456
+
+
+
+
 
 response:
 {
     "id": 1,
     "citizenIdentificationId": "123",
-    "email": "timchideyeu1998@gmail.com",
+    "email": "aaaaa@azaaaaa,
     "phoneNumber": "0123456",
     "username": "ngoc",
     "lastName": "ngoc",
     "firstName": "nguyen",
-    "dateOfBirth": "12/07/1998",
+    "dateOfBirth": "01/01/1900",
     "address": "sdsadsadassd",
     "userType": 0,
     "status": 1,
@@ -88,7 +92,7 @@ response:
     "enable2fa": 1,
     "emailVerified": 1,
     "message": "OK",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiY2l0aXplbklkZW50aWZpY2F0aW9uSWQiOiIxMjMiLCJlbWFpbCI6InRpbWNoaWRleWV1MTk5OEBnbWFpbC5jb20iLCJwaG9uZU51bWJlciI6IjAxMjM0NTYiLCJ1c2VybmFtZSI6Im5nb2MiLCJsYXN0TmFtZSI6Im5nb2MiLCJmaXJzdE5hbWUiOiJuZ3V5ZW4iLCJkYXRlT2ZCaXJ0aCI6IjEyLzA3LzE5OTgiLCJhZGRyZXNzIjoic2RzYWRzYWRhc3NkIiwidXNlclR5cGUiOjAsInN0YXR1cyI6MSwiYXBwcm92ZVN0YXR1cyI6MSwiZW5hYmxlMmZhIjoxLCJlbWFpbFZlcmlmaWVkIjp0cnVlLCJpYXQiOjE1OTUxODUzODUsImV4cCI6MTU5NTE4ODk4NX0.2mib0Y7yTy7TZaNSh_cu6VTNMd3892QJ2WppPRgooxk"
+    "token": "jrnfjwnfjnwsjfnewrjkfnwejkfnwejfnjokwnfĩn89r34985ũ9853894ụ9834hjh3d5h384r94n3453t145651t45561td5431tdrf5463544158d943465f89446t445"
 }
 
 
