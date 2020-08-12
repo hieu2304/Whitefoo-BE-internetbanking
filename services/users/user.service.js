@@ -691,16 +691,15 @@ class User extends Model {
 	////////////////////////////////////////////////////////////////////////////////
 
 	//đăng ký
-	static async createNewUser(request) {
-		var isUserConflict = User.checkConflictUser(request);
+	static async createNewUser(request, res) {
+		var isUserConflict = await User.checkConflictUser(request).then(function(err) {
+			return res.status(400).send(err);
+		});
 
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
-		setTimeout(function() {
-			if (isUserConflict) return isUserConflict;
-		}, 2000);
 		if (isUserConflict) return isUserConflict;
 
-		const newUser = User.create({
+		const newUser = await User.create({
 			email: request.email,
 			lastName: request.lastName,
 			firstName: request.firstName,
@@ -711,16 +710,11 @@ class User extends Model {
 			username: request.username,
 			address: request.address,
 			password: User.hashPassword(request.password)
-		}).catch(function(err) {
-			//return err;
-			if (isUserConflict) return isUserConflict;
 		});
-
-		if (typeof newUser.email === 'undefined') return newUser;
 
 		//send email here
 		if (newUser) {
-			User.sendActive(newUser);
+			await User.sendActive(newUser);
 		}
 
 		//return null to controller know action was success

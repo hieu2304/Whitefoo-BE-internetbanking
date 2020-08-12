@@ -98,7 +98,7 @@ module.exports.postRegister = asyncHandler(async function(req, res, next) {
 		return res.status(400).json(errors); // lỗi validation
 	}
 
-	const newUser = await userService.createNewUser(req.body);
+	const newUser = await userService.createNewUser(req.body, res);
 
 	//if not null, mean errors returned form model's Service, send error for FE
 	if (newUser) {
