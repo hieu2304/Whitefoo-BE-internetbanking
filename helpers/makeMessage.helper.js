@@ -15,6 +15,10 @@ function replaceConstantURL(html) {
 	html = html.split('{Re_About_URL}').join(process.env.HOST_URL + '/about');
 	html = html.split('{Re_FAQs_URL}').join(process.env.HOST_URL + '/faq');
 	html = html.split('{Re_Contact_URL}').join(process.env.HOST_URL + '/contact');
+	html = html.split('{Re_Service_URL}').join(process.env.HOST_URL + '/services');
+	html = html.split('{Re_Policy_URL}').join(process.env.HOST_URL + '/policy');
+	html = html.split('{Re_Security_Policy_URL}').join(process.env.HOST_URL + '/security-policy');
+	html = html.split('{Re_Exchange_Rate_URL}').join(process.env.HOST_URL + '/exchangerate');
 
 	return html;
 }
