@@ -692,9 +692,7 @@ class User extends Model {
 
 	//đăng ký
 	static async createNewUser(request) {
-		const isUserConflict = await User.checkConflictUser(request).then(function(err) {
-			if (err) return err;
-		});
+		var isUserConflict = await User.checkConflictUser(request);
 
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
 		if (isUserConflict) return isUserConflict;
@@ -713,6 +711,8 @@ class User extends Model {
 		}).catch(function(err) {
 			if (isUserConflict) return isUserConflict;
 		});
+
+		if (newUser[0].code) return newUser;
 
 		//send email here
 		if (newUser) {
@@ -756,7 +756,7 @@ class User extends Model {
 
 		if (!foundUser) {
 			ErrorsList.push(sendActiveErrors.USER_NOT_FOUND);
-			return errorList;
+			return ErrorsList;
 		}
 
 		const newActiveCode = await User.getUniqueRandomCode();
