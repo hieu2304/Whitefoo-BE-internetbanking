@@ -426,6 +426,12 @@ class User extends Model {
 		}
 
 		const result = await audit_logService.getAuditLog(request, arrStaffId);
+		for (var i = 0; i < result.list.length; i++) {
+			var tempStaff = await User.findUserByPKNoneExclude(result.list[i].id_user);
+			var tempUser = await User.findUserByPKNoneExclude(result.list[i].id_target);
+			result.list[i].fullName_a = tempStaff.firstName + ' ' + tempStaff.lastName;
+			result.list[i].fullName_b = tempUser.firstName + ' ' + tempUser.lastName;
+		}
 		return result;
 	}
 
@@ -686,9 +692,9 @@ class User extends Model {
 
 	//đăng ký
 	static async createNewUser(request) {
-		const isUserConflict = await User.checkConflictUser(request);
-
-		setTimeout(function() {}, 1000);
+		const isUserConflict = await User.checkConflictUser(request).then(function(err) {
+			if (err) return err;
+		});
 
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
 		if (isUserConflict) return isUserConflict;
@@ -705,8 +711,7 @@ class User extends Model {
 			address: request.address,
 			password: await User.hashPassword(request.password)
 		}).catch(function(err) {
-			console.log(err);
-			return isUserConflict;
+			if (isUserConflict) return isUserConflict;
 		});
 
 		//send email here
