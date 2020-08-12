@@ -692,14 +692,14 @@ class User extends Model {
 
 	//đăng ký
 	static async createNewUser(request, res) {
-		var isUserConflict = await User.checkConflictUser(request).then(function(err) {
+		var isUserConflict = User.checkConflictUser(request).then(function(err) {
 			if (err) return res.status(400).send(err);
 		});
 
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
 		if (isUserConflict) return isUserConflict;
 
-		const newUser = await User.create({
+		const newUser = User.create({
 			email: request.email,
 			lastName: request.lastName,
 			firstName: request.firstName,
