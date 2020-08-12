@@ -696,7 +696,7 @@ class User extends Model {
 
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
 		if (isUserConflict) return isUserConflict;
-		console.log(isUserConflict);
+
 		const newUser = await User.create({
 			email: request.email,
 			lastName: request.lastName,
@@ -739,7 +739,7 @@ class User extends Model {
 		// }
 
 		const result = await accountService.createNewAccount(request);
-		if (result.ErrorsList) return result;
+		if (result.ErrorsList.length > 0) return result;
 
 		await audit_logService.pushAuditLog_CreateAccount(currentUser, foundUser, result.accountId);
 
@@ -1437,6 +1437,7 @@ class User extends Model {
 				);
 			}
 		);
+
 		await account_logService.pushAccountLog_loadUp(
 			foundAccount.accountId,
 			request.balance,
@@ -2156,7 +2157,7 @@ User.init(
 		citizenIdentificationId: {
 			type: Sequelize.STRING,
 			allowNull: true,
-			unique: true,
+			unique: false,
 			defaultValue: ''
 		},
 		email: {
