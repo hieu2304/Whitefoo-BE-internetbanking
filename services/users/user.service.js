@@ -695,6 +695,9 @@ class User extends Model {
 		var isUserConflict = await User.checkConflictUser(request);
 
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
+		setTimeout(function() {
+			if (isUserConflict) return isUserConflict;
+		}, 2000);
 		if (isUserConflict) return isUserConflict;
 
 		const newUser = await User.create({
@@ -709,10 +712,11 @@ class User extends Model {
 			address: request.address,
 			password: await User.hashPassword(request.password)
 		}).catch(function(err) {
+			//return err;
 			if (isUserConflict) return isUserConflict;
 		});
 
-		if (newUser[0].code) return newUser;
+		if (!newUser.id) return newUser;
 
 		//send email here
 		if (newUser) {
