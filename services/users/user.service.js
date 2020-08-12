@@ -741,7 +741,7 @@ class User extends Model {
 		const result = await accountService.createNewAccount(request);
 		if (result.ErrorsList.length > 0) return result;
 
-		await audit_logService.pushAuditLog_CreateAccount(currentUser, foundUser, result.accountId);
+		await audit_logService.pushAuditLog_CreateAccount(currentUser, foundUser, result.result.accountId);
 
 		return result;
 	}

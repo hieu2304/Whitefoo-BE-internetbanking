@@ -94,9 +94,9 @@ class audit_log extends Model {
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
 
-	static async pushAuditLog_CreateAccount(internalUser, user, accountID) {
+	static async pushAuditLog_CreateAccount(internalUser, user, accountId) {
 		var filterAction = 'create account';
-		var action = 'Tạo STK: ' + accountID;
+		var action = 'tạo tài khoản ' + accountId;
 
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
