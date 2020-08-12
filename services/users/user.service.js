@@ -693,7 +693,7 @@ class User extends Model {
 	//đăng ký
 	static async createNewUser(request, res) {
 		var isUserConflict = await User.checkConflictUser(request).then(function(err) {
-			return res.status(400).send(err);
+			if (err) return res.status(400).send(err);
 		});
 
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
