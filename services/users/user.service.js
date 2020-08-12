@@ -693,16 +693,10 @@ class User extends Model {
 	//đăng ký
 	static async createNewUser(request) {
 		var isUserConflict = await User.checkConflictUser(request);
-		setTimeout(function() {
-			console.log('\n 1 \n');
-		}, 1000);
 
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
 		if (isUserConflict) return isUserConflict;
-		setTimeout(function() {
-			console.log('\n 2 \n');
-		}, 1000);
-
+		console.log(isUserConflict);
 		const newUser = await User.create({
 			email: request.email,
 			lastName: request.lastName,
@@ -714,17 +708,16 @@ class User extends Model {
 			username: request.username,
 			address: request.address,
 			password: await User.hashPassword(request.password)
+		}).catch(function(err) {
+			console.log(err);
+			return err;
 		});
-		setTimeout(function() {
-			console.log('\n 3 \n');
-		}, 1000);
+
 		//send email here
 		if (newUser) {
 			await User.sendActive(newUser);
 		}
-		setTimeout(function() {
-			console.log('\n 4 \n');
-		}, 1000);
+
 		//return null to controller know action was success
 		return null;
 	}
