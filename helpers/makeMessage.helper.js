@@ -18,7 +18,9 @@ function replaceConstantURL(html) {
 	html = html.split('{Re_Service_URL}').join(process.env.HOST_URL + '/services');
 	html = html.split('{Re_Policy_URL}').join(process.env.HOST_URL + '/policy');
 	html = html.split('{Re_Security_Policy_URL}').join(process.env.HOST_URL + '/security-policy');
-	html = html.split('{Re_Exchange_Rate_URL}').join(process.env.HOST_URL + '/exchangerate');
+	//html = html.split('{Re_Exchange_Rate_URL}').join(process.env.HOST_URL + '/exchangerate');
+	//							<br>
+	//<a href="{Re_Exchange_Rate_URL}">Exchange Rate</a>
 
 	return html;
 }
