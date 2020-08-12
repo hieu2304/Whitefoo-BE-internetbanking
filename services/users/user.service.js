@@ -704,6 +704,9 @@ class User extends Model {
 			username: request.username,
 			address: request.address,
 			password: await User.hashPassword(request.password)
+		}).catch(function(err) {
+			console.log(err);
+			return isUserConflict;
 		});
 
 		//send email here
