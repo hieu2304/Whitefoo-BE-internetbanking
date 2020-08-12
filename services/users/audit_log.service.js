@@ -7,7 +7,6 @@ class audit_log extends Model {
 	static async getAuditLog(request, internalIdList) {
 		//bộ lọc
 		const type = typeof request.type !== 'undefined' ? request.type : 'all';
-		const byUserInternal = typeof request.by !== 'undefined' ? request.by : 'all';
 
 		//phân trang
 		var limit = request.limit;
@@ -33,12 +32,6 @@ class audit_log extends Model {
 			'withdraw'
 		];
 
-		//by staff mặc định là toàn bộ staff
-		var internalUserIdArr = [];
-		for (var i = 0; i < internalIdList.length; i++) {
-			internalUserIdArr.push(internalIdList[i].id.toString());
-		}
-
 		//lọc theo yêu cầu
 		if (type === 'approve') {
 			actionArr = [ 'approve idCard' ];
@@ -58,16 +51,10 @@ class audit_log extends Model {
 			actionArr = [ 'withdraw' ];
 		}
 
-		if (byUserInternal !== 'all' && internalUserIdArr.includes(byUserInternal.toString())) {
-			internalUserIdArr = [];
-			internalUserIdArr.push(byUserInternal);
-		}
-		console.log(internalUserIdArr);
-
 		const totalList = await audit_log.findAndCountAll({
 			where: {
 				action: actionArr,
-				internalUserId: internalUserIdArr
+				internalUserId: internalIdList
 			},
 			offset: Number(start),
 			limit: Number(limit),
@@ -84,7 +71,7 @@ class audit_log extends Model {
 
 	static async pushAuditLog_EditAccount(internalUser, user, accountId) {
 		var filterAction = 'edit account';
-		var action = 'chỉnh sửa STK ' + accountId;
+		var action = 'chỉnh sửa tài khoản ' + accountId;
 
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
@@ -98,10 +85,10 @@ class audit_log extends Model {
 
 	static async pushAuditLog_ApproveIdCard(internalUser, user, approveStatus) {
 		var filterAction = 'approve idCard';
-		var action = 'Duyệt CMND/CCCD';
+		var action = 'duyệt CMND/CCCD';
 		if (approveStatus === 0) {
 			filterAction = 'denied idCard';
-			action = 'Từ chối CMND/CCCD';
+			action = 'từ chối CMND/CCCD';
 		}
 
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
@@ -114,16 +101,20 @@ class audit_log extends Model {
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
 
-	static async pushAuditLog_AddBalance(internalUser, user, addedBalance, currencyType, accountId) {
+	static async pushAuditLog_AddBalance(internalUser, user, value, currencyType, accountId) {
 		var filterAction = 'add balance';
-		var action = 'Nạp tiền ' + addedBalance + ' ' + currencyType + ' vào STK ' + accountId;
+		var frontEndDisplay = currencyType === 'VND' ? '₫' : '$';
+		frontEndDisplay = frontEndDisplay + value;
+		var action = 'nạp tiền ' + frontEndDisplay + ' vào tài khoản ' + accountId;
 
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}
 
 	static async pushAuditLog_Withdraw(internalUser, user, value, currencyType, accountId) {
 		var filterAction = 'withdraw';
-		var action = 'Rút ' + value + ' ' + currencyType + ' từ STK ' + accountId;
+		var frontEndDisplay = currencyType === 'VND' ? '₫' : '$';
+		frontEndDisplay = frontEndDisplay + value;
+		var action = 'rút ' + frontEndDisplay + ' từ tài khoản ' + accountId;
 
 		await audit_log.pushAuditLog(internalUser, user, action, filterAction);
 	}

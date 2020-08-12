@@ -25,7 +25,7 @@ mô tả:
 
         * withdraw: rút tiền
 
-    + by: lọc theo tiêu chí thực hiện bởi nhân viên nào(nếu truyền id ko phải nhân viên thì mặc định là toàn bộ nhân viên)
+    + by: lọc theo tiêu chí thực hiện bởi nhân viên nào(username, email, cmnd, họ+tên, tên+họ ng tác động)
 
         
 
@@ -36,8 +36,8 @@ mô tả:
 
 ví dụ:
 METHOD: GET
-lấy các log từ quản trị viên id 1, type là từ chối CMND...
-URl: localhost:3000/api/getaudit?by=1&type=deny&start=0&limit=22
+lấy các log từ quản trị viên có họ + tên Vuôn Gia lão, type là từ chối CMND...
+URl: localhost:3000/api/getaudit?by=Vuông Gia Lão&type=deny&start=0&limit=22
 
 
 response mong muốn trả ra:

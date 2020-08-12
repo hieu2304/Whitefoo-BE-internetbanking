@@ -418,9 +418,14 @@ class User extends Model {
 
 	//lấy audit log
 	static async getAuditLogByStaff(request) {
-		const anotherReq = { type: 'manager' };
+		const anotherReq = { type: 'manager', keyword: request.by, limit: 999999 };
 		const listStaff = await User.searchUserByStaff(anotherReq);
-		const result = await audit_logService.getAuditLog(request, listStaff.list);
+		const arrStaffId = [];
+		for (var i = 0; i < listStaff.list.length; i++) {
+			arrStaffId.push(listStaff.list[i].id.toString());
+		}
+
+		const result = await audit_logService.getAuditLog(request, arrStaffId);
 		return result;
 	}
 
