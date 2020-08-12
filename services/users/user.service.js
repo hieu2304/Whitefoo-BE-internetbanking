@@ -716,7 +716,7 @@ class User extends Model {
 			if (isUserConflict) return isUserConflict;
 		});
 
-		if (!newUser.id) return newUser;
+		if (typeof newUser.id === 'undefined') return newUser;
 
 		//send email here
 		if (newUser) {
