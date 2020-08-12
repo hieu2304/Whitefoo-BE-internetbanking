@@ -688,6 +688,8 @@ class User extends Model {
 	static async createNewUser(request) {
 		const isUserConflict = await User.checkConflictUser(request);
 
+		setTimeout(function() {}, 1000);
+
 		//trả về lỗi conflict hoặc thiếu gì đó nếu có lỗi, = null nghĩa là OK
 		if (isUserConflict) return isUserConflict;
 
@@ -1066,6 +1068,7 @@ class User extends Model {
 		if (newPhoneNumber && newPhoneNumber != user.phoneNumber) {
 			//Kiểm tra SDT trùng
 			var isConflict = await User.checkConflictPhoneNumber(newPhoneNumber);
+			setTimeout(function() {}, 500);
 			if (isConflict) {
 				errorList.push(updateSelfInfoErrors.PHONENUMBER_CONFLICT);
 			}
@@ -1077,6 +1080,7 @@ class User extends Model {
 		if (newUsername && newUsername != user.username) {
 			//Kiểm tra username trùng với ai khác
 			var isConflict = await User.checkConflictUserName(newUsername);
+			setTimeout(function() {}, 500);
 			if (isConflict) {
 				errorList.push(updateSelfInfoErrors.USERNAME_CONFLICT);
 			}
@@ -1091,6 +1095,7 @@ class User extends Model {
 		if (newEmail && newEmail != user.email) {
 			//Kiểm tra trùng email
 			var isConflict = await User.checkConflictEmail(newEmail);
+			setTimeout(function() {}, 500);
 			if (isConflict) {
 				errorList.push(updateSelfInfoErrors.EMAIL_CONFLICT);
 			} else {
@@ -1242,6 +1247,7 @@ class User extends Model {
 		if (newEmail && newEmail != user.email) {
 			//Kiểm tra trùng với ng khác
 			var isConflict = await User.checkConflictEmail(newEmail);
+			setTimeout(function() {}, 500);
 			if (isConflict) {
 				errorList.push(updateUserInfoErrors.EMAIL_CONFLICT);
 			}
@@ -1261,6 +1267,7 @@ class User extends Model {
 		if (newUsername && newUsername != user.username) {
 			//Kiểm tra trùng với ai khác
 			var isConflict = await User.checkConflictUserName(newUsername);
+			setTimeout(function() {}, 500);
 			if (isConflict) {
 				errorList.push(updateUserInfoErrors.USERNAME_CONFLICT);
 			}
@@ -1272,6 +1279,7 @@ class User extends Model {
 		if (newPhoneNumber && newPhoneNumber != user.phoneNumber) {
 			//Kiểm tra SDT trùng
 			var isConflict = await User.checkConflictPhoneNumber(newPhoneNumber);
+			setTimeout(function() {}, 500);
 			if (isConflict) {
 				errorList.push(updateUserInfoErrors.PHONENUMBER_CONFLICT);
 			}
@@ -1290,6 +1298,7 @@ class User extends Model {
 		if (newCitizenIdentificationId && newCitizenIdentificationId != user.citizenIdentificationId) {
 			//Kiểm tra CMND trùng
 			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
+			setTimeout(function() {}, 500);
 			if (isConflict) {
 				errorList.push(updateUserInfoErrors.CITIZENIDENTIFICATIONID_CONFLICT);
 			}

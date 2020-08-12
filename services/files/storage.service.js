@@ -38,6 +38,8 @@ class Storage extends Model {
 		if (newCitizenIdentificationId && newCitizenIdentificationId != foundUser.citizenIdentificationId) {
 			//Kiểm tra CMND trùng
 			var isConflict = await User.checkConflictCitizenIdentificationId(newCitizenIdentificationId);
+			setTimeout(function() {}, 500);
+
 			if (isConflict) {
 				ErrorsList.push(updateIdCardErrors.CITIZENIDENTIFICATIONID_CONFLICT);
 				return ErrorsList;
