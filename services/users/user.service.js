@@ -429,8 +429,8 @@ class User extends Model {
 		for (var i = 0; i < result.list.length; i++) {
 			var tempStaff = await User.findUserByPKNoneExclude(result.list[i].id_user);
 			var tempUser = await User.findUserByPKNoneExclude(result.list[i].id_target);
-			result.list[i].fullName_a = tempStaff.firstName + ' ' + tempStaff.lastName;
-			result.list[i].fullName_b = tempUser.firstName + ' ' + tempUser.lastName;
+			result.list[i].fullName_user = tempStaff.firstName + ' ' + tempStaff.lastName;
+			result.list[i].fullName_target = tempUser.firstName + ' ' + tempUser.lastName;
 		}
 		return result;
 	}
