@@ -437,7 +437,13 @@ class User extends Model {
 
 	//get history activies account log
 	static async getLogByUser(currentUser, request) {
-		const accountArr = await accountService.getAccountIdArrayByUserId(currentUser.id);
+		var accountArr = await accountService.getAccountIdArrayByUserId(currentUser.id);
+		if (request.accountId && accountArr.includes(request.accountId)) {
+			accountArr = [];
+			accountArr.push(request.accountId);
+		} else if (request.accountId && !accountArr.includes(request.accountId)) {
+			accountArr = [];
+		}
 		const listTotal = await account_logService.getAccountLogByAccountIdArr(
 			accountArr,
 			request.type,
@@ -479,6 +485,23 @@ class User extends Model {
 		}
 
 		return { count: listTotal.count, list };
+	}
+
+	//getaccountinfo by staff or user
+	static async getAccountInfoByEveryone(request, currentUser) {
+		const isStaff = await User.checkInternalUser(currentUser);
+		var result = null;
+		if (isStaff) result = await accountService.getAccountNoneExclude(request.accountId);
+		else {
+			var accountId = 'null';
+			var accountArr = await accountService.getAccountIdArrayByUserId(currentUser.id);
+			if (request.accountId && accountArr.includes(request.accountId)) {
+				accountId = request.accountId;
+			}
+			result = await accountService.getAccountNoneExclude(accountId);
+		}
+		
+		return result;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -540,7 +563,7 @@ class User extends Model {
 	static async checkUserActiveEmailCodeYet(currentUser) {
 		const isExist = await User.findOne({
 			where: {
-				email: currentUser.email,
+				id: currentUser.id,
 				activeCode: ''
 			}
 		});
@@ -552,7 +575,7 @@ class User extends Model {
 	static async checkUserApprovedYet(currentUser) {
 		const isExist = await User.findOne({
 			where: {
-				email: currentUser.email,
+				id: currentUser.id,
 				approveStatus: 1 //chỉ 1 là ok, 0 và 2 là chưa duyệt
 			}
 		});
@@ -562,10 +585,11 @@ class User extends Model {
 		return null;
 	}
 
+	//kiểm tra phải nhân viên không
 	static async checkInternalUser(currentUser) {
 		const isExist = await User.findOne({
 			where: {
-				email: currentUser.email,
+				id: currentUser.id,
 				userType: 0
 			}
 		});

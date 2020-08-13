@@ -1,7 +1,7 @@
 mô tả:
-+ get toàn log lịch sử toàn bộ STK của bản thân, xếp theo thgian gần nhất, lọc theo tiêu chí:
++ người dùng xem toàn log lịch sử toàn bộ STK của bản thân, xếp theo thgian gần nhất, lọc theo tiêu chí:
 
-
+    * accountId: số tài khoản của bản thân muốn tra (tìm kiếm tuyệt đối, nhập chính xác, nếu nhập sai thì ko trả ra, nếu để trống trả ra all)
     * type: lọc loại hoạt động(chuyển khoản, rút tiền, nạp tiền), mặc định trả ra toàn bộ
     * fromDate  (DD/MM/YYYY)
     * toDate    (DD/MM/YYYY)

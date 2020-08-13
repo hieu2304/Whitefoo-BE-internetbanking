@@ -101,6 +101,31 @@ module.exports.postGetLog = asyncHandler(async function(req, res, next) {
 	return res.status(200).send(result);
 });
 
+//getaccountinfo
+//nhân viên/người dùng lấy toàn bộ thông tin STK dựa vào accountId
+module.exports.getGetAccountInfo = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getAccountInfoByEveryone(req.query, currentUser);
+
+	if (!result) return res.status(403).send({ message: 'account not found' });
+	return res.status(200).send(result);
+});
+module.exports.postGetAccountInfo = asyncHandler(async function(req, res, next) {
+	currentUser = jwtHelper.decodeToken(req.headers['token']);
+	if (!currentUser) {
+		return res.status(401).send({ message: 'Invalid Token' });
+	}
+
+	const result = await userService.getAccountInfoByEveryone(req.body, currentUser);
+
+	if (!result) return res.status(403).send({ message: 'account not found' });
+	return res.status(200).send(result);
+});
+
 //lấy danh sách ngân hàng liên kết
 module.exports.getGetBankList = asyncHandler(async function(req, res, next) {
 	const result = await whitelistService.getWhiteListExclude();

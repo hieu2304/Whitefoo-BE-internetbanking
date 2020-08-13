@@ -15,11 +15,6 @@ router.post('/getuserinfo', controller.postGetUserInfo);
 router.get('/getuseraccount', controller.getGetUserAccount);
 router.post('/getuseraccount', controller.postGetUserAccount);
 
-//getaccountinfo
-//nhân viên lấy toàn bộ thông tin các STK của 1 người nào đó
-router.get('/getaccountinfo', controller.getGetAccountInfo);
-router.post('/getaccountinfo', controller.postGetAccountInfo);
-
 //nhân viên thêm tiền vào tài khoản cho 1 người nào đó
 router.post('/addbalance', controller.postAddBalance);
 router.get('/addbalance', controller.getAddBalance);

@@ -35,6 +35,11 @@ router.post('/getarr', controller.postGetArr);
 router.get('/getlog', controller.getGetLog);
 router.post('/getlog', controller.postGetLog);
 
+//getaccountinfo
+//nhân viên/người dùng lấy toàn bộ thông tin STK
+router.get('/getaccountinfo', controller.getGetAccountInfo);
+router.post('/getaccountinfo', controller.postGetAccountInfo);
+
 //get bankList
 router.get('/getbanklist', controller.getGetBankList);
 router.post('/getbanklist', controller.postGetBankList);

@@ -1,0 +1,47 @@
+mô tả:
+- xêm thông tin 1 số tài khoản cụ thể
+- accountId bắt buộc phải truyền
+- nếu là người dùng thì kiểm tra STK nhập vào có sở hữu không, không sở hữu thì 403
+- nếu là nhân viên được tự do xem
+
+
+/api/getaccountinfo
+method: POST hoặc GET
+
+params:
+accountId:741699937737173 (xem accountId ở bảng account, lúc request có thể ghi tắt là id, nhưng bản chất là accountId)
+
+
+
+response:
+TKTT
+{
+    "id": 3,
+    "accountId": "351467647077835",
+    "userId": 2,
+    "status": 1,
+    "balance": "7245103.8",
+    "currencyType": "VND",
+    "accountType": 0,
+    "openedDate": "06/08/2020",
+    "closedDate": "",
+    "createdAt": "04/08/2020 11:37:24",
+    "updatedAt": "10/08/2020 16:31:21"
+}
+
+TKTK
+{
+    "id": 2,
+    "accountId": "005809483821906",
+    "userId": 1,
+    "status": 0,
+    "balance": "0",
+    "currencyType": "USD",
+    "accountType": 1,
+    "openedDate": "02/08/2020",
+    "closedDate": "07/08/2020",
+    "createdAt": "02/08/2020 16:21:43",
+    "updatedAt": "07/08/2020 23:27:18",
+    "term": 12,
+    "startTermDate": "02/08/2020"
+}
