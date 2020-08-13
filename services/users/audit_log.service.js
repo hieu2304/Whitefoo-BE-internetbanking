@@ -122,7 +122,7 @@ class audit_log extends Model {
 
 	static async pushAuditLog(internalUser, user, action, filterAction) {
 		const newDetail = {};
-		const theTimeTotal = new moment();
+		const theTimeTotal = new moment().utcOffset('+07:00');
 		const newDate = moment(theTimeTotal).format('DD/MM/YYYY');
 		const newTime = moment(theTimeTotal).format('HH:mm:ss');
 
