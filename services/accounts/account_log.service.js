@@ -55,8 +55,9 @@ class account_log extends Model {
 		}
 
 		//fromDate & toDate tới chỗ này thì phải theo dạng YYYY-MM-DD HH:mm:ss dù là trường hợp nào
-		fromDate = moment(fromDate, 'YYYY-MM-DD HH:mm:ss').utcOffset('+07:00').format();
-		toDate = moment(toDate, 'YYYY-MM-DD HH:mm:ss').utcOffset('+07:00').format();
+		//.utcOffset('+07:00')
+		fromDate = moment(fromDate, 'YYYY-MM-DD HH:mm:ss').format();
+		toDate = moment(toDate, 'YYYY-MM-DD HH:mm:ss').format();
 
 		const result = await account_log.findAndCountAll({
 			where: {
