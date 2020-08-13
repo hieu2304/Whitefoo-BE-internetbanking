@@ -85,7 +85,7 @@ class account_log extends Model {
 		var dayTotal = new Decimal(0);
 		var monthTotal = new Decimal(0);
 
-		var now = new moment();
+		var now = new moment().utcOffset('+07:00');
 		var thisDay = moment(now).date();
 		var thisMonth = moment(now).month() + 1; //tháng nó đếm từ 0
 		var thisYear = moment(now).year();
