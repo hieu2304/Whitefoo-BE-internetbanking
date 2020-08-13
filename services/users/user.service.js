@@ -438,10 +438,10 @@ class User extends Model {
 	//get history activies account log
 	static async getLogByUser(currentUser, request) {
 		var accountArr = await accountService.getAccountIdArrayByUserId(currentUser.id);
-		if (request.accountId && accountArr.includes(request.accountId)) {
+		if (request.id && accountArr.includes(request.id)) {
 			accountArr = [];
-			accountArr.push(request.accountId);
-		} else if (request.accountId && !accountArr.includes(request.accountId)) {
+			accountArr.push(request.id);
+		} else if (request.id && !accountArr.includes(request.id)) {
 			accountArr = [];
 		}
 		const listTotal = await account_logService.getAccountLogByAccountIdArr(
@@ -500,7 +500,7 @@ class User extends Model {
 			}
 			result = await accountService.getAccountNoneExclude(accountId);
 		}
-		
+
 		return result;
 	}
 
