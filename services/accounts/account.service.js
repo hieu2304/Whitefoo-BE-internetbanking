@@ -4,7 +4,8 @@ const Model = Sequelize.Model;
 const Op = Sequelize.Op;
 const randomHelper = require('../../helpers/random.helper');
 const account_accumulatedService = require('./account_accumulated.service');
-const moment = require('moment');
+var moment = require('moment');
+moment().utcOffset('+07:00');
 const exchange_currencyService = require('../currency/exchange_currency.service');
 const errorListConstant = require('../../constants/errorsList.constant');
 const whiteListService = require('../partner/whitelist.service');
@@ -558,7 +559,7 @@ account.init(
 			type: Sequelize.DATEONLY,
 			//getter
 			get() {
-				const result = moment.utc(this.getDataValue('openedDate')).format('DD/MM/YYYY');
+				const result = moment(this.getDataValue('openedDate')).format('DD/MM/YYYY');
 				return result;
 			},
 			allowNull: true
@@ -567,7 +568,7 @@ account.init(
 			type: Sequelize.DATEONLY,
 			//getter
 			get() {
-				const result = moment.utc(this.getDataValue('closedDate')).format('DD/MM/YYYY');
+				const result = moment(this.getDataValue('closedDate')).format('DD/MM/YYYY');
 				return result;
 			},
 			allowNull: true,

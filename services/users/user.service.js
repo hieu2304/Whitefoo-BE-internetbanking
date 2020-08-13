@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const Sequelize = require('sequelize');
-const moment = require('moment');
+var moment = require('moment');
+moment().utcOffset('+07:00');
 const Model = Sequelize.Model;
 const Op = Sequelize.Op;
 const db = require('../db');
@@ -2214,7 +2215,7 @@ User.init(
 			//postgre khi input date chỉ nhận 2 dạng: YYYY-MM-DD HH:mm:ss và MM-DD-YYYY HH:mm:ss (dấu - hoặc /)
 			//nếu muốn data lấy ra đã được getter định dạng thì ko dùng .dataValues
 			get: function() {
-				return moment.utc(this.getDataValue('dateOfBirth')).format('DD/MM/YYYY');
+				return moment(this.getDataValue('dateOfBirth')).format('DD/MM/YYYY');
 			}
 		},
 		address: {

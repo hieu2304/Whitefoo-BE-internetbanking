@@ -3,7 +3,8 @@ const db = require('../db');
 const initConstant = require('../../constants/init.constants');
 const Model = Sequelize.Model;
 const requestService = require('request');
-const moment = require('moment');
+var moment = require('moment');
+moment().utcOffset('+07:00');
 const asyncHandler = require('express-async-handler');
 
 // https://github.com/MikeMcl/decimal.js/

@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
 const Model = Sequelize.Model;
-const moment = require('moment');
+var moment = require('moment');
+moment().utcOffset('+07:00');
 
 class citizen extends Model {
 	static async findCitizenByCitizenId(citizenIdentificationId) {
@@ -70,7 +71,7 @@ citizen.init(
 			type: Sequelize.DATEONLY,
 			allowNull: false,
 			get: function() {
-				return moment.utc(this.getDataValue('issueDate')).format('DD/MM/YYYY');
+				return moment(this.getDataValue('issueDate')).format('DD/MM/YYYY');
 			}
 		}
 	},

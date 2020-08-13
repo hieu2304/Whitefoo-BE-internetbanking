@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
 const Model = Sequelize.Model;
-const moment = require('moment');
+var moment = require('moment');
+moment().utcOffset('+07:00');
 
 class audit_log extends Model {
 	static async getAuditLog(request, internalIdList) {
@@ -162,7 +163,7 @@ audit_log.init(
 			allowNull: false,
 			defaultValue: new Date(),
 			get: function() {
-				return moment.utc(this.getDataValue('time')).format('DD/MM/YYYY HH:mm:ss');
+				return moment(this.getDataValue('time')).format('DD/MM/YYYY HH:mm:ss');
 			}
 		},
 		action: {

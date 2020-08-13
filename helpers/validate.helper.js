@@ -1,5 +1,6 @@
 const { check, validationResult, body } = require('express-validator');
-const moment = require('moment');
+var moment = require('moment');
+moment().utcOffset('+07:00');
 const regexConstant = require('../constants/regex.constants');
 const asyncHandler = require('express-async-handler');
 const errorListConstant = require('../constants/errorsList.constant');

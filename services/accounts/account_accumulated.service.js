@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../db');
-const moment = require('moment');
+var moment = require('moment');
+moment().utcOffset('+07:00');
 const Model = Sequelize.Model;
 const law_accumulatedService = require('../accounts/law_accumulated.service');
 // https://github.com/MikeMcl/decimal.js/
@@ -224,7 +225,7 @@ account_accumulated.init(
 		startTermDate: {
 			type: Sequelize.DATEONLY,
 			get: function() {
-				return moment.utc(this.getDataValue('startTermDate')).format('DD/MM/YYYY');
+				return moment(this.getDataValue('startTermDate')).format('DD/MM/YYYY');
 			},
 			allowNull: false
 		},
