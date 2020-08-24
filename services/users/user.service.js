@@ -2157,8 +2157,8 @@ class User extends Model {
 	//hàm lấy mã verify random unique
 	static async getUniqueRandomVerifyCode() {
 		var randomCode = randomHelper.getRandomNumber(6);
-		while (await User.checkIfExistVerifyCode(randomCode)) {
-			randomCode = randomHelper.getRandomNumber(15);
+		while ((await User.checkIfExistVerifyCode(randomCode)) || randomCode.startsWith('0')) {
+			randomCode = randomHelper.getRandomNumber(6);
 		}
 		return randomCode;
 	}
